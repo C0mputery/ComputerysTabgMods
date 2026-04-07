@@ -12,7 +12,6 @@
     <ServerDirectory>$(SolutionDir)..\Server\</ServerDirectory>
     <ServerManagedFolder>$(ServerDirectory)TABG_Data\Managed\</ServerManagedFolder>
 
-    <OutputPath>$(ServerDirectory)BepInEx\plugins</OutputPath>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <GenerateDependencyFile>false</GenerateDependencyFile>
     <DebugType>embedded</DebugType>
