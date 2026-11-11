@@ -36,9 +36,8 @@ public static class ChatCommandManager {
         }
         else {
             commandName = messageLowerNoSlash[..firstSpaceIndex].ToLower();
-            string argumentsString = messageLowerNoSlash[firstSpaceIndex..];
-            arguments = argumentsString.Split([','], StringSplitOptions.RemoveEmptyEntries);
-            for (int i = 0; i < arguments.Length; i++) { arguments[i] = arguments[i].Trim(); }
+            string argumentsString = messageLowerNoSlash[firstSpaceIndex..].Trim();
+            arguments = argumentsString.Split([' ', ',', '\t'], StringSplitOptions.RemoveEmptyEntries);
         }
         
         if (!Commands.TryGetValue(commandName, out ChatCommandContext chatCommandContext)) {
