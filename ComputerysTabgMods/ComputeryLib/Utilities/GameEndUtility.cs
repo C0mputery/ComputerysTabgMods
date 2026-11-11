@@ -1,0 +1,46 @@
+using System.Collections.Generic;
+using System.Reflection;
+using System.Reflection.Emit;
+using HarmonyLib;
+using Landfall.Network;
+using Landfall.Network.GameModes;
+
+namespace ComputeryLib.Utilities;
+
+public static class GameEndUtility {
+    public static readonly bool DisableGameEnd = Plugin.Config.Bind("Gameplay", "DisableGameEnd", false, "When enabled, a Battle Royale match stays running after it would have ended with one or zero groups left.").Value;
+    
+    public static void ApplyPatches() {
+        if (!DisableGameEnd) { return; }
+        Plugin.Harmony.PatchAll(typeof(GameEndUtility));
+    }
+    
+    [HarmonyTranspiler]
+    [HarmonyPatch(typeof(BattleRoyaleGameMode), nameof(BattleRoyaleGameMode.CheckGameState), typeof(GameState))]
+    public static IEnumerable<CodeInstruction> SkipGroupEnd(IEnumerable<CodeInstruction> instructions) {
+        CodeMatcher matcher = new CodeMatcher(instructions);
+        FieldInfo gameRoomField = AccessTools.Field(typeof(TABGBaseGameMode), nameof(TABGBaseGameMode.m_GameRoom));
+        MethodInfo endMatchMethod = AccessTools.Method(typeof(GameRoom), nameof(GameRoom.EndMatch), [typeof(TeamStanding)]);
+        MethodInfo changeGameStateMethod = AccessTools.Method(typeof(GameRoom), nameof(GameRoom.ChangeGameState), [typeof(GameState), typeof(bool), typeof(byte[])]);
+
+        matcher.MatchForward(false,
+            new CodeMatch(OpCodes.Ldarg_0),
+            new CodeMatch(OpCodes.Ldfld, gameRoomField),
+            new CodeMatch(OpCodes.Ldnull),
+            new CodeMatch(OpCodes.Callvirt, endMatchMethod)
+        );
+        matcher.RemoveInstructions(4);
+
+        matcher.MatchForward(false,
+            new CodeMatch(OpCodes.Ldarg_0),
+            new CodeMatch(OpCodes.Ldfld, gameRoomField),
+            new CodeMatch(OpCodes.Ldc_I4_4),
+            new CodeMatch(OpCodes.Ldc_I4_0),
+            new CodeMatch(OpCodes.Ldnull),
+            new CodeMatch(OpCodes.Callvirt, changeGameStateMethod)
+        );
+        matcher.RemoveInstructions(6);
+
+        return matcher.InstructionEnumeration();
+    }
+}

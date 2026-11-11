@@ -53,6 +53,7 @@ public class Plugin : BaseUnityPlugin {
         Harmony.PatchAll(typeof(TickRateUtility));
         Harmony.PatchAll(typeof(MessageLogger));
         Harmony.PatchAll(typeof(PacketQueueUtility));
+        GameEndUtility.ApplyPatches();
         LoggerImprover.ApplyLoggerPatches();
     }
 
