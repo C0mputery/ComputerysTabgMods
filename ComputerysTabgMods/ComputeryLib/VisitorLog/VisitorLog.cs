@@ -60,7 +60,7 @@ public static class VisitorLog {
 
     private static void TryToGetSteamFromPlayFab(TABGPlayerServer player, DateTime currentTime) {
         GetLeaderboardAroundPlayerRequest getLeaderboardAroundPlayerRequest = new GetLeaderboardAroundPlayerRequest {
-            StatisticName = "PlayerMatchLosses",
+            StatisticName = "PlayerMatchLosses", // We are working under the assumption that this is the most common thing in the leaderboard to be populated.
             MaxResultsCount = 1,
             PlayFabId = player.PlayFabID,
             ProfileConstraints = new PlayerProfileViewConstraints { ShowLinkedAccounts = true }
