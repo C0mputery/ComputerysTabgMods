@@ -12,7 +12,6 @@
     <ClientDirectory>$(SolutionDir)..\Client\</ClientDirectory>
     <ClientManagedFolder>$(ClientDirectory)TotallyAccurateBattlegrounds_Data\Managed\</ClientManagedFolder>
 
-    <OutputPath>$(ClientDirectory)BepInEx\plugins</OutputPath>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <GenerateDependencyFile>false</GenerateDependencyFile>
     <DebugType>embedded</DebugType>
