@@ -1,5 +1,6 @@
 <Solution>
   <Folder Name="/ClientMods/">
+    <Project Path="AntiCheatBootErrorRemover/AntiCheatBootErrorRemover.csproj" />
     <Project Path="BinsCinematicMod/BinsCinematicMod.csproj" />
     <Project Path="ComputerysBetterShop/ComputerysBetterShop.csproj" />
     <Project Path="SteamworksEnforcer/SteamworksEnforcer.csproj" />
