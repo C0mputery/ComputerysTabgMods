@@ -1,12 +1,14 @@
-namespace ComputeryLib.Utilities;
+using System;
 
-using System.Diagnostics.CodeAnalysis;
+namespace ComputeryLib.Utilities;
 
 public static class ArgumentUtility {
     public static bool TryGetArgument(string argumentName, out string? argumentValue) {
-        string[] args = System.Environment.GetCommandLineArgs();
+        string[] args = Environment.GetCommandLineArgs();
         for (int i = 0; i < args.Length - 1; i++) {
-            if (args[i] != argumentName) continue;
+            if (args[i] != argumentName) {
+                continue;
+            }
             argumentValue = args[i + 1];
             return true;
         }

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using BepInEx;
 using BepInEx.Configuration;
 using ComputeryLib.Utilities;
@@ -21,8 +20,8 @@ public delegate void ChatCommandHandler(string[] arguments, TABGPlayerServer? se
 
 public static class ChatCommandManager {
     private static readonly ConfigFile ChatCommandsConfig = new ConfigFile(Path.Combine(Paths.ConfigPath, "ChatCommands.cfg"), true);
-
-    public static readonly Dictionary<string, ChatCommandContext> Commands = new();
+    
+    public static readonly Dictionary<string, ChatCommandContext> Commands = new Dictionary<string, ChatCommandContext>();
     public static bool HandleChatMessage(string message, TABGPlayerServer sender) {
         if (message.Length == 0 || message[0] != '/') { return false; }
         
@@ -59,19 +58,19 @@ public static class ChatCommandManager {
         
         return true;
     }
-
+    
     public static void HandleConsoleMessage(string message) {
         string[] parts = message.ToLower().Split(' ');
         string commandName = parts[0].ToLower();
         string[] arguments = parts.Skip(1).ToArray();
-
+        
         if (!Commands.TryGetValue(commandName, out ChatCommandContext chatCommandContext)) {
-            Plugin.Logger.LogInfo($"Unknown command: {commandName}, type help for a list of commands you can use."); 
+            Plugin.Logger.LogInfo($"Unknown command: {commandName}, type help for a list of commands you can use.");
             return;
         }
         chatCommandContext.Command(arguments, null);
     }
-
+    
     public static void RegisterCommands() {
         Commands.Clear();
         
@@ -81,14 +80,14 @@ public static class ChatCommandManager {
                     IEnumerable<ChatCommandAttribute>? attributes = method.GetCustomAttributes<ChatCommandAttribute>();
                     foreach (ChatCommandAttribute attribute in attributes) {
                         if (attribute == null) { continue; }
-
+                        
                         string commandName = attribute.CommandName.ToLower();
-
+                        
                         if (Commands.ContainsKey(commandName)) {
                             Plugin.Logger.LogWarning($"Command '{commandName}' has already been registered. Skipping duplicate registration from method '{method.Name}' in type '{type.FullName}'.");
                             continue;
                         }
-
+                        
                         Commands[commandName] = new ChatCommandContext {
                             Command = (ChatCommandHandler)Delegate.CreateDelegate(typeof(ChatCommandHandler), method),
                             Description = attribute.Description,
@@ -99,8 +98,8 @@ public static class ChatCommandManager {
             }
         }
     }
-
-    public static uint GetUserPermissionLevel(TABGPlayerServer player) { 
+    
+    public static uint GetUserPermissionLevel(TABGPlayerServer player) {
         return VisitorLog.VisitorLog.GetPermissionLevel(player.EpicUserName);
     }
 }

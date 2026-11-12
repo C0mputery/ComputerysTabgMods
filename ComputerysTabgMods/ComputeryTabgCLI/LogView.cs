@@ -1,8 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Text;
-using System.Threading;
 using Terminal.Gui.Drawing;
 using Terminal.Gui.Input;
 using Terminal.Gui.ViewBase;
@@ -10,8 +6,8 @@ using Terminal.Gui.ViewBase;
 namespace ComputeryTabgCLI;
 
 /// <summary>
-/// Memory-efficient log view that stores logs to a file and reads on-demand.
-/// Only keeps line offsets in memory for seeking.
+///     Memory-efficient log view that stores logs to a file and reads on-demand.
+///     Only keeps line offsets in memory for seeking.
 /// </summary>
 public class LogView : View {
     private readonly string _logFilePath;
@@ -20,11 +16,11 @@ public class LogView : View {
     private FileStream? _indexStream;
     private BinaryWriter? _logWriter;
     private BinaryWriter? _indexWriter;
-    private readonly Lock _lock = new();
+    private readonly Lock _lock = new Lock();
     
     // Pending log buffer for thread-safe additions
-    private readonly Queue<string> _pendingLogs = new();
-    private readonly Lock _pendingLock = new();
+    private readonly Queue<string> _pendingLogs = new Queue<string>();
+    private readonly Lock _pendingLock = new Lock();
     private const int MaxPendingLogs = 1000;
     
     // Line index cache - stores file offset for each line
@@ -34,7 +30,6 @@ public class LogView : View {
     
     private int _maxLines = 10000;
     private int _topWrappedLine; // Absolute position of top visible wrapped line
-    private bool _autoScroll = true;
     private bool _wordWrap = true;
     private long _droppedLineCount;
     
@@ -44,15 +39,15 @@ public class LogView : View {
     private bool _cacheValid;
     
     // Small LRU cache for recently accessed lines during rendering
-    private readonly Dictionary<int, string> _lineCache = new();
-    private readonly Queue<int> _lineCacheOrder = new();
+    private readonly Dictionary<int, string> _lineCache = new Dictionary<int, string>();
+    private readonly Queue<int> _lineCacheOrder = new Queue<int>();
     private const int LineCacheSize = 200;
     
     private bool _disposed;
     private bool _needsFlush;
-
+    
     public LogView() : this(Path.Combine(Path.GetTempPath(), $"logview_{Guid.NewGuid():N}")) { }
-
+    
     public LogView(string baseFilePath) {
         _logFilePath = baseFilePath + ".log";
         _indexFilePath = baseFilePath + ".idx";
@@ -69,23 +64,53 @@ public class LogView : View {
         KeyBindings.Add(Key.CursorUp, Command.Up);
         KeyBindings.Add(Key.CursorDown, Command.Down);
         
-        AddCommand(Command.PageUp, () => { PageUp(); return true; });
-        AddCommand(Command.PageDown, () => { PageDown(); return true; });
-        AddCommand(Command.Start, () => { ScrollToTop(); return true; });
-        AddCommand(Command.End, () => { ScrollToBottom(); return true; });
-        AddCommand(Command.Up, () => { ScrollUp(); return true; });
-        AddCommand(Command.Down, () => { ScrollDown(); return true; });
+        AddCommand(
+            Command.PageUp, () => {
+                PageUp();
+                return true;
+            }
+        );
+        AddCommand(
+            Command.PageDown, () => {
+                PageDown();
+                return true;
+            }
+        );
+        AddCommand(
+            Command.Start, () => {
+                ScrollToTop();
+                return true;
+            }
+        );
+        AddCommand(
+            Command.End, () => {
+                ScrollToBottom();
+                return true;
+            }
+        );
+        AddCommand(
+            Command.Up, () => {
+                ScrollUp();
+                return true;
+            }
+        );
+        AddCommand(
+            Command.Down, () => {
+                ScrollDown();
+                return true;
+            }
+        );
     }
-
+    
     private void InitializeFiles() {
         _logStream = new FileStream(_logFilePath, FileMode.Create, FileAccess.ReadWrite, FileShare.Read, 65536, FileOptions.RandomAccess);
         _indexStream = new FileStream(_indexFilePath, FileMode.Create, FileAccess.ReadWrite, FileShare.Read, 65536, FileOptions.RandomAccess);
-        _logWriter = new BinaryWriter(_logStream, Encoding.UTF8, leaveOpen: true);
-        _indexWriter = new BinaryWriter(_indexStream, Encoding.UTF8, leaveOpen: true);
+        _logWriter = new BinaryWriter(_logStream, Encoding.UTF8, true);
+        _indexWriter = new BinaryWriter(_indexStream, Encoding.UTF8, true);
         _lineCount = 0;
         _currentOffset = 0;
     }
-
+    
     public int MaxLines {
         get => _maxLines;
         set {
@@ -95,12 +120,9 @@ public class LogView : View {
             }
         }
     }
-
-    public bool AutoScroll {
-        get => _autoScroll;
-        set => _autoScroll = value;
-    }
-
+    
+    public bool AutoScroll { get; set; } = true;
+    
     public bool WordWrap {
         get => _wordWrap;
         set {
@@ -111,7 +133,7 @@ public class LogView : View {
             }
         }
     }
-
+    
     public int LineCount {
         get {
             lock (_lock) {
@@ -119,20 +141,22 @@ public class LogView : View {
             }
         }
     }
-
+    
     public int WrappedLineCount {
         get {
             lock (_lock) {
                 int width = Viewport.Width;
-                if (width <= 0) return _lineCount;
+                if (width <= 0) {
+                    return _lineCount;
+                }
                 EnsureWrappedLineCountCache(width);
                 return _cachedWrappedLineCount;
             }
         }
     }
-
+    
     public long DroppedLineCount => Interlocked.Read(ref _droppedLineCount);
-
+    
     public int PendingLogCount {
         get {
             lock (_pendingLock) {
@@ -140,9 +164,9 @@ public class LogView : View {
             }
         }
     }
-
+    
     /// <summary>
-    /// Queue a line to be added (thread-safe).
+    ///     Queue a line to be added (thread-safe).
     /// </summary>
     public void LogLine(string text) {
         lock (_pendingLock) {
@@ -153,9 +177,9 @@ public class LogView : View {
             _pendingLogs.Enqueue(text);
         }
     }
-
+    
     /// <summary>
-    /// Flush pending logs to the file. Call from main thread.
+    ///     Flush pending logs to the file. Call from main thread.
     /// </summary>
     public void FlushLogBuffer() {
         string[]? toAdd = null;
@@ -165,12 +189,12 @@ public class LogView : View {
                 _pendingLogs.Clear();
             }
         }
-
+        
         if (toAdd != null) {
             AddLines(toAdd);
         }
     }
-
+    
     public void AddLine(string line) {
         lock (_lock) {
             AddLineInternal(line);
@@ -178,10 +202,10 @@ public class LogView : View {
             SetNeedsDraw();
         }
     }
-
+    
     public void AddLines(IEnumerable<string> lines) {
         lock (_lock) {
-            foreach (var line in lines) {
+            foreach (string line in lines) {
                 AddLineInternal(line);
             }
             _cacheValid = false;
@@ -189,9 +213,11 @@ public class LogView : View {
             SetNeedsDraw();
         }
     }
-
+    
     private void AddLineInternal(string line) {
-        if (_logWriter == null || _indexWriter == null || _logStream == null || _indexStream == null) return;
+        if (_logWriter == null || _indexWriter == null || _logStream == null || _indexStream == null) {
+            return;
+        }
         
         // Ensure we're at the end of the files before writing
         _logStream.Seek(0, SeekOrigin.End);
@@ -210,9 +236,11 @@ public class LogView : View {
         _lineCount++;
         _needsFlush = true;
     }
-
+    
     private void TrimOldLinesIfNeeded() {
-        if (_lineCount <= _maxLines) return;
+        if (_lineCount <= _maxLines) {
+            return;
+        }
         
         // Need to compact the files - this is expensive but rare
         int linesToRemove = _lineCount - _maxLines;
@@ -220,9 +248,11 @@ public class LogView : View {
         
         CompactFiles(linesToRemove);
     }
-
+    
     private void CompactFiles(int linesToRemove) {
-        if (_logStream == null || _indexStream == null) return;
+        if (_logStream == null || _indexStream == null) {
+            return;
+        }
         
         // Flush current writers
         _logWriter?.Flush();
@@ -232,10 +262,10 @@ public class LogView : View {
         string tempIndexPath = _indexFilePath + ".tmp";
         
         try {
-            using (var tempLogStream = new FileStream(tempLogPath, FileMode.Create, FileAccess.Write, FileShare.None, 65536))
-            using (var tempIndexStream = new FileStream(tempIndexPath, FileMode.Create, FileAccess.Write, FileShare.None, 65536))
-            using (var tempLogWriter = new BinaryWriter(tempLogStream, Encoding.UTF8, leaveOpen: true))
-            using (var tempIndexWriter = new BinaryWriter(tempIndexStream, Encoding.UTF8, leaveOpen: true)) {
+            using (FileStream tempLogStream = new FileStream(tempLogPath, FileMode.Create, FileAccess.Write, FileShare.None, 65536))
+            using (FileStream tempIndexStream = new FileStream(tempIndexPath, FileMode.Create, FileAccess.Write, FileShare.None, 65536))
+            using (BinaryWriter tempLogWriter = new BinaryWriter(tempLogStream, Encoding.UTF8, true))
+            using (BinaryWriter tempIndexWriter = new BinaryWriter(tempIndexStream, Encoding.UTF8, true)) {
                 long newOffset = 0;
                 
                 // Copy lines after linesToRemove
@@ -267,8 +297,8 @@ public class LogView : View {
             // Reopen files
             _logStream = new FileStream(_logFilePath, FileMode.Open, FileAccess.ReadWrite, FileShare.Read, 65536, FileOptions.RandomAccess);
             _indexStream = new FileStream(_indexFilePath, FileMode.Open, FileAccess.ReadWrite, FileShare.Read, 65536, FileOptions.RandomAccess);
-            _logWriter = new BinaryWriter(_logStream, Encoding.UTF8, leaveOpen: true);
-            _indexWriter = new BinaryWriter(_indexStream, Encoding.UTF8, leaveOpen: true);
+            _logWriter = new BinaryWriter(_logStream, Encoding.UTF8, true);
+            _indexWriter = new BinaryWriter(_indexStream, Encoding.UTF8, true);
             
             // Seek to end
             _logStream.Seek(0, SeekOrigin.End);
@@ -285,14 +315,24 @@ public class LogView : View {
         }
         catch {
             // If compaction fails, try to clean up temp files
-            try { File.Delete(tempLogPath); } catch { /* Ignore cleanup failures */ }
-            try { File.Delete(tempIndexPath); } catch { /* Ignore cleanup failures */ }
+            try { File.Delete(tempLogPath); }
+            catch {
+                /* Ignore cleanup failures */
+            }
+            try { File.Delete(tempIndexPath); }
+            catch {
+                /* Ignore cleanup failures */
+            }
         }
     }
-
+    
     private string ReadLineFromFile(int lineIndex) {
-        if (_logStream == null || _indexStream == null) return string.Empty;
-        if (lineIndex < 0 || lineIndex >= _lineCount) return string.Empty;
+        if (_logStream == null || _indexStream == null) {
+            return string.Empty;
+        }
+        if (lineIndex < 0 || lineIndex >= _lineCount) {
+            return string.Empty;
+        }
         
         // Check cache first
         if (_lineCache.TryGetValue(lineIndex, out string? cached)) {
@@ -311,21 +351,29 @@ public class LogView : View {
             long indexPosition = lineIndex * sizeof(long);
             _indexStream.Seek(indexPosition, SeekOrigin.Begin);
             Span<byte> offsetBytes = stackalloc byte[8];
-            if (_indexStream.Read(offsetBytes) != 8) return string.Empty;
+            if (_indexStream.Read(offsetBytes) != 8) {
+                return string.Empty;
+            }
             long lineOffset = BitConverter.ToInt64(offsetBytes);
             
             // Read line length from log file
             _logStream.Seek(lineOffset, SeekOrigin.Begin);
             Span<byte> lengthBytes = stackalloc byte[4];
-            if (_logStream.Read(lengthBytes) != 4) return string.Empty;
+            if (_logStream.Read(lengthBytes) != 4) {
+                return string.Empty;
+            }
             int length = BitConverter.ToInt32(lengthBytes);
             
-            if (length <= 0 || length > 1024 * 1024) return string.Empty; // Sanity check
+            if (length <= 0 || length > 1024 * 1024) {
+                return string.Empty; // Sanity check
+            }
             
             // Read line content
             byte[] bytes = new byte[length];
             int bytesRead = _logStream.Read(bytes, 0, length);
-            if (bytesRead != length) return string.Empty;
+            if (bytesRead != length) {
+                return string.Empty;
+            }
             
             string line = Encoding.UTF8.GetString(bytes);
             
@@ -338,9 +386,11 @@ public class LogView : View {
             return string.Empty;
         }
     }
-
+    
     private void AddToLineCache(int lineIndex, string line) {
-        if (_lineCache.ContainsKey(lineIndex)) return;
+        if (_lineCache.ContainsKey(lineIndex)) {
+            return;
+        }
         
         // Evict oldest if cache is full
         while (_lineCacheOrder.Count >= LineCacheSize) {
@@ -351,7 +401,7 @@ public class LogView : View {
         _lineCache[lineIndex] = line;
         _lineCacheOrder.Enqueue(lineIndex);
     }
-
+    
     public void Clear() {
         lock (_lock) {
             _logWriter?.Dispose();
@@ -362,23 +412,25 @@ public class LogView : View {
             InitializeFiles();
             
             _topWrappedLine = 0;
-            _autoScroll = true;
+            AutoScroll = true;
             _cacheValid = false;
             _lineCache.Clear();
             _lineCacheOrder.Clear();
             SetNeedsDraw();
         }
     }
-
+    
     private int GetWrappedLineCount(string line, int width) {
         if (string.IsNullOrEmpty(line) || !_wordWrap || line.Length <= width) {
             return 1;
         }
         return (line.Length + width - 1) / width;
     }
-
+    
     private void EnsureWrappedLineCountCache(int width) {
-        if (_cacheValid && _cachedWidth == width) return;
+        if (_cacheValid && _cachedWidth == width) {
+            return;
+        }
         
         int total = 0;
         for (int i = 0; i < _lineCount; i++) {
@@ -390,31 +442,34 @@ public class LogView : View {
         _cachedWidth = width;
         _cacheValid = true;
     }
-
+    
     protected override bool OnDrawingContent(DrawContext? context) {
         base.OnDrawingContent(context);
         
         lock (_lock) {
             int width = Viewport.Width;
             int height = Viewport.Height;
-
-            if (height <= 0 || width <= 0 || _lineCount == 0) return true;
-
+            
+            if (height <= 0 || width <= 0 || _lineCount == 0) {
+                return true;
+            }
+            
             EnsureWrappedLineCountCache(width);
             
             int totalWrappedLines = _cachedWrappedLineCount;
             int maxTopLine = Math.Max(0, totalWrappedLines - height);
             
             // If auto-scroll is on, always show the bottom
-            if (_autoScroll) {
+            if (AutoScroll) {
                 _topWrappedLine = maxTopLine;
-            } else {
+            }
+            else {
                 // Clamp to valid range
                 _topWrappedLine = Math.Clamp(_topWrappedLine, 0, maxTopLine);
             }
-
+            
             int targetLine = _topWrappedLine;
-
+            
             // Find which source line and sub-line to start from
             int wrappedCount = 0;
             int startLineIndex = 0;
@@ -430,23 +485,25 @@ public class LogView : View {
                 }
                 wrappedCount += lineWraps;
             }
-
+            
             // Render visible lines
             int y = 0;
             for (int i = startLineIndex; i < _lineCount && y < height; i++) {
                 string line = ReadLineFromFile(i);
                 int lineWraps = GetWrappedLineCount(line, width);
                 
-                int subStart = (i == startLineIndex) ? startSubLine : 0;
+                int subStart = i == startLineIndex ? startSubLine : 0;
                 
                 for (int sub = subStart; sub < lineWraps && y < height; sub++) {
                     Move(0, y);
                     
                     if (string.IsNullOrEmpty(line)) {
                         // Empty line
-                    } else if (!_wordWrap || line.Length <= width) {
+                    }
+                    else if (!_wordWrap || line.Length <= width) {
                         AddStr(line.Length > width ? line[..width] : line);
-                    } else {
+                    }
+                    else {
                         int start = sub * width;
                         int len = Math.Min(width, line.Length - start);
                         if (len > 0) {
@@ -460,19 +517,21 @@ public class LogView : View {
         
         return true;
     }
-
+    
     public void ScrollUp(int lines = 1) {
         lock (_lock) {
             _topWrappedLine = Math.Max(0, _topWrappedLine - lines);
-            _autoScroll = false;
+            AutoScroll = false;
             SetNeedsDraw();
         }
     }
-
+    
     public void ScrollDown(int lines = 1) {
         lock (_lock) {
             int width = Viewport.Width;
-            if (width <= 0) return;
+            if (width <= 0) {
+                return;
+            }
             
             EnsureWrappedLineCountCache(width);
             int maxTopLine = Math.Max(0, _cachedWrappedLineCount - Viewport.Height);
@@ -481,42 +540,42 @@ public class LogView : View {
             
             // Re-enable auto-scroll if we're at the bottom
             if (_topWrappedLine >= maxTopLine) {
-                _autoScroll = true;
+                AutoScroll = true;
             }
             
             SetNeedsDraw();
         }
     }
-
+    
     public void PageUp() {
         ScrollUp(Math.Max(1, Viewport.Height - 1));
     }
-
+    
     public void PageDown() {
         ScrollDown(Math.Max(1, Viewport.Height - 1));
     }
-
+    
     public void ScrollToTop() {
         lock (_lock) {
             _topWrappedLine = 0;
-            _autoScroll = false;
+            AutoScroll = false;
             SetNeedsDraw();
         }
     }
-
+    
     public void ScrollToBottom() {
         lock (_lock) {
-            _autoScroll = true;
+            AutoScroll = true;
             // _topWrappedLine will be updated on next draw
             SetNeedsDraw();
         }
     }
-
+    
     protected override bool OnMouseEvent(MouseEventArgs mouseEvent) {
         if (!mouseEvent.Handled && CanFocus && !HasFocus) {
             SetFocus();
         }
-
+        
         if (mouseEvent.Flags.HasFlag(MouseFlags.WheeledDown)) {
             ScrollDown(3);
             return true;
@@ -526,12 +585,14 @@ public class LogView : View {
             ScrollUp(3);
             return true;
         }
-
+        
         return base.OnMouseEvent(mouseEvent);
     }
-
+    
     protected override void Dispose(bool disposing) {
-        if (_disposed) return;
+        if (_disposed) {
+            return;
+        }
         
         if (disposing) {
             lock (_lock) {
@@ -542,8 +603,14 @@ public class LogView : View {
             }
             
             // Clean up temp files
-            try { File.Delete(_logFilePath); } catch { /* Ignore cleanup failures */ }
-            try { File.Delete(_indexFilePath); } catch { /* Ignore cleanup failures */ }
+            try { File.Delete(_logFilePath); }
+            catch {
+                /* Ignore cleanup failures */
+            }
+            try { File.Delete(_indexFilePath); }
+            catch {
+                /* Ignore cleanup failures */
+            }
         }
         
         _disposed = true;

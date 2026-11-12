@@ -27,29 +27,31 @@ public class PipeHandler : MonoBehaviour {
     private NamedPipeClientStream? _pipeClient;
     private StreamWriter? _pipeWriter;
     private CancellationTokenSource? _cts;
-    private readonly ConcurrentQueue<string> _messageQueue = new();
+    private readonly ConcurrentQueue<string> _messageQueue = new ConcurrentQueue<string>();
     private float _nextPlayerListUpdate;
-
+    
     public void InitializePipe(string pipeName) {
         _cts = new CancellationTokenSource();
         _ = PipeClientLoop(pipeName, _cts.Token);
     }
-
+    
     public new void SendMessage(string message) {
         if (_pipeWriter == null || _pipeClient?.IsConnected != true) { return; }
         try { _pipeWriter.WriteLine(message); }
-        catch { /* Ignored */ }
+        catch {
+            /* Ignored */
+        }
     }
-
+    
     private async Task PipeClientLoop(string pipeName, CancellationToken cancellationToken) {
         StreamReader? reader = null;
         try {
             _pipeClient = new NamedPipeClientStream(".", pipeName, PipeDirection.InOut, PipeOptions.Asynchronous);
             await _pipeClient.ConnectAsync(cancellationToken);
-
+            
             _pipeWriter = new StreamWriter(_pipeClient) { AutoFlush = true };
             reader = new StreamReader(_pipeClient);
-
+            
             while (!cancellationToken.IsCancellationRequested && _pipeClient.IsConnected) {
                 string? line = await reader.ReadLineAsync();
                 if (line != null) { _messageQueue.Enqueue(line); }
@@ -66,7 +68,7 @@ public class PipeHandler : MonoBehaviour {
             _pipeClient = null;
         }
     }
-
+    
     public void Update() {
         while (_messageQueue.TryDequeue(out string? message)) { ChatCommandManager.HandleConsoleMessage(message); }
         

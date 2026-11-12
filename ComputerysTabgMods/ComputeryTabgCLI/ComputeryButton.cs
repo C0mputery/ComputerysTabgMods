@@ -1,7 +1,6 @@
 #nullable disable
 using System.Drawing;
 using System.Text;
-using Terminal.Gui.App;
 using Terminal.Gui.Configuration;
 using Terminal.Gui.Drawing;
 using Terminal.Gui.Input;
@@ -14,228 +13,195 @@ using Terminal.Gui.Views;
 /// </summary>
 /// <remarks>
 ///     <para>
-///         The Button will raise the <see cref="View.Accepting"/> event when the user presses <see cref="View.HotKey"/>,
+///         The Button will raise the <see cref="View.Accepting" /> event when the user presses <see cref="View.HotKey" />,
 ///         <c>Enter</c>, or <c>Space</c>
 ///         or clicks on the button with the mouse.
 ///     </para>
-///     <para>Use <see cref="View.HotKeySpecifier"/> to change the hot key specifier from the default of ('_').</para>
+///     <para>Use <see cref="View.HotKeySpecifier" /> to change the hot key specifier from the default of ('_').</para>
 ///     <para>
-///         Button can act as the default <see cref="Command.Accept"/> handler for all peer-Views. See
-///         <see cref="IsDefault"/>.
+///         Button can act as the default <see cref="Command.Accept" /> handler for all peer-Views. See
+///         <see cref="IsDefault" />.
 ///     </para>
 ///     <para>
-///         Set <see cref="View.WantContinuousButtonPressed"/> to <see langword="true"/> to have the
-///         <see cref="View.Accepting"/> event
+///         Set <see cref="View.WantContinuousButtonPressed" /> to <see langword="true" /> to have the
+///         <see cref="View.Accepting" /> event
 ///         invoked repeatedly while the button is pressed.
 ///     </para>
 /// </remarks>
-public class ComputeryButton : View, IDesignable
-{
-    private static ShadowStyle _defaultShadow = ShadowStyle.Opaque; // Resources/config.json overrides
-    private static MouseState _defaultHighlightStates = MouseState.In | MouseState.Pressed | MouseState.PressedOutside; // Resources/config.json overrides
-
+public class ComputeryButton : View, IDesignable {
     private readonly Rune _leftBracket;
     private readonly Rune _leftDefault;
     private readonly Rune _rightBracket;
     private readonly Rune _rightDefault;
     private bool _isDefault;
-
+    
     /// <summary>
-    ///     Gets or sets whether <see cref="Button"/>s are shown with a shadow effect by default.
+    ///     Gets or sets whether <see cref="Button" />s are shown with a shadow effect by default.
     /// </summary>
-    [ConfigurationProperty (Scope = typeof (ThemeScope))]
-    public static ShadowStyle DefaultShadow
-    {
-        get => _defaultShadow;
-        set => _defaultShadow = value;
-    }
-
+    [ConfigurationProperty(Scope = typeof(ThemeScope))]
+    public static ShadowStyle DefaultShadow { get; set; } = ShadowStyle.Opaque;
+    
     /// <summary>
     ///     Gets or sets the default Highlight Style.
     /// </summary>
-    [ConfigurationProperty (Scope = typeof (ThemeScope))]
-    public static MouseState DefaultHighlightStates
-    {
-        get => _defaultHighlightStates;
-        set => _defaultHighlightStates = value;
-    }
-
-    /// <summary>Initializes a new instance of <see cref="Button"/>.</summary>
-    public ComputeryButton ()
-    {
+    [ConfigurationProperty(Scope = typeof(ThemeScope))]
+    public static MouseState DefaultHighlightStates { get; set; } = MouseState.In | MouseState.Pressed | MouseState.PressedOutside;
+    
+    /// <summary>Initializes a new instance of <see cref="Button" />.</summary>
+    public ComputeryButton() {
         base.TextAlignment = Alignment.Center;
         base.VerticalTextAlignment = Alignment.Center;
-
+        
         _leftBracket = Glyphs.LeftBracket;
         _rightBracket = Glyphs.RightBracket;
         _leftDefault = Glyphs.LeftDefaultIndicator;
         _rightDefault = Glyphs.RightDefaultIndicator;
-
-        Height = Dim.Auto (DimAutoStyle.Text);
-        Width = Dim.Auto (DimAutoStyle.Text);
-
+        
+        Height = Dim.Auto(DimAutoStyle.Text);
+        Width = Dim.Auto(DimAutoStyle.Text);
+        
         CanFocus = true;
-
-        AddCommand (Command.HotKey, HandleHotKeyCommand);
-
-        KeyBindings.Remove (Key.Space);
-        KeyBindings.Add (Key.Space, Command.HotKey);
-        KeyBindings.Remove (Key.Enter);
-        KeyBindings.Add (Key.Enter, Command.HotKey);
-
+        
+        AddCommand(Command.HotKey, HandleHotKeyCommand);
+        
+        KeyBindings.Remove(Key.Space);
+        KeyBindings.Add(Key.Space, Command.HotKey);
+        KeyBindings.Remove(Key.Enter);
+        KeyBindings.Add(Key.Enter, Command.HotKey);
+        
         // Replace default Activate binding with HotKey for mouse clicks
-        MouseBindings.Clear ();
-        MouseBindings.Add (MouseFlags.Button1Clicked, Command.HotKey);
-        MouseBindings.Add (MouseFlags.Button2Clicked, Command.HotKey);
-        MouseBindings.Add (MouseFlags.Button3Clicked, Command.HotKey);
-        MouseBindings.Add (MouseFlags.Button4Clicked, Command.HotKey);
-        MouseBindings.Add (MouseFlags.Button1Clicked | MouseFlags.ButtonCtrl, Command.HotKey);
-
+        MouseBindings.Clear();
+        MouseBindings.Add(MouseFlags.Button1Clicked, Command.HotKey);
+        MouseBindings.Add(MouseFlags.Button2Clicked, Command.HotKey);
+        MouseBindings.Add(MouseFlags.Button3Clicked, Command.HotKey);
+        MouseBindings.Add(MouseFlags.Button4Clicked, Command.HotKey);
+        MouseBindings.Add(MouseFlags.Button1Clicked | MouseFlags.ButtonCtrl, Command.HotKey);
+        
         base.ShadowStyle = DefaultShadow;
         HighlightStates = DefaultHighlightStates;
-
-        if (MouseHeldDown != null)
-        {
-            MouseHeldDown.MouseIsHeldDownTick += (_,_) => RaiseAccepting (null);
+        
+        if (MouseHeldDown != null) {
+            MouseHeldDown.MouseIsHeldDownTick += (_, _) => RaiseAccepting(null);
         }
     }
-
-    private bool? HandleHotKeyCommand (ICommandContext commandContext)
-    {
+    
+    private bool? HandleHotKeyCommand(ICommandContext commandContext) {
         bool cachedIsDefault = IsDefault; // Supports "Swap Default" in Buttons scenario where IsDefault changes
-
-        if (RaiseActivating (commandContext) is true)
-        {
+        
+        if (RaiseActivating(commandContext) is true) {
             return true;
         }
-
-        bool? handled = RaiseAccepting (commandContext);
-
-        if (handled == true)
-        {
+        
+        bool? handled = RaiseAccepting(commandContext);
+        
+        if (handled == true) {
             return true;
         }
-
-        SetFocus ();
-
+        
+        SetFocus();
+        
         // TODO: If `IsDefault` were a property on `View` *any* View could work this way. That's theoretical as
         // TODO: no use-case has been identified for any View other than Button to act like this.
         // If Accept was not handled...
-        if (cachedIsDefault && SuperView is { })
-        {
-            return SuperView.InvokeCommand (Command.Accept);
+        if (cachedIsDefault && SuperView is not null) {
+            return SuperView.InvokeCommand(Command.Accept);
         }
-
+        
         return false;
     }
-
-    /// <inheritdoc/>
-    public override Rune HotKeySpecifier
-    {
+    
+    /// <inheritdoc />
+    public override Rune HotKeySpecifier {
         get => base.HotKeySpecifier;
         set => TextFormatter.HotKeySpecifier = base.HotKeySpecifier = value;
     }
-
+    
     /// <summary>
-    ///     Gets or sets whether the <see cref="Button"/> will act as the default handler for <see cref="Command.Accept"/>
-    ///     commands on the <see cref="View.SuperView"/>.
+    ///     Gets or sets whether the <see cref="Button" /> will act as the default handler for <see cref="Command.Accept" />
+    ///     commands on the <see cref="View.SuperView" />.
     /// </summary>
     /// <remarks>
     ///     <para>
-    ///         If <see langword="true"/>:
+    ///         If <see langword="true" />:
     ///     </para>
     ///     <para>
     ///         - The Button will display an indicator that it is the default Button.
     ///     </para>
     ///     <para>
-    ///         - When clicked, if the Accepting event is not handled, <see cref="Command.Accept"/> will be
+    ///         - When clicked, if the Accepting event is not handled, <see cref="Command.Accept" /> will be
     ///         invoked on the SuperView.
     ///     </para>
     ///     <para>
-    ///         - If a peer-View receives <see cref="Command.Accept"/> and does not handle it, the command will be passed to
+    ///         - If a peer-View receives <see cref="Command.Accept" /> and does not handle it, the command will be passed to
     ///         the
-    ///         first Button in the SuperView that has <see cref="IsDefault"/> set to <see langword="true"/>. See
-    ///         <see cref="View.RaiseAccepting"/> for more information.
+    ///         first Button in the SuperView that has <see cref="IsDefault" /> set to <see langword="true" />. See
+    ///         <see cref="View.RaiseAccepting" /> for more information.
     ///     </para>
     /// </remarks>
-    public bool IsDefault
-    {
+    public bool IsDefault {
         get => _isDefault;
-        set
-        {
-            if (_isDefault == value)
-            {
+        set {
+            if (_isDefault == value) {
                 return;
             }
-
+            
             _isDefault = value;
-
-            UpdateTextFormatterText ();
-            SetNeedsLayout ();
+            
+            UpdateTextFormatterText();
+            SetNeedsLayout();
         }
     }
-
+    
     /// <summary>
-    ///     Gets or sets whether the Button will show decorations or not. If <see langword="true"/> the glyphs that normally
-    ///     bracket the Button Title and the <see cref="IsDefault"/> indicator will not be shown.
+    ///     Gets or sets whether the Button will show decorations or not. If <see langword="true" /> the glyphs that normally
+    ///     bracket the Button Title and the <see cref="IsDefault" /> indicator will not be shown.
     /// </summary>
     public bool NoDecorations { get; set; }
-
+    
     /// <summary>
     ///     Gets or sets whether the Button will include padding on each side of the Title.
     /// </summary>
     public bool NoPadding { get; set; }
-
-    /// <inheritdoc/>
-    public override Point? PositionCursor ()
-    {
-        if (HotKey.IsValid && Text != "")
-        {
-            for (var i = 0; i < TextFormatter.Text.GetRuneCount (); i++)
-            {
-                if (TextFormatter.Text [i] == Text [0])
-                {
-                    Move (i, 0);
-
+    
+    /// <inheritdoc />
+    public override Point? PositionCursor() {
+        if (HotKey.IsValid && Text != "") {
+            for (int i = 0; i < TextFormatter.Text.GetRuneCount(); i++) {
+                if (TextFormatter.Text[i] == Text[0]) {
+                    Move(i, 0);
+                    
                     return null; // Don't show the cursor
                 }
             }
         }
-
-        return base.PositionCursor ();
+        
+        return base.PositionCursor();
     }
-
-    /// <inheritdoc/>
-    protected override void UpdateTextFormatterText ()
-    {
-        base.UpdateTextFormatterText ();
-
-        if (NoDecorations)
-        {
+    
+    /// <inheritdoc />
+    protected override void UpdateTextFormatterText() {
+        base.UpdateTextFormatterText();
+        
+        if (NoDecorations) {
             TextFormatter.Text = Text;
         }
-        else if (IsDefault)
-        {
+        else if (IsDefault) {
             TextFormatter.Text = $"{_leftBracket}{_leftDefault} {Text} {_rightDefault}{_rightBracket}";
         }
-        else
-        {
-            if (NoPadding)
-            {
+        else {
+            if (NoPadding) {
                 TextFormatter.Text = $"{_leftBracket}{Text}{_rightBracket}";
             }
-            else
-            {
+            else {
                 TextFormatter.Text = $"{_leftBracket} {Text} {_rightBracket}";
             }
         }
     }
-
-    /// <inheritdoc/>
-    public bool EnableForDesign ()
-    {
+    
+    /// <inheritdoc />
+    public bool EnableForDesign() {
         Text = "_Button";
-
+        
         return true;
     }
 }

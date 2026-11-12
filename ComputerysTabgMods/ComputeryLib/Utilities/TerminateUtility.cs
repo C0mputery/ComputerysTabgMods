@@ -17,7 +17,7 @@ public static class TerminateUtility {
     }
     
     /// <summary>
-    /// Removes Landfalls hardcoded 10-second delay on termination to allowing our custom restart time to be accurate.
+    ///     Removes Landfalls hardcoded 10-second delay on termination to allowing our custom restart time to be accurate.
     /// </summary>
     /// <param name="time"> Harmony provided time parameter </param>
     [HarmonyPrefix]
@@ -32,9 +32,9 @@ public static class TerminateUtility {
     public static IEnumerable<CodeInstruction> FixLandLog(IEnumerable<CodeInstruction> instructions) {
         CodeMatcher matcher = new CodeMatcher(instructions);
         matcher.MatchForward(false, new CodeMatch(OpCodes.Ldc_R4, 15f));
-        matcher.Set(OpCodes.Ldc_R4, TerminateUtility.RestartTime);
+        matcher.Set(OpCodes.Ldc_R4, RestartTime);
         matcher.MatchForward(false, new CodeMatch(OpCodes.Ldc_R4, 15f));
-        matcher.Set(OpCodes.Ldc_R4, TerminateUtility.RestartTime);
+        matcher.Set(OpCodes.Ldc_R4, RestartTime);
         return matcher.InstructionEnumeration();
     }
 }

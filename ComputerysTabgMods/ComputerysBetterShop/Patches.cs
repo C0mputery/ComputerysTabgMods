@@ -1,5 +1,3 @@
-using System.IO;
-using BepInEx;
 using HarmonyLib;
 using Landfall.TABG.UI;
 using UnityEngine;
@@ -16,7 +14,7 @@ public static class Patches {
         
         //PlayFabManager.m_ItemsInShop;
         
-        return false; 
+        return false;
     }
     
     [HarmonyPrefix]

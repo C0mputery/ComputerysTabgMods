@@ -15,7 +15,7 @@ public static class LoggerImprover {
         MethodInfo? targetMethod = nestedType.GetMethod("<GameServerHeartbeat>b__0", BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic);
         Plugin.Harmony.Patch(targetMethod, transpiler: new HarmonyMethod(typeof(LoggerImprover), nameof(SuppressCommunityBackendHeartbeatLogs)));
         Plugin.Harmony.PatchAll(typeof(LoggerImprover));
-    } 
+    }
     
     public static IEnumerable<CodeInstruction> SuppressCommunityBackendHeartbeatLogs(IEnumerable<CodeInstruction> instructions) {
         CodeMatcher matcher = new CodeMatcher(instructions);
@@ -42,17 +42,17 @@ public static class LoggerImprover {
         matcher.RemoveInstructions(3);
         return matcher.InstructionEnumeration();
     }
-
+    
     [HarmonyTranspiler]
     [HarmonyPatch(typeof(PlayerLeaveCommand), nameof(PlayerLeaveCommand.Run))]
     public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) {
         CodeMatcher matcher = new CodeMatcher(instructions);
-
+        
         matcher.MatchForward(false, new CodeMatch(OpCodes.Ldstr, "Playfab Is Disabled!"));
         List<Label> labelsToPreserve = new List<Label>(matcher.Instruction.labels);
         matcher.RemoveInstructions(3);
         matcher.Instruction.labels.AddRange(labelsToPreserve);
-
+        
         return matcher.InstructionEnumeration();
     }
     

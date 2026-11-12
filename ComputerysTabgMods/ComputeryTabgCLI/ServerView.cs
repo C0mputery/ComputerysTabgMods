@@ -1,4 +1,3 @@
-using System;
 using Terminal.Gui.Drawing;
 using Terminal.Gui.Input;
 using Terminal.Gui.ViewBase;
@@ -11,7 +10,7 @@ public sealed class ServerView : View {
     private readonly TextField _commandInput;
     
     public event Action<string>? CommandEntered;
-
+    
     public ServerView() {
         X = 0;
         Y = 2;
@@ -19,7 +18,7 @@ public sealed class ServerView : View {
         Height = Dim.Fill();
         SuperViewRendersLineCanvas = true;
         CanFocus = true;
-
+        
         _logView = new LogView {
             X = 0,
             Y = 0,
@@ -28,21 +27,21 @@ public sealed class ServerView : View {
             WordWrap = true,
             AutoScroll = true,
             MaxLines = 10000,
-            SuperViewRendersLineCanvas = true,
+            SuperViewRendersLineCanvas = true
         };
         Add(_logView);
-
+        
         _commandInput = new TextField {
             X = 0,
             Y = Pos.AnchorEnd(3),
             Width = Dim.Fill(),
             Height = Dim.Absolute(3),
             BorderStyle = LineStyle.Rounded,
-            SuperViewRendersLineCanvas = true,
+            SuperViewRendersLineCanvas = true
         };
         
         _commandInput.KeyDown += (_, e) => {
-            if (e != Key.Enter) return;
+            if (e != Key.Enter) { return; }
             string text = _commandInput.Text;
             if (string.IsNullOrWhiteSpace(text)) { return; }
             CommandEntered?.Invoke(text);
@@ -51,18 +50,17 @@ public sealed class ServerView : View {
         
         Add(_commandInput);
     }
-
+    
     public void LogLine(string message) {
         _logView.LogLine(message);
     }
-
+    
     public void FlushLogBuffer() {
         _logView.FlushLogBuffer();
     }
-
+    
     public void ApplyBorderScheme(Scheme scheme) {
         _commandInput.Border?.SetScheme(scheme);
         _logView.Border?.SetScheme(scheme);
     }
 }
-

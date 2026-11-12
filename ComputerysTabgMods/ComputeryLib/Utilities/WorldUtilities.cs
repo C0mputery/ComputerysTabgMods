@@ -6,6 +6,7 @@ namespace ComputeryLib.Utilities;
 
 public static class WorldUtility {
     private static ServerClient? _worldClient;
+    
     public static bool TryGetWorld(out ServerClient? world) {
         if (_worldClient) {
             world = _worldClient;
@@ -21,5 +22,5 @@ public static class WorldUtility {
     
     [HarmonyPrefix]
     [HarmonyPatch(typeof(ServerClient), nameof(ServerClient.Awake))]
-    public static void AwakePrefix(ref ServerClient __instance) { WorldUtility.SetWorldClient(__instance); }
+    public static void AwakePrefix(ref ServerClient __instance) { SetWorldClient(__instance); }
 }

@@ -7,10 +7,10 @@ namespace ComputeryLib.Utilities;
 
 public static class MessageUtilities {
     /// <summary>
-    /// This does include commands!
+    ///     This does include commands!
     /// </summary>
     public static event Action<TABGPlayerServer, string, bool>? OnChatMessage;
-
+    
     [HarmonyPostfix]
     [HarmonyPatch(typeof(ThrowChatMessageCommand), nameof(ThrowChatMessageCommand.Run))]
     private static void ThrowChatMessageCommandPostfix(byte[] data, ServerClient world, byte sender) {
@@ -24,11 +24,11 @@ public static class MessageUtilities {
         if (!GetValue(msgData, world, sender, out TABGPlayerServer? player, out string? message)) { return; }
         OnChatMessage?.Invoke(player!, message!, false);
     }
-
+    
     private static bool GetValue(byte[] data, ServerClient world, byte sender, out TABGPlayerServer? player, out string? message) {
         player = world.GameRoomReference.FindPlayer(sender);
         if (player == null) {
-            message = null; 
+            message = null;
             return false;
         }
         int length = data[1];

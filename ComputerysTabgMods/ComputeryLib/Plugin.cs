@@ -36,10 +36,10 @@ public class Plugin : BaseUnityPlugin {
         }
         
         ApplyPatches();
-
+        
         MessageLogger.InitializeLogger();
         
-        Logger.LogInfo($"Applied patches.");
+        Logger.LogInfo("Applied patches.");
     }
     
     private static void ApplyPatches() {
@@ -59,6 +59,6 @@ public class Plugin : BaseUnityPlugin {
         AutoStartUtility.ApplyPatches();
         LoggerImprover.ApplyLoggerPatches();
     }
-
+    
     private void Start() { ChatCommandManager.RegisterCommands(); }
 }

@@ -12,7 +12,7 @@ public static class ChatMessageCommandPatch {
     [HarmonyPrefix]
     [HarmonyPatch(typeof(ThrowChatMessageCommand), nameof(ThrowChatMessageCommand.Run))]
     public static bool ThrowChatMessageCommandRunPrefix(byte[] data, ServerClient world, byte sender) { return Parse(data, world, sender); }
-
+    
     private static bool Parse(byte[] msgData, ServerClient world, byte sender) {
         byte length = msgData[1];
         string message = Encoding.Unicode.GetString(msgData, 2, length);

@@ -15,7 +15,7 @@ namespace DualRotorHelicoptersConfusingMod;
 public class Plugin : BaseUnityPlugin {
     public new static ManualLogSource Logger;
     public new static ConfigFile Config = null!;
-
+    
     private void Awake() {
         Logger = base.Logger;
         Config = base.Config;
@@ -24,23 +24,26 @@ public class Plugin : BaseUnityPlugin {
         
         Logger.LogInfo($"Plugin {PluginInfo.PLUGIN_GUID} is loaded!");
         Harmony.CreateAndPatchAll(Assembly.GetExecutingAssembly(), PluginInfo.PLUGIN_GUID);
-        Logger.LogInfo($"Applied patches.");
+        Logger.LogInfo("Applied patches.");
     }
-
+    
     private static float timeInSeconds = 1;
-    private static Dictionary<byte, DateTime> whyWouldYouWantThis = new Dictionary<byte, DateTime>();
+    private static readonly Dictionary<byte, DateTime> whyWouldYouWantThis = new Dictionary<byte, DateTime>();
+    
     [HarmonyPrefix]
     [HarmonyPatch(typeof(PlayerUpdateCommand), nameof(PlayerUpdateCommand.Run))]
     private static void PlayerUpdateCommandPatch(ref byte[] msgData, ref ServerClient world) {
-        if (msgData == null || msgData.Length == 0) return;
-
+        if (msgData == null || msgData.Length == 0) {
+            return;
+        }
+        
         byte senderId = msgData[0];
         DateTime now = DateTime.UtcNow;
-
+        
         if (whyWouldYouWantThis.TryGetValue(senderId, out DateTime lastSeen) && now - lastSeen <= TimeSpan.FromSeconds(timeInSeconds)) {
             PlayerKickCommand.Run(senderId, world, KickReason.Invalid);
         }
-
+        
         whyWouldYouWantThis[senderId] = now;
     }
 }

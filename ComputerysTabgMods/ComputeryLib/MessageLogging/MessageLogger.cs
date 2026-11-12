@@ -8,7 +8,7 @@ namespace ComputeryLib.MessageLogging;
 public static class MessageLogger {
     private static readonly string MessageLogDirectory = Path.Combine(PersistantDataUtility.PersistentDataPath, "MessageLogs");
     private static readonly ManualLogSource Logger = new ManualLogSource("Player Messages");
-
+    
     static MessageLogger() {
         if (!Directory.Exists(MessageLogDirectory)) { Directory.CreateDirectory(MessageLogDirectory); }
     }

@@ -24,7 +24,7 @@ public static class GameEndUtility {
             FieldInfo gameRoomField = AccessTools.Field(typeof(TABGBaseGameMode), nameof(TABGBaseGameMode.m_GameRoom));
             MethodInfo endMatchMethod = AccessTools.Method(typeof(GameRoom), nameof(GameRoom.EndMatch), [typeof(TeamStanding)]);
             MethodInfo changeGameStateMethod = AccessTools.Method(typeof(GameRoom), nameof(GameRoom.ChangeGameState), [typeof(GameState), typeof(bool), typeof(byte[])]);
-
+            
             matcher.MatchForward(false,
                 new CodeMatch(OpCodes.Ldarg_0),
                 new CodeMatch(OpCodes.Ldfld, gameRoomField),
@@ -32,7 +32,7 @@ public static class GameEndUtility {
                 new CodeMatch(OpCodes.Callvirt, endMatchMethod)
             );
             matcher.RemoveInstructions(4);
-
+            
             matcher.MatchForward(false,
                 new CodeMatch(OpCodes.Ldarg_0),
                 new CodeMatch(OpCodes.Ldfld, gameRoomField),
@@ -42,7 +42,7 @@ public static class GameEndUtility {
                 new CodeMatch(OpCodes.Callvirt, changeGameStateMethod)
             );
             matcher.RemoveInstructions(6);
-
+            
             return matcher.InstructionEnumeration();
         }
     }

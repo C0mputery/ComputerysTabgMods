@@ -87,12 +87,12 @@ public static class MidMatchJoiningUtility {
             player.Dropped();
             world.ForceChunkEntry(player);
         }
-
+        
         // Jank solution to make it so that people's weapons show up
         // Don't know why the like current game world command doesn't properly send the stuff over
         world.WaitThenDoAction(2f, () => ResyncWeapons(world, playerID));
     }
-
+    
     private static void ResyncWeapons(ServerClient world, byte joinerID) {
         GameRoom room = world.GameRoomReference;
         TABGPlayerServer? joiner = room.FindPlayer(joinerID);
@@ -104,12 +104,13 @@ public static class MidMatchJoiningUtility {
             
             foreach (TABGPlayerServer other in players) {
                 if (other == joiner || other.IsDead || !other.HasDropped) { continue; }
-                world.SendMessageToClients(EventCode.WeaponChanged, BuildWeaponChanged(other), joinerID, reliable: true);
+                world.SendMessageToClients(EventCode.WeaponChanged, BuildWeaponChanged(other), joinerID, true);
             }
         }
     }
     
     private static readonly Dictionary<byte, short> Throwables = [];
+    
     [HarmonyPostfix]
     [HarmonyPatch(typeof(WeaponChangedCommand), nameof(WeaponChangedCommand.Run))]
     private static void StoreThrowable(byte[] msgData) { Throwables[msgData[0]] = BitConverter.ToInt16(msgData, msgData.Length - 2); }

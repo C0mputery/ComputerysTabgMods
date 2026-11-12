@@ -1,15 +1,8 @@
-﻿using System;
-using System.Collections.ObjectModel;
-using System.Diagnostics;
-using System.IO;
+﻿using System.Diagnostics;
 using System.IO.Pipes;
-using System.Text;
 using System.Text.Json;
-using System.Threading;
-using System.Threading.Tasks;
 using Terminal.Gui.App;
 using Terminal.Gui.Drawing;
-using Terminal.Gui.Input;
 using Terminal.Gui.ViewBase;
 using Terminal.Gui.Views;
 using Attribute = Terminal.Gui.Drawing.Attribute;
@@ -17,21 +10,22 @@ using Attribute = Terminal.Gui.Drawing.Attribute;
 namespace ComputeryTabgCLI;
 
 internal static class Program {
-    private static readonly CancellationTokenSource CancellationTokenSource = new();
+    private static readonly CancellationTokenSource CancellationTokenSource = new CancellationTokenSource();
     private static Process? _serverProcess;
     private static IApplication _app = null!;
     private static NamedPipeServerStream? _pipeServer;
     private static StreamWriter? _pipeWriter;
     
     private static Window _top = null!;
-
+    
     private static ServerView _serverView = null!;
     private static VisitorLogView _visitorLogView = null!;
     
-    private static readonly Color AccentColor = new (0x8B, 0xE0, 0xFF);
-    private static Scheme DefaultScheme => new() { };
+    private static readonly Color AccentColor = new Color(0x8B, 0xE0, 0xFF);
+    private static Scheme DefaultScheme => new Scheme();
     private static readonly Attribute LineAttr = new Attribute(AccentColor, Color.Black);
-    private static readonly Scheme LineScheme = new() {
+    
+    private static readonly Scheme LineScheme = new Scheme {
         Normal = LineAttr,
         HotNormal = LineAttr,
         Focus = LineAttr,
@@ -41,33 +35,33 @@ internal static class Program {
         Highlight = LineAttr,
         Disabled = LineAttr,
         Editable = LineAttr,
-        ReadOnly = LineAttr,
+        ReadOnly = LineAttr
     };
-
-
+    
+    
     public static void Main(string[] args) {
         AppDomain.CurrentDomain.ProcessExit += OnProcessExit;
         Console.CancelKeyPress += OnCancelKeyPress;
-
+        
         _app = Application.Create().Init();
-        _top = new() { BorderStyle = LineStyle.None, };
+        _top = new Window { BorderStyle = LineStyle.None };
         _top.SetScheme(DefaultScheme);
-
+        
         SetupServerView();
         SetupButtons();
-
+        
         _ = RunServerAsync(CancellationTokenSource.Token);
-
+        
         try {
             _app.Run(_top);
         }
-        finally { 
+        finally {
             _top.Dispose();
             _app.Dispose();
             CleanupServer();
         }
     }
-
+    
     private static void SetupServerView() {
         _serverView = new ServerView();
         _serverView.ApplyBorderScheme(LineScheme);
@@ -79,14 +73,16 @@ internal static class Program {
         _visitorLogView.Visible = false;
         _top.Add(_visitorLogView);
         
-        _app.AddTimeout(TimeSpan.FromMilliseconds(10), () => {
-            _serverView.FlushLogBuffer();
-            return true;
-        });
+        _app.AddTimeout(
+            TimeSpan.FromMilliseconds(10), () => {
+                _serverView.FlushLogBuffer();
+                return true;
+            }
+        );
     }
-
+    
     private static void SetupButtons() {
-        ComputeryButton serverTerminal = new ComputeryButton() {
+        ComputeryButton serverTerminal = new ComputeryButton {
             X = 0,
             Y = 0,
             Text = "Terminal",
@@ -95,7 +91,7 @@ internal static class Program {
             BorderStyle = LineStyle.Rounded,
             NoDecorations = true,
             SuperViewRendersLineCanvas = true,
-            IsDefault = true,
+            IsDefault = true
         };
         serverTerminal.Border?.SetScheme(LineScheme);
         serverTerminal.Accepting += (_, e) => {
@@ -104,8 +100,8 @@ internal static class Program {
             e.Handled = true;
         };
         _top.Add(serverTerminal);
-
-        ComputeryButton visitorLogButton = new ComputeryButton() {
+        
+        ComputeryButton visitorLogButton = new ComputeryButton {
             X = Pos.Right(serverTerminal) - 1,
             Y = 0,
             Text = "Visitor Log",
@@ -113,7 +109,7 @@ internal static class Program {
             ShadowStyle = ShadowStyle.None,
             BorderStyle = LineStyle.Rounded,
             NoDecorations = true,
-            SuperViewRendersLineCanvas = true,
+            SuperViewRendersLineCanvas = true
         };
         visitorLogButton.Border?.SetScheme(LineScheme);
         visitorLogButton.Accepting += (_, e) => {
@@ -125,25 +121,30 @@ internal static class Program {
     }
     
     private static void OnProcessExit(object? sender, EventArgs e) { CleanupServer(); }
+    
     private static void OnCancelKeyPress(object? sender, ConsoleCancelEventArgs e) {
         e.Cancel = true;
         CleanupServer();
         Environment.Exit(0);
     }
-
+    
     private static void CleanupServer() {
         try { CancellationTokenSource.Cancel(); }
-        catch { /* Ingorned */ }
-
+        catch {
+            /* Ingorned */
+        }
+        
         try {
             _pipeWriter?.Dispose();
             _pipeServer?.Dispose();
         }
-        catch { /* Ignored */ }
-
+        catch {
+            /* Ignored */
+        }
+        
         if (_serverProcess != null && !_serverProcess.HasExited) {
             try {
-                _serverProcess.Kill(entireProcessTree: true);
+                _serverProcess.Kill(true);
                 _serverProcess.WaitForExit(5000);
                 _serverProcess.Dispose();
             }
@@ -156,17 +157,20 @@ internal static class Program {
     private static async Task RunServerAsync(CancellationToken cancellationToken) {
         string unityAppPath = @"C:\Users\Computery\Desktop\LandfallPlzFix\Server\TABG.exe";
         string pipeGuid = Guid.NewGuid().ToString();
-
+        
         StartServerProcess(unityAppPath, pipeGuid);
         SetupProcessEventHandlers();
         
         _ = HandlePipeCommunicationAsync(pipeGuid, cancellationToken);
-
+        
         _serverView.LogLine("Unity process started.");
-        try { await _serverProcess!.WaitForExitAsync(cancellationToken); } catch { /* Ignored */ }
+        try { await _serverProcess!.WaitForExitAsync(cancellationToken); }
+        catch {
+            /* Ignored */
+        }
         _serverView.LogLine("Unity process exited.");
     }
-
+    
     private static void StartServerProcess(string unityAppPath, string pipeGuid) {
         _serverProcess = new Process();
         _serverProcess.StartInfo = new ProcessStartInfo {
@@ -180,36 +184,38 @@ internal static class Program {
         _serverProcess.EnableRaisingEvents = true;
         _serverProcess.Start();
     }
-
+    
     private static void SetupProcessEventHandlers() {
-        if (_serverProcess == null) return;
-
+        if (_serverProcess == null) {
+            return;
+        }
+        
         _serverProcess.BeginOutputReadLine();
         _serverProcess.BeginErrorReadLine();
-
+        
         _serverProcess.OutputDataReceived += (sender, e) => {
             if (!string.IsNullOrEmpty(e.Data)) { _serverView.LogLine(e.Data); }
         };
-
+        
         _serverProcess.ErrorDataReceived += (sender, e) => {
             if (!string.IsNullOrEmpty(e.Data)) { _serverView.LogLine(e.Data); }
         };
     }
-
+    
     private static async Task HandlePipeCommunicationAsync(string pipeGuid, CancellationToken cancellationToken) {
         try {
             _pipeServer = new NamedPipeServerStream(pipeGuid, PipeDirection.InOut, 1, PipeTransmissionMode.Byte, PipeOptions.Asynchronous);
             _serverView.LogLine("Waiting for Unity to connect...");
-
+            
             await _pipeServer.WaitForConnectionAsync(cancellationToken);
             _pipeWriter = new StreamWriter(_pipeServer) { AutoFlush = true };
             _serverView.LogLine("Unity connected to pipe.");
-
+            
             await ReadUnityMessagesAsync(cancellationToken);
         }
         catch (Exception ex) { _serverView.LogLine($"Pipe error: {ex.Message}"); }
     }
-
+    
     private static async Task ReadUnityMessagesAsync(CancellationToken cancellationToken) {
         using StreamReader reader = new StreamReader(_pipeServer!, leaveOpen: true);
         while (!cancellationToken.IsCancellationRequested && _pipeServer?.IsConnected == true) {
@@ -231,7 +237,7 @@ internal static class Program {
             }
         }
     }
-
+    
     private static void SendCommandToServer(string command) {
         if (!string.IsNullOrWhiteSpace(command) && _pipeWriter != null) {
             try { _pipeWriter.WriteLine(command); }
@@ -239,4 +245,3 @@ internal static class Program {
         }
     }
 }
-

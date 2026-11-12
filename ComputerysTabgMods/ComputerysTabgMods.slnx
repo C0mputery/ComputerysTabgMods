@@ -1,21 +1,21 @@
 <Solution>
-  <Folder Name="/ClientMods/">
-    <Project Path="AntiCheatBootErrorRemover/AntiCheatBootErrorRemover.csproj" />
-    <Project Path="BinsCinematicMod/BinsCinematicMod.csproj" />
-    <Project Path="ComputerysBetterShop/ComputerysBetterShop.csproj" />
-    <Project Path="SteamworksEnforcer/SteamworksEnforcer.csproj" />
-    <Project Path="TokenAuthFixer/TokenAuthFixer.csproj" />
-  </Folder>
-  <Folder Name="/ServerMods/">
-    <Project Path="DualRotorHelicoptersConfusingMod/DualRotorHelicoptersConfusingMod.csproj" />
-  </Folder>
-  <Folder Name="/ServerMods/ComputeryLib/">
-    <Project Path="ComputeryLib/ComputeryLib.csproj" />
-    <Project Path="ComputeryTabgCLI/ComputeryTabgCLI.csproj" />
-  </Folder>
-  <Folder Name="/SharedMods/" />
-  <Folder Name="/SharedMods/LandfallPlzFix/">
-    <Project Path="LandfallPlzFixClient/LandfallPlzFixClient.csproj" />
-    <Project Path="LandfallPlzFixServer/LandfallPlzFixServer.csproj" />
-  </Folder>
+    <Folder Name="/ClientMods/">
+        <Project Path="AntiCheatBootErrorRemover/AntiCheatBootErrorRemover.csproj"/>
+        <Project Path="BinsCinematicMod/BinsCinematicMod.csproj"/>
+        <Project Path="ComputerysBetterShop/ComputerysBetterShop.csproj"/>
+        <Project Path="SteamworksEnforcer/SteamworksEnforcer.csproj"/>
+        <Project Path="TokenAuthFixer/TokenAuthFixer.csproj"/>
+    </Folder>
+    <Folder Name="/ServerMods/">
+        <Project Path="DualRotorHelicoptersConfusingMod/DualRotorHelicoptersConfusingMod.csproj"/>
+    </Folder>
+    <Folder Name="/ServerMods/ComputeryLib/">
+        <Project Path="ComputeryLib/ComputeryLib.csproj"/>
+        <Project Path="ComputeryTabgCLI/ComputeryTabgCLI.csproj"/>
+    </Folder>
+    <Folder Name="/SharedMods/"/>
+    <Folder Name="/SharedMods/LandfallPlzFix/">
+        <Project Path="LandfallPlzFixClient/LandfallPlzFixClient.csproj"/>
+        <Project Path="LandfallPlzFixServer/LandfallPlzFixServer.csproj"/>
+    </Folder>
 </Solution>

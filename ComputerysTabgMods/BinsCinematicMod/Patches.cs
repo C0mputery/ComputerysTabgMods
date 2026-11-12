@@ -1,6 +1,3 @@
-using System.Collections.Generic;
-using System.Reflection.Emit;
-using DeepSky.Haze;
 using HarmonyLib;
 using UnityEngine;
 
@@ -21,7 +18,7 @@ public static class WilhelmChunkerPatches {
         }
         return false;
     }
-}   
+}
 
 [HarmonyPatch(typeof(CharacterGearHandler))]
 public static class CharacterGearHandlerPatches {
@@ -42,7 +39,7 @@ public static class OptionsPatches {
     public static void InitPrefix(ref OptionsButton __instance) {
         string name = __instance.transform.name;
         if (name == "Item_ShadowQuality") {
-            __instance.valueNames = [..__instance.valueNames, "ULTRA"];
+            __instance.valueNames = [.. __instance.valueNames, "ULTRA"];
         }
     }
     

@@ -2,9 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using ComputeryLib.Utilities;
-using ENet;
-using Newtonsoft.Json;
 using Landfall.Network;
+using Newtonsoft.Json;
 using PlayFab;
 using PlayFab.ClientModels;
 
@@ -20,7 +19,7 @@ public static class VisitorLog {
         try { return JsonConvert.DeserializeObject<Dictionary<string, VisitorInfo>>(json) ?? new Dictionary<string, VisitorInfo>(); }
         catch (JsonException) { return new Dictionary<string, VisitorInfo>(); }
     }
-
+    
     private static void SaveVisitorLog() { File.WriteAllText(VisitorLogPath, JsonConvert.SerializeObject(_visitors, Formatting.Indented)); }
     
     private static void SyncFromFile() { _visitors = LoadVisitorLogFromFile(); }
@@ -29,7 +28,7 @@ public static class VisitorLog {
         SyncFromFile();
         return _visitors.TryGetValue(epicUserName, out VisitorInfo visitorInfo) ? visitorInfo.PermissionLevel : 0;
     }
-
+    
     public static void SetPermissionLevel(string epicUserName, uint level) {
         SyncFromFile();
         if (!_visitors.TryGetValue(epicUserName, out VisitorInfo visitorInfo)) { return; }
@@ -37,7 +36,7 @@ public static class VisitorLog {
         _visitors[epicUserName] = visitorInfo;
         SaveVisitorLog();
     }
-
+    
     public static void Authenticate(Action onSuccess, Action onFailure) {
         PlayFabClientAPI.ForgetAllCredentials();
         LoginWithCustomIDRequest loginRequest = new LoginWithCustomIDRequest { CustomId = Guid.NewGuid().ToString(), CreateAccount = true };
@@ -49,15 +48,15 @@ public static class VisitorLog {
         
         if (!PlayFabClientAPI.IsClientLoggedIn()) {
             Authenticate(
-                () => { TryToGetSteamFromPlayFab(player, currentTime); }, 
-                () => { LogVisitor(player, "Unknown...", currentTime);
-            });
+                () => { TryToGetSteamFromPlayFab(player, currentTime); },
+                () => { LogVisitor(player, "Unknown...", currentTime); }
+            );
             return;
         }
         
         TryToGetSteamFromPlayFab(player, currentTime);
     }
-
+    
     private static void TryToGetSteamFromPlayFab(TABGPlayerServer player, DateTime currentTime) {
         GetLeaderboardAroundPlayerRequest getLeaderboardAroundPlayerRequest = new GetLeaderboardAroundPlayerRequest {
             StatisticName = "PlayerMatchLosses", // We are working under the assumption that this is the most common thing in the leaderboard to be populated.
@@ -83,20 +82,20 @@ public static class VisitorLog {
                 LogVisitor(player, "Unknown...", currentTime);
                 return;
             }
-
-            Authenticate(() => { TryToGetSteamFromPlayFab(player, currentTime); }, () => { LogVisitor(player, "Unknown...", currentTime); });
+            
+            Authenticate(() => { TryToGetSteamFromPlayFab(player, currentTime); }, () => { LogVisitor(player, "Unknown...", currentTime); }); 
         });
     }
-
+    
     private static void LogVisitor(TABGPlayerServer player, string steamId, DateTime currentTime) {
         SyncFromFile();
         if (!_visitors.TryGetValue(player.EpicUserName, out VisitorInfo visitorInfo)) {
-            visitorInfo = new VisitorInfo { 
+            visitorInfo = new VisitorInfo {
                 FirstSeen = currentTime,
                 LastSeen = currentTime
             };
         }
-
+        
         DatedString.UpdateDatedStringSet(visitorInfo.DisplayNames, player.PlayerName, currentTime);
         DatedString.UpdateDatedStringSet(visitorInfo.SteamIds, steamId, currentTime);
         DatedString.UpdateDatedStringSet(visitorInfo.PlayfabIds, player.PlayFabID, currentTime);
