@@ -37,6 +37,7 @@ public class Plugin : BaseUnityPlugin {
         GameEndUtility.ApplyPatches();
         MidMatchJoiningUtility.ApplyPatches();
         AutoStartUtility.ApplyPatches();
+        AggressiveRingUtility.ApplyPatches();
         LoggerImprover.ApplyHeartbeatPatch();
     }
     

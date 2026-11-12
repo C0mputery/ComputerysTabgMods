@@ -84,7 +84,7 @@ public static class PlayerInteractionUtility {
         writer.Write(chunkBytes);
         
         if (WorldUtility.TryGetWorld(out ServerClient? world)) {
-            world!.SendMessageToClients(EventCode.ThrowChatMessage, memoryStream.ToArray(), sender.PlayerIndex, true);
+            world.SendMessageToClients(EventCode.ThrowChatMessage, memoryStream.ToArray(), sender.PlayerIndex, true);
         }
     }
 }

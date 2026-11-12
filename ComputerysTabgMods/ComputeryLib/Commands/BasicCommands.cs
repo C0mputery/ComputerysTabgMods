@@ -33,7 +33,7 @@ public static class BasicCommands {
             return;
         }
         
-        if (world!.GameRoomReference.CurrentGameState != GameState.WaitingForPlayers && world.GameRoomReference.CurrentGameState != GameState.CountDown) {
+        if (world.GameRoomReference.CurrentGameState != GameState.WaitingForPlayers && world.GameRoomReference.CurrentGameState != GameState.CountDown) {
             PlayerInteractionUtility.PrivateMessageOrServerLog("Game is already in progress.", sender);
             return;
         }
@@ -96,7 +96,7 @@ public static class BasicCommands {
         }
         
         for (int remaining = quantity; remaining > 0; remaining -= byte.MaxValue) {
-            world!.GivePlayerWeapon(targetPlayer!.PlayerIndex, itemId, (byte)Math.Min(remaining, byte.MaxValue));
+            world.GivePlayerWeapon(targetPlayer!.PlayerIndex, itemId, (byte)Math.Min(remaining, byte.MaxValue));
         }
         
         PlayerInteractionUtility.PrivateMessageOrServerLog($"Gave item {itemId} x{quantity} to {targetPlayer!.PlayerName}", sender);

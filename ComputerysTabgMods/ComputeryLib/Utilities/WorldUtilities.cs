@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using HarmonyLib;
 using Landfall.Network;
 
@@ -8,8 +9,8 @@ namespace ComputeryLib.Utilities;
 public static class WorldUtility {
     private static ServerClient? _worldClient;
     
-    public static bool TryGetWorld(out ServerClient? world) {
-        if (_worldClient) {
+    public static bool TryGetWorld([NotNullWhen(true)] out ServerClient? world) {
+        if (_worldClient != null) {
             world = _worldClient;
             return true;
         }

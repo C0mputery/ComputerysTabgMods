@@ -30,7 +30,7 @@
     <ItemGroup>
         <Reference Include="$(ServerManagedFolder)Assembly-CSharp.dll" Private="false" Publicize="true"/>
         <Reference Include="$(ServerManagedFolder)Assembly-CSharp-firstpass.dll" Private="false" Publicize="true"/>
-        <Reference Include="$(ServerManagedFolder)Newtonsoft.Json.dll" Private="false" Publicize="true"/>
+        <Reference Include="$(ServerManagedFolder)Newtonsoft.Json.dll" Private="false"/>
         <Reference Include="$(ServerManagedFolder)PlayFab.dll" Private="false" Publicize="true"/>
         <Reference Include="$(ServerManagedFolder)FMODUnity.dll" Private="false" Publicize="true"/>
         <Reference Include="$(ServerManagedFolder)Unity.Networking.Transport.dll" Private="false"/>
