@@ -5,7 +5,6 @@ using ComputeryLib.CLI;
 using ComputeryLib.Commands;
 using ComputeryLib.ConfigImprovements;
 using ComputeryLib.MessageLogging;
-using ComputeryLib.MidMatchJoining;
 using ComputeryLib.ServerFailFixes;
 using ComputeryLib.Utilities;
 using ComputeryLib.VisitorLog;
@@ -56,7 +55,7 @@ public class Plugin : BaseUnityPlugin {
         Harmony.PatchAll(typeof(MessageLogger));
         Harmony.PatchAll(typeof(PacketQueueUtility));
         GameEndUtility.ApplyPatches();
-        MidMatchJoiningPatches.ApplyPatches();
+        MidMatchJoiningUtility.ApplyPatches();
         LoggerImprover.ApplyLoggerPatches();
     }
 

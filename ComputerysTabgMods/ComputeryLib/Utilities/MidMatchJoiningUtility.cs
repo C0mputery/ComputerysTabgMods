@@ -5,13 +5,13 @@ using System.Reflection.Emit;
 using HarmonyLib;
 using Landfall.Network;
 
-namespace ComputeryLib.MidMatchJoining;
+namespace ComputeryLib.Utilities;
 
-public static class MidMatchJoiningPatches {
+public static class MidMatchJoiningUtility {
     public static readonly bool AllowMidMatchJoining = Plugin.Config.Bind("Gameplay", "AllowMidMatchJoining", false, "When enabled, players can join a match after it has started.").Value;
     
     public static void ApplyPatches() {
-        if (AllowMidMatchJoining) { Plugin.Harmony.PatchAll(typeof(MidMatchJoiningPatches)); }
+        if (AllowMidMatchJoining) { Plugin.Harmony.PatchAll(typeof(MidMatchJoiningUtility)); }
     }
     
     [HarmonyPostfix]
