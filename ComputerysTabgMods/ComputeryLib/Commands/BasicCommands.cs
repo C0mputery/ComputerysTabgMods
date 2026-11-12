@@ -81,7 +81,9 @@ public static class BasicCommands {
         PlayerInteractionUtility.PrivateMessageOrConsoleLog($"Set permission level {level} for player {foundPlayer.PlayerName}", sender);
     }
 
-    [ChatCommand("give", "Gives an item. Usage: /give <item_id> [quantity] or console: give <player> <item_id> [quantity]", 10)]
+    private const int MaxGiveQuantity = 25500;
+    
+    [ChatCommand("give","Gives an item. Usage: /give <item_id> [quantity] or console: give <player> <item_id> [quantity]", 10)]
     public static void GiveCommand(string[] arguments, TABGPlayerServer? sender) {
         if (!WorldUtility.TryGetWorld(out ServerClient? world)) {
             Plugin.Logger.LogError("World client is not available?");
@@ -129,6 +131,8 @@ public static class BasicCommands {
             }
         }
 
+        quantity = Math.Min(quantity, MaxGiveQuantity);
+        
         int remaining = quantity;
         while (remaining > 0) {
             byte packetQuantity = (byte)Math.Min(remaining, byte.MaxValue);
