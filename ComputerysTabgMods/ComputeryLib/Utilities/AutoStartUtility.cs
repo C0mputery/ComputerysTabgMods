@@ -13,4 +13,8 @@ public static class AutoStartUtility {
     [HarmonyPostfix]
     [HarmonyPatch(typeof(ServerClient), nameof(ServerClient.OnHosted))]
     private static void OnHostedPostfix(ServerClient __instance) { __instance.GameRoomReference.CurrentGameMode.RunStart(); }
+    
+    [HarmonyPrefix]
+    [HarmonyPatch(typeof(GameRoom), nameof(GameRoom.StartFlying))]
+    private static bool StartFlyingPrefix() { return false; }
 }
