@@ -92,4 +92,18 @@ public class ServerFailPatches {
         }
         PlayerUpdateCommand.Run(msgData, world);
     }
+
+    // Landfall never closes their connection via the player leave command.
+    // Without this, there's a shitload of spam
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(PlayerLeaveCommand), nameof(PlayerLeaveCommand.Run))]
+    private static void DisconnectLeavingPlayer(ServerClient world, TABGPlayerServer player) { world.Server?.DisconnectPlayer(player.PlayerIndex); }
+
+    // After the last ring Landfall calls StartMoving every frame for no reason, this stops that
+    // This also makes a shitload of spam
+    [HarmonyPrefix]
+    [HarmonyPatch(typeof(TheRing), nameof(TheRing.StartMoving))]
+    private static bool SkipNoOpStartMoving(TheRing __instance) {
+        return !(__instance.hasStarted && !__instance.isMoving && __instance.currentWhiteRingPosition == __instance.endPosition);
+    }
 }
