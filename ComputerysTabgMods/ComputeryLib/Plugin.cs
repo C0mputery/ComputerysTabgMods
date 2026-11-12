@@ -56,6 +56,7 @@ public class Plugin : BaseUnityPlugin {
         Harmony.PatchAll(typeof(PacketQueueUtility));
         GameEndUtility.ApplyPatches();
         MidMatchJoiningUtility.ApplyPatches();
+        AutoStartUtility.ApplyPatches();
         LoggerImprover.ApplyLoggerPatches();
     }
 
