@@ -25,8 +25,7 @@ public static class MidMatchJoiningUtility {
     private static IEnumerable<CodeInstruction> AllowJoinAfterStart(IEnumerable<CodeInstruction> instructions, ILGenerator generator) {
         CodeMatcher matcher = new CodeMatcher(instructions, generator);
         
-        matcher.MatchForward(
-            false,
+        matcher.MatchForward(false,
             new CodeMatch(OpCodes.Switch),
             new CodeMatch(code => code.opcode == OpCodes.Br || code.opcode == OpCodes.Br_S)
         );
