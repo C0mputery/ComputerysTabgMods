@@ -1,7 +1,9 @@
 using System.Collections.Generic;
+using System.Reflection.Emit;
 using HarmonyLib;
 using Landfall.Network;
 using Unity.Networking.Transport;
+using Unity.Networking.Transport.Utilities;
 
 namespace ComputeryLib.ServerFailFixes;
 
@@ -50,5 +52,16 @@ public static class UnityTransportConnectionFixes {
         for (int index = 0; index < server.m_connections.Length; index++) {
             if (server.m_connections[index] == connection) { server.m_connections[index] = default; }
         }
+    }
+    
+    // Landfall is fucking stupid, client and server use different fragmentation payload capacity numbers. This makes it so they use the same one
+    public const int ClientFragmentationPayloadCapacity = 20000;
+    [HarmonyTranspiler]
+    [HarmonyPatch(typeof(UnityTransportServer), nameof(UnityTransportServer.ActuallyHost))]
+    private static IEnumerable<CodeInstruction> MatchClientFragmentationCapacity(IEnumerable<CodeInstruction> instructions) {
+        CodeMatcher matcher = new CodeMatcher(instructions);
+        matcher.MatchForward(false, new CodeMatch(instruction => instruction.LoadsConstant(81920)));
+        matcher.SetInstruction(new CodeInstruction(OpCodes.Ldc_I4, ClientFragmentationPayloadCapacity));
+        return matcher.InstructionEnumeration();
     }
 }
