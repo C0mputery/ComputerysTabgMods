@@ -54,9 +54,9 @@ public class Plugin : BaseUnityPlugin {
         Harmony.PatchAll(typeof(TerminateUtility));
         Harmony.PatchAll(typeof(TickRateUtility));
         Harmony.PatchAll(typeof(MessageLogger));
-        Harmony.PatchAll(typeof(MidMatchJoiningPatches));
         Harmony.PatchAll(typeof(PacketQueueUtility));
         GameEndUtility.ApplyPatches();
+        MidMatchJoiningPatches.ApplyPatches();
         LoggerImprover.ApplyLoggerPatches();
     }
 
