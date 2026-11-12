@@ -33,6 +33,8 @@
     <Reference Include="$(ServerManagedFolder)Newtonsoft.Json.dll" Private="false" Publicize="true"/>
     <Reference Include="$(ServerManagedFolder)PlayFab.dll" Private="false" Publicize="true"/>
     <Reference Include="$(ServerManagedFolder)FMODUnity.dll" Private="false" Publicize="true"/>
+    <Reference Include="$(ServerManagedFolder)Unity.Networking.Transport.dll" Private="false"/>
+    <Reference Include="$(ServerManagedFolder)Unity.Collections.dll" Private="false"/>
   </ItemGroup>
   
   <ItemGroup Condition="'$(TargetFramework.TrimEnd(`0123456789`))' == 'net'">

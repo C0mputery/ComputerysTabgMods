@@ -50,6 +50,7 @@ public class Plugin : BaseUnityPlugin {
         Harmony.PatchAll(typeof(WorldUtility));
         Harmony.PatchAll(typeof(RoomInitRequestCommandPatch));
         Harmony.PatchAll(typeof(ServerFailPatches));
+        Harmony.PatchAll(typeof(UnityTransportConnectionFixes));
         Harmony.PatchAll(typeof(TerminateUtility));
         Harmony.PatchAll(typeof(TickRateUtility));
         Harmony.PatchAll(typeof(MessageLogger));
