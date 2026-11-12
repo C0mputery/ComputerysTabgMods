@@ -8,7 +8,7 @@ using UnityEngine;
 namespace ComputeryLib.Utilities;
 
 public static class PlayerInteractionUtility {
-    public static void PrivateMessageOrConsoleLog(string message, TABGPlayerServer? sender) {
+    public static void PrivateMessageOrServerLog(string message, TABGPlayerServer? sender) {
         if (sender == null) { Plugin.Logger.LogInfo(message); }
         else { PrivateMessage(message, sender); }
     }

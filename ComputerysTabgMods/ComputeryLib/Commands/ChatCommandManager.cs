@@ -59,18 +59,6 @@ public static class ChatCommandManager {
         return true;
     }
     
-    public static void HandleConsoleMessage(string message) {
-        string[] parts = message.ToLower().Split(' ');
-        string commandName = parts[0].ToLower();
-        string[] arguments = parts.Skip(1).ToArray();
-        
-        if (!Commands.TryGetValue(commandName, out ChatCommandContext chatCommandContext)) {
-            Plugin.Logger.LogInfo($"Unknown command: {commandName}, type help for a list of commands you can use.");
-            return;
-        }
-        chatCommandContext.Command(arguments, null);
-    }
-    
     public static void RegisterCommands() {
         Commands.Clear();
         

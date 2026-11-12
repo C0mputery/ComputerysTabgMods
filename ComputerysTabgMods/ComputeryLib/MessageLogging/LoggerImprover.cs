@@ -7,7 +7,7 @@ using HarmonyLib;
 using Landfall.Network;
 using Landfall.TABG;
 
-namespace ComputeryLib.CLI;
+namespace ComputeryLib.MessageLogging;
 
 public static class LoggerImprover {
     public static void ApplyLoggerPatches() {
