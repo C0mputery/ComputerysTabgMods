@@ -9,6 +9,7 @@ using Landfall.Network;
 
 namespace ComputeryLib.ServerFailFixes;
 
+[HarmonyPatch]
 public class ServerFailPatches {
     [HarmonyFinalizer]
     [HarmonyPatch(typeof(EnetServer), nameof(EnetServer.StartServer))]

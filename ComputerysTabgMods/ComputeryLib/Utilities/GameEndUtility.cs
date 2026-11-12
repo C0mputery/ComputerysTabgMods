@@ -16,9 +16,9 @@ public static class GameEndUtility {
         if (KeepRunningWithZeroPlayers) { Plugin.Harmony.PatchAll(typeof(SkipCheckForTerminatePatch)); }
     }
     
-    [HarmonyPatch(typeof(BattleRoyaleGameMode), nameof(BattleRoyaleGameMode.CheckGameState), typeof(GameState))]
     private static class SkipGroupEndPatch {
         [HarmonyTranspiler]
+        [HarmonyPatch(typeof(BattleRoyaleGameMode), nameof(BattleRoyaleGameMode.CheckGameState), typeof(GameState))]
         private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) {
             CodeMatcher matcher = new CodeMatcher(instructions);
             FieldInfo gameRoomField = AccessTools.Field(typeof(TABGBaseGameMode), nameof(TABGBaseGameMode.m_GameRoom));
@@ -47,9 +47,9 @@ public static class GameEndUtility {
         }
     }
     
-    [HarmonyPatch(typeof(GameRoom), nameof(GameRoom.CheckForTerminate))]
     private static class SkipCheckForTerminatePatch {
         [HarmonyPrefix]
+        [HarmonyPatch(typeof(GameRoom), nameof(GameRoom.CheckForTerminate))]
         private static bool Prefix() { return false; }
     }
 }

@@ -4,6 +4,7 @@ using Landfall.Network;
 
 namespace ComputeryLib.Commands;
 
+[HarmonyPatch]
 public static class ChatMessageCommandPatch {
     [HarmonyPrefix]
     [HarmonyPatch(typeof(ChatMessageCommand), nameof(ChatMessageCommand.Run))]

@@ -4,6 +4,7 @@ using HarmonyLib;
 
 namespace ComputeryLib.Utilities;
 
+[HarmonyPatch(typeof(Easy_AC_Server))]
 public static class PacketQueueUtility {
     private const int DefaultPacketQueueMaxSizeBytes = 0;
     
@@ -11,7 +12,7 @@ public static class PacketQueueUtility {
     public static readonly int OutgoingPacketQueueMaxSizeBytes = Plugin.Config.Bind("Network", "OutgoingPacketQueueMaxSizeBytes", DefaultPacketQueueMaxSizeBytes, "Maximum outgoing EOS P2P packet queue size in bytes. The EOS default is 1048576 (1 MiB). Set to 0 for an unlimited queue.").Value;
     
     [HarmonyPostfix]
-    [HarmonyPatch(typeof(Easy_AC_Server), nameof(Easy_AC_Server.InitEpic))]
+    [HarmonyPatch(nameof(Easy_AC_Server.InitEpic))]
     public static void InitEpicPostfix() {
         if (Easy_AC_Server.s_PlatformInterface == null) {
             Plugin.Logger.LogError("Failed to set the EOS P2P packet queue size likely bcs epic failed to init.");

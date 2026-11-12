@@ -6,11 +6,12 @@ using Unity.Networking.Transport;
 
 namespace ComputeryLib.ServerFailFixes;
 
+[HarmonyPatch(typeof(UnityTransportServer))]
 public static class UnityTransportConnectionFixes {
     private static readonly List<byte> DisconnectedPlayerIDBuffer = [];
     
     [HarmonyPrefix]
-    [HarmonyPatch(typeof(UnityTransportServer), nameof(UnityTransportServer.Update))]
+    [HarmonyPatch(nameof(UnityTransportServer.Update))]
     private static void ClearStalePlayerIDs(UnityTransportServer __instance) {
         if (!__instance.m_isHosting || __instance.m_playerIDToConnection == null) { return; }
         
@@ -33,7 +34,7 @@ public static class UnityTransportConnectionFixes {
     // Landfall just wrote DisconnectPlayer wrong so we fully overwrite it.
     // They treated m_connections as a playerID indexable data source, so they remove random players not the one they wanted
     [HarmonyPrefix]
-    [HarmonyPatch(typeof(UnityTransportServer), nameof(UnityTransportServer.DisconnectPlayer))]
+    [HarmonyPatch(nameof(UnityTransportServer.DisconnectPlayer))]
     private static bool DisconnectPlayerFix(UnityTransportServer __instance, byte playerToKick) {
         if (!__instance.m_playerIDToConnection.TryGetValue(playerToKick, out NetworkConnection connection)) { return false; }
         
@@ -57,7 +58,7 @@ public static class UnityTransportConnectionFixes {
     public const int ClientFragmentationPayloadCapacity = 20000;
     
     [HarmonyTranspiler]
-    [HarmonyPatch(typeof(UnityTransportServer), nameof(UnityTransportServer.ActuallyHost))]
+    [HarmonyPatch(nameof(UnityTransportServer.ActuallyHost))]
     private static IEnumerable<CodeInstruction> MatchClientFragmentationCapacity(IEnumerable<CodeInstruction> instructions) {
         CodeMatcher matcher = new CodeMatcher(instructions);
         matcher.MatchForward(false, new CodeMatch(instruction => instruction.LoadsConstant(81920)));

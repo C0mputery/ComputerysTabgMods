@@ -5,6 +5,7 @@ using Landfall.Network;
 
 namespace ComputeryLib.Utilities;
 
+[HarmonyPatch]
 public static class TerminateUtility {
     public static readonly float RestartTime = Plugin.Config.Bind("Server", "RestartTime", 25f, "Time that it takes the server to reload when the game ends or when a it cannot start properly (in seconds)").Value;
     

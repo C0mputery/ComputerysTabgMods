@@ -4,6 +4,7 @@ using Landfall.Network;
 
 namespace ComputeryLib.Utilities;
 
+[HarmonyPatch(typeof(ServerClient))]
 public static class WorldUtility {
     private static ServerClient? _worldClient;
     
@@ -21,6 +22,6 @@ public static class WorldUtility {
     internal static void SetWorldClient(ServerClient world) { _worldClient = world; }
     
     [HarmonyPrefix]
-    [HarmonyPatch(typeof(ServerClient), nameof(ServerClient.Awake))]
+    [HarmonyPatch(nameof(ServerClient.Awake))]
     public static void AwakePrefix(ref ServerClient __instance) { SetWorldClient(__instance); }
 }

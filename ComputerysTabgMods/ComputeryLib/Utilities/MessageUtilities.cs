@@ -5,6 +5,7 @@ using Landfall.Network;
 
 namespace ComputeryLib.Utilities;
 
+[HarmonyPatch]
 public static class MessageUtilities {
     /// <summary>
     ///     This does include commands!

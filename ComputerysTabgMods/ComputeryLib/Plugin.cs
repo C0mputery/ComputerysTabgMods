@@ -1,12 +1,10 @@
-﻿using BepInEx;
+﻿using System.Reflection;
+using BepInEx;
 using BepInEx.Configuration;
 using BepInEx.Logging;
 using ComputeryLib.Commands;
-using ComputeryLib.ConfigImprovements;
 using ComputeryLib.MessageLogging;
-using ComputeryLib.ServerFailFixes;
 using ComputeryLib.Utilities;
-using ComputeryLib.VisitorLog;
 using HarmonyLib;
 using UnityEngine;
 
@@ -35,21 +33,11 @@ public class Plugin : BaseUnityPlugin {
     }
     
     private static void ApplyPatches() {
-        Harmony.PatchAll(typeof(GameSettingsPatch));
-        Harmony.PatchAll(typeof(MessageUtilities));
-        Harmony.PatchAll(typeof(ChatMessageCommandPatch));
-        Harmony.PatchAll(typeof(WorldUtility));
-        Harmony.PatchAll(typeof(RoomInitRequestCommandPatch));
-        Harmony.PatchAll(typeof(ServerFailPatches));
-        Harmony.PatchAll(typeof(UnityTransportConnectionFixes));
-        Harmony.PatchAll(typeof(TerminateUtility));
-        Harmony.PatchAll(typeof(TickRateUtility));
-        Harmony.PatchAll(typeof(MessageLogger));
-        Harmony.PatchAll(typeof(PacketQueueUtility));
+        Harmony.PatchAll(Assembly.GetExecutingAssembly());
         GameEndUtility.ApplyPatches();
         MidMatchJoiningUtility.ApplyPatches();
         AutoStartUtility.ApplyPatches();
-        LoggerImprover.ApplyLoggerPatches();
+        LoggerImprover.ApplyHeartbeatPatch();
     }
     
     private void Start() { ChatCommandManager.RegisterCommands(); }
