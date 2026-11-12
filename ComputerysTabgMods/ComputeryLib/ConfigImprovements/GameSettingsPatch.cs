@@ -44,7 +44,7 @@ public static class GameSettingsPatch {
         __instance.AutoTeamNumberOfTeams = configFile.Bind("Gameplay", "AutoTeamNumberOfTeams", 2, "Number of teams to force players into when force auto teaming is enabled").Value;
         __instance.UseSouls = configFile.Bind("Gameplay", "UseSouls", true, "If a player should drop a soul when they run the DropAllLootCommand on death").Value;
         __instance.GameMode = (GameMode)System.Enum.Parse(typeof(GameMode), configFile.Bind("Gameplay", "GameMode", "BattleRoyale", "Sets the GameMode. Valid inputs: BattleRoyale, Brawl, Test, Bomb, Deception. Most of these do not work.").Value);
-        __instance.AllowRejoins = configFile.Bind("Gameplay", "AllowRejoins", false, "Tries to allow rejoins, does not really work.").Value;
+        __instance.AllowRejoins = configFile.Bind("Gameplay", "AllowRejoins", false, "Tries to allow rejoins, does not really work. Using this will break mid-match joining as well.").Value;
         __instance.UseTimedForceStart = configFile.Bind("Gameplay", "UseTimedForceStart", true, "Will start match with fewer players than PlayersToStart if waited longer than ForceStartTime").Value;
         __instance.MinPlayersToForceStart = configFile.Bind("Gameplay", "MinPlayersToForceStart", 2, "Players needed to start the force start timer").Value;
         __instance.SpawnBots = configFile.Bind("Gameplay", "SpawnBots", 0, "Tries to spawn this number of bots into the game, does not work properly").Value;
