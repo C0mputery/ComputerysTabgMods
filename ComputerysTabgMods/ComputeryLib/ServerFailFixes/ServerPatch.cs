@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
 using ComputeryLib.Utilities;
-using ENet;
 using HarmonyLib;
 using Landfall.Network;
 
@@ -47,12 +46,6 @@ public class ServerFailPatches {
         __instance.Host.Dispose();
         ServerClient.m_Server = null; // We gotta remove this or it will try to reuse the disposed host.
         return false;
-    }
-    
-    [HarmonyPostfix]
-    [HarmonyPatch(typeof(ServerClient), nameof(ServerClient.OnApplicationQuit))]
-    public static void OnApplicationQuitPostfix() {
-        Library.Deinitialize(); // Always deinitialize ENet on application quit rather than on server kill.
     }
     
     /// <summary>

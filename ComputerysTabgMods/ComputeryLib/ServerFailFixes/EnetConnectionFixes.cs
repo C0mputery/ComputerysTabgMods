@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Reflection;
+using ComputeryLib.ConfigImprovements;
 using ENet;
 using HarmonyLib;
 using Landfall.Network;
@@ -12,6 +13,12 @@ public static class EnetConnectionFixes {
     private static readonly Dictionary<uint, (Peer Peer, byte PlayerID)> PeerIDToPlayer = [];
     private static readonly HashSet<byte> UsedPlayerIDs = [];
     private static readonly List<uint> GonePeerIDBuffer = [];
+    
+    [HarmonyPrepare] private static bool OnlyWhenEnet() { return !GameSettingsPatch.Relay; }
+    
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(ServerClient), nameof(ServerClient.OnApplicationQuit))]
+    private static void DeinitializeOnQuit() { Library.Deinitialize(); } // Always deinitialize ENet on application quit rather than on server kill.
     
     [HarmonyPostfix]
     [HarmonyPatch(nameof(EnetServer.StartServer))]
