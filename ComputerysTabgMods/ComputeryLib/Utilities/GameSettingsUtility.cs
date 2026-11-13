@@ -10,7 +10,7 @@ using Random = UnityEngine.Random;
 namespace ComputeryLib.ConfigImprovements;
 
 [HarmonyPatch(typeof(GameSettings))]
-public static class GameSettingsPatch {
+public static class GameSettingsUtility {
     [HarmonyPrefix]
     [HarmonyPatch(MethodType.Constructor, typeof(TheRing), typeof(string))]
     public static bool GameSettingsConstructorPrefix(ref GameSettings __instance, TheRing ringRef, string overridePath) {

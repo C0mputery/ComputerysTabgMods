@@ -14,7 +14,7 @@ public static class EnetConnectionFixes {
     private static readonly HashSet<byte> UsedPlayerIDs = [];
     private static readonly List<uint> GonePeerIDBuffer = [];
     
-    [HarmonyPrepare] private static bool OnlyWhenEnet() { return !GameSettingsPatch.Relay; }
+    [HarmonyPrepare] private static bool OnlyWhenEnet() { return !GameSettingsUtility.Relay; }
     
     [HarmonyPostfix]
     [HarmonyPatch(typeof(ServerClient), nameof(ServerClient.OnApplicationQuit))]

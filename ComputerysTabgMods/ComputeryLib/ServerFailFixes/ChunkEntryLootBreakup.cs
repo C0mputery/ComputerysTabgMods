@@ -10,7 +10,7 @@ namespace ComputeryLib.ServerFailFixes;
 
 [HarmonyPatch]
 public static class ChunkEntryLootBreakup {
-    [HarmonyPrepare] private static bool OnlyWhenRelay() { return GameSettingsPatch.Relay; }
+    [HarmonyPrepare] private static bool OnlyWhenRelay() { return GameSettingsUtility.Relay; }
     
     [HarmonyTranspiler]
     [HarmonyPatch(typeof(ChunkEntryCommand), nameof(ChunkEntryCommand.Run))]

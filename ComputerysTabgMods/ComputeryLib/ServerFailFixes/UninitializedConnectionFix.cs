@@ -10,7 +10,7 @@ namespace ComputeryLib.ServerFailFixes;
 public static class UninitializedConnectionFix {
     private static readonly HashSet<NetworkConnection> RoomInitedConnections = [];
     
-    [HarmonyPrepare] private static bool OnlyWhenRelay() { return GameSettingsPatch.Relay; }
+    [HarmonyPrepare] private static bool OnlyWhenRelay() { return GameSettingsUtility.Relay; }
     
     [HarmonyPrefix]
     [HarmonyPatch(typeof(RoomInitRequestCommand), nameof(RoomInitRequestCommand.Run))]
