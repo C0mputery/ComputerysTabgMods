@@ -23,3 +23,14 @@ public static class Easy_AC_Client_Patch {
         return false;
     }
 }
+
+[HarmonyPatch(typeof(Easy_AC_Client))]
+public static class MissingAntiCheatPatch {
+    [HarmonyPrefix]
+    [HarmonyPatch(nameof(Easy_AC_Client.BeginSession))]
+    public static bool BeginSession_Prefix() { return Easy_AC_Client.m_Interface != null; }
+    
+    [HarmonyPrefix]
+    [HarmonyPatch(nameof(Easy_AC_Client.HandleACMessage))]
+    public static bool HandleACMessage_Prefix() { return Easy_AC_Client.m_Interface != null; }
+}
