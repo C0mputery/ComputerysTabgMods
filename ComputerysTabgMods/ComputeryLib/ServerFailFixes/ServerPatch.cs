@@ -70,14 +70,13 @@ public class ServerFailPatches {
         Type nestedType = typeof(ServerClient).GetNestedType("<>c__DisplayClass84_0", BindingFlags.NonPublic);
         FieldInfo sender = AccessTools.Field(nestedType, "sender");
         
-        matcher.MatchForward(false,
+        matcher.MatchForward(true,
             new CodeMatch(OpCodes.Ldloc_0),
             new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(ServerClient).GetNestedType("<>c__DisplayClass84_0", BindingFlags.NonPublic), "serverData")),
             new CodeMatch(OpCodes.Ldarg_0),
             new CodeMatch(OpCodes.Call, AccessTools.Method(typeof(PlayerUpdateCommand), "Run"))
         );
         
-        matcher.Advance(3);
         matcher.InsertAndAdvance(
             new CodeInstruction(OpCodes.Ldloc_0),
             new CodeInstruction(OpCodes.Ldfld, sender)

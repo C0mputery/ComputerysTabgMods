@@ -60,12 +60,12 @@ public static class SearchUtility {
         
         string normalizedInput = userInput.ToLower().Trim();
         
-        for (int index = 0; index < names.Length; index++) {
-            string? gun = names[index];
+        for (int i = 0; i < names.Length; i++) {
+            string? gun = names[i];
             int distance = ComputeLevenshteinDistance(normalizedInput, gun.ToLower());
             if (distance >= minDistance) { continue; }
             minDistance = distance;
-            bestMatchIndex = index;
+            bestMatchIndex = i;
         }
         
         if (minDistance > normalizedInput.Length / 2) { return -1; }
