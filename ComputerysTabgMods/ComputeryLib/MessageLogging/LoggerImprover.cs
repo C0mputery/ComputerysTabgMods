@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
-using BepInEx.Configuration;
 using FMODUnity;
 using HarmonyLib;
 using Landfall.Network;
@@ -12,16 +11,6 @@ namespace ComputeryLib.MessageLogging;
 
 [HarmonyPatch]
 public static class LoggerImprover {
-    public static void EnableBepInExConsole() {
-        ConfigFile coreConfig = (ConfigFile)AccessTools.Property(typeof(ConfigFile), "CoreConfig").GetValue(null);
-        ConfigEntry<bool> consoleEnabled = (ConfigEntry<bool>)coreConfig["Logging.Console", "Enabled"];
-        if (consoleEnabled.Value) { return; }
-        
-        consoleEnabled.Value = true;
-        coreConfig.Save();
-        Plugin.Logger.LogWarning("Enabled the BepInEx console in BepInEx.cfg. It will show up after a restart.");
-    }
-    
     public static void ApplyHeartbeatPatch() {
         Type nestedType = typeof(CommunityBackendAPI).GetNestedType("<>c__DisplayClass7_0", BindingFlags.NonPublic);
         MethodInfo? targetMethod = nestedType.GetMethod("<GameServerHeartbeat>b__0", BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic);

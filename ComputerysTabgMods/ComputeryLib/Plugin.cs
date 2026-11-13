@@ -22,7 +22,6 @@ public class Plugin : BaseUnityPlugin {
     private void Awake() {
         Logger = base.Logger;
         Config = base.Config;
-        LoggerImprover.EnableBepInExConsole();
         
         Logger.LogInfo($"Plugin {PluginInfo.PLUGIN_GUID} is loaded!");
         
