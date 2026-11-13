@@ -5,12 +5,11 @@ using UnityEngine;
 
 namespace ComputeryLib.Utilities;
 
+[HarmonyPatch]
 public static class AggressiveRingUtility {
     public static readonly bool AggressiveRingChecks = Plugin.Config.Bind("Gameplay", "AggressiveRingChecks", false, "Instantly kills any player who is outside the last closed ring.").Value;
     
-    public static void ApplyPatches() {
-        if (AggressiveRingChecks) { Plugin.Harmony.PatchAll(typeof(AggressiveRingUtility)); }
-    }
+    [HarmonyPrepare] private static bool OnlyWhenEnabled() { return AggressiveRingChecks; }
     
     private static bool _ringHasClosedEver;
     private static Vector3 _closedRingCenter;

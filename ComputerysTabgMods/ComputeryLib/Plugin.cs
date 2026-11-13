@@ -4,7 +4,6 @@ using BepInEx.Configuration;
 using BepInEx.Logging;
 using ComputeryLib.Commands;
 using ComputeryLib.MessageLogging;
-using ComputeryLib.Utilities;
 using HarmonyLib;
 using UnityEngine;
 
@@ -34,10 +33,6 @@ public class Plugin : BaseUnityPlugin {
     
     private static void ApplyPatches() {
         Harmony.PatchAll(Assembly.GetExecutingAssembly());
-        GameEndUtility.ApplyPatches();
-        MidMatchJoiningUtility.ApplyPatches();
-        AutoStartUtility.ApplyPatches();
-        AggressiveRingUtility.ApplyPatches();
         LoggerImprover.ApplyHeartbeatPatch();
     }
     

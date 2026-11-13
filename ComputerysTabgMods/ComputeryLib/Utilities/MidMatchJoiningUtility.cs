@@ -7,12 +7,11 @@ using Landfall.Network;
 
 namespace ComputeryLib.Utilities;
 
+[HarmonyPatch]
 public static class MidMatchJoiningUtility {
     public static readonly bool AllowMidMatchJoining = Plugin.Config.Bind("Gameplay", "AllowMidMatchJoining", false, "When enabled, players can join a match after it has started.").Value;
     
-    public static void ApplyPatches() {
-        if (AllowMidMatchJoining) { Plugin.Harmony.PatchAll(typeof(MidMatchJoiningUtility)); }
-    }
+    [HarmonyPrepare] private static bool OnlyWhenEnabled() { return AllowMidMatchJoining; }
     
     [HarmonyPostfix]
     [HarmonyPatch(typeof(GameRoom), nameof(GameRoom.AcceptingPlayers))]

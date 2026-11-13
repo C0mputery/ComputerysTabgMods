@@ -11,12 +11,10 @@ public static class GameEndUtility {
     public static readonly bool DisableGameEnd = Plugin.Config.Bind("Gameplay", "DisableGameEnd", false, "When enabled, a Battle Royale match stays running after it would have ended with one or zero groups left.").Value;
     public static readonly bool KeepRunningWithZeroPlayers = Plugin.Config.Bind("Gameplay", "KeepRunningWithZeroPlayers", false, "When enabled, the game keeps running even with zero players.").Value;
     
-    public static void ApplyPatches() {
-        if (DisableGameEnd) { Plugin.Harmony.PatchAll(typeof(SkipGroupEndPatch)); }
-        if (KeepRunningWithZeroPlayers) { Plugin.Harmony.PatchAll(typeof(SkipCheckForTerminatePatch)); }
-    }
-    
+    [HarmonyPatch]
     private static class SkipGroupEndPatch {
+        [HarmonyPrepare] private static bool OnlyWhenEnabled() { return DisableGameEnd; }
+        
         [HarmonyTranspiler]
         [HarmonyPatch(typeof(BattleRoyaleGameMode), nameof(BattleRoyaleGameMode.CheckGameState), typeof(GameState))]
         private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) {
@@ -47,7 +45,10 @@ public static class GameEndUtility {
         }
     }
     
+    [HarmonyPatch]
     private static class SkipCheckForTerminatePatch {
+        [HarmonyPrepare] private static bool OnlyWhenEnabled() { return KeepRunningWithZeroPlayers; }
+        
         [HarmonyPrefix]
         [HarmonyPatch(typeof(GameRoom), nameof(GameRoom.CheckForTerminate))]
         private static bool Prefix() { return false; }
