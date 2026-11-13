@@ -1,13 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using ComputeryLib.Utilities;
 using Landfall.Network;
 using Newtonsoft.Json;
 using PlayFab;
 using PlayFab.ClientModels;
 
-namespace ComputeryLib.VisitorLog;
+namespace ComputeryLib.Visitors;
 
 public static class VisitorLog {
     private static readonly string VisitorLogPath = Path.Combine(PersistantDataUtility.PersistentDataPath, "VisitorLog.json");
@@ -24,6 +25,12 @@ public static class VisitorLog {
     
     private static void SyncFromFile() { _visitors = LoadVisitorLogFromFile(); }
     
+    private static VisitorInfo GetOrCreateVisitor(string epicUserName) {
+        if (_visitors.TryGetValue(epicUserName, out VisitorInfo visitorInfo)) { return visitorInfo; }
+        DateTime now = DateTime.UtcNow;
+        return new VisitorInfo { FirstSeen = now, LastSeen = now };
+    }
+    
     public static uint GetPermissionLevel(string epicUserName) {
         SyncFromFile();
         return _visitors.TryGetValue(epicUserName, out VisitorInfo visitorInfo) ? visitorInfo.PermissionLevel : 0;
@@ -35,6 +42,46 @@ public static class VisitorLog {
         visitorInfo.PermissionLevel = level;
         _visitors[epicUserName] = visitorInfo;
         SaveVisitorLog();
+    }
+    
+    public static void RecordKick(string epicUserName, string? reason, string issuedBy) {
+        SyncFromFile();
+        VisitorInfo visitorInfo = GetOrCreateVisitor(epicUserName);
+        visitorInfo.ModerationHistory.Add(new ModerationAction { Type = ModerationActionType.Kick, Reason = reason, IssuedBy = issuedBy, IssuedAt = DateTime.UtcNow });
+        _visitors[epicUserName] = visitorInfo;
+        SaveVisitorLog();
+    }
+    
+    public static void SetBan(string epicUserName, string? reason, DateTime? expiresUtc, string issuedBy) {
+        SyncFromFile();
+        VisitorInfo visitorInfo = GetOrCreateVisitor(epicUserName);
+        DateTime now = DateTime.UtcNow;
+        foreach (ModerationAction previous in visitorInfo.ModerationHistory) {
+            if (previous.Type == ModerationActionType.Ban && previous.EndedAt == null) { previous.EndedAt = now; }
+        }
+        visitorInfo.ModerationHistory.Add(new ModerationAction { Type = ModerationActionType.Ban, Reason = reason, IssuedBy = issuedBy, IssuedAt = now, Expires = expiresUtc });
+        _visitors[epicUserName] = visitorInfo;
+        SaveVisitorLog();
+    }
+    
+    public static bool TryGetActiveBan(string epicUserName, out string? reason, out DateTime? expiresUtc) {
+        reason = null;
+        expiresUtc = null;
+        SyncFromFile();
+        if (!_visitors.TryGetValue(epicUserName, out VisitorInfo visitorInfo)) { return false; }
+        
+        ModerationAction? active = visitorInfo.ModerationHistory.LastOrDefault(a => a.Type == ModerationActionType.Ban && a.EndedAt == null);
+        if (active == null) { return false; }
+        
+        if (active.Expires.HasValue && active.Expires.Value <= DateTime.UtcNow) {
+            active.EndedAt = active.Expires;
+            SaveVisitorLog();
+            return false;
+        }
+        
+        reason = active.Reason;
+        expiresUtc = active.Expires;
+        return true;
     }
     
     public static void Authenticate(Action onSuccess, Action onFailure) {
@@ -101,7 +148,7 @@ public static class VisitorLog {
         DatedString.UpdateDatedStringSet(visitorInfo.PlayfabIds, player.PlayFabID, currentTime);
         DatedString.UpdateDatedStringSet(visitorInfo.UnityIds, player.UnityID, currentTime);
         if (SearchUtility.TryGetPlayerIP(player, out string? ipAddress)) {
-            DatedString.UpdateDatedStringSet(visitorInfo.IpAddresses, ipAddress!, currentTime);
+            DatedString.UpdateDatedStringSet(visitorInfo.IpAddresses, ipAddress, currentTime);
         }
         visitorInfo.LastSeen = currentTime;
         

@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using HarmonyLib;
 using Landfall.Network;
@@ -15,18 +16,18 @@ public static class MessageUtilities {
     [HarmonyPostfix]
     [HarmonyPatch(typeof(ThrowChatMessageCommand), nameof(ThrowChatMessageCommand.Run))]
     private static void ThrowChatMessageCommandPostfix(byte[] data, ServerClient world, byte sender) {
-        if (!GetValue(data, world, sender, out TABGPlayerServer? player, out string? message)) { return; }
-        OnChatMessage?.Invoke(player!, message!, true);
+        if (!TryReadChatMessage(data, world, sender, out TABGPlayerServer? player, out string? message)) { return; }
+        OnChatMessage?.Invoke(player, message, true);
     }
     
     [HarmonyPostfix]
     [HarmonyPatch(typeof(ChatMessageCommand), nameof(ChatMessageCommand.Run))]
-    private static void ChatMessageCommandPrefix(byte[] msgData, ServerClient world, byte sender) {
-        if (!GetValue(msgData, world, sender, out TABGPlayerServer? player, out string? message)) { return; }
-        OnChatMessage?.Invoke(player!, message!, false);
+    private static void ChatMessageCommandPostfix(byte[] msgData, ServerClient world, byte sender) {
+        if (!TryReadChatMessage(msgData, world, sender, out TABGPlayerServer? player, out string? message)) { return; }
+        OnChatMessage?.Invoke(player, message, false);
     }
     
-    private static bool GetValue(byte[] data, ServerClient world, byte sender, out TABGPlayerServer? player, out string? message) {
+    internal static bool TryReadChatMessage(byte[] data, ServerClient world, byte sender, [NotNullWhen(true)] out TABGPlayerServer? player, [NotNullWhen(true)] out string? message) {
         player = world.GameRoomReference.FindPlayer(sender);
         if (player == null) {
             message = null;

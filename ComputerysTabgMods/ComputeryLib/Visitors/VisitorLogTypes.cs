@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
-namespace ComputeryLib.VisitorLog;
+namespace ComputeryLib.Visitors;
 
 public struct DatedString {
     public string Value { get; set; }
@@ -26,7 +28,19 @@ public struct DatedString {
     }
 }
 
-public struct VisitorInfo() {
+public enum ModerationActionType { Kick, Ban }
+
+public class ModerationAction {
+    [JsonConverter(typeof(StringEnumConverter))]
+    public ModerationActionType Type { get; set; }
+    public string? Reason { get; set; }
+    public string IssuedBy { get; set; } = "Server";
+    public DateTime IssuedAt { get; set; }
+    public DateTime? Expires { get; set; }
+    public DateTime? EndedAt { get; set; }
+}
+
+public class VisitorInfo {
     public List<DatedString> DisplayNames { get; set; } = [];
     public List<DatedString> SteamIds { get; set; } = [];
     public List<DatedString> PlayfabIds { get; set; } = [];
@@ -35,4 +49,5 @@ public struct VisitorInfo() {
     public DateTime FirstSeen { get; set; }
     public DateTime LastSeen { get; set; }
     public uint PermissionLevel { get; set; }
+    public List<ModerationAction> ModerationHistory { get; set; } = [];
 }

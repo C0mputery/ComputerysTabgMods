@@ -1,11 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Reflection;
+using System.Text;
 using BepInEx;
 using BepInEx.Configuration;
 using ComputeryLib.Utilities;
+using ComputeryLib.Visitors;
 using Landfall.Network;
 
 namespace ComputeryLib.Commands;
@@ -25,18 +26,17 @@ public static class ChatCommandManager {
     public static bool HandleChatMessage(string message, TABGPlayerServer sender) {
         if (message.Length == 0 || message[0] != '/') { return false; }
         
-        string messageLowerNoSlash = message[1..];
-        int firstSpaceIndex = messageLowerNoSlash.IndexOf(' ');
+        string messageNoSlash = message[1..];
+        int firstSpaceIndex = messageNoSlash.IndexOf(' ');
         string commandName;
         string[] arguments;
         if (firstSpaceIndex == -1) {
-            commandName = messageLowerNoSlash.ToLower();
+            commandName = messageNoSlash.ToLower();
             arguments = [];
         }
         else {
-            commandName = messageLowerNoSlash[..firstSpaceIndex].ToLower();
-            string argumentsString = messageLowerNoSlash[firstSpaceIndex..].Trim();
-            arguments = argumentsString.Split([' ', ',', '\t'], StringSplitOptions.RemoveEmptyEntries);
+            commandName = messageNoSlash[..firstSpaceIndex].ToLower();
+            arguments = ParseArguments(messageNoSlash[firstSpaceIndex..]);
         }
         
         if (!Commands.TryGetValue(commandName, out ChatCommandContext chatCommandContext)) {
@@ -57,6 +57,32 @@ public static class ChatCommandManager {
         }
         
         return true;
+    }
+    
+    public static string[] ParseArguments(string argumentsString) {
+        List<string> arguments = [];
+        StringBuilder current = new StringBuilder();
+        bool inQuotes = false;
+        bool hasToken = false;
+        
+        foreach (char character in argumentsString) {
+            if (character == '"') {
+                inQuotes = !inQuotes;
+                hasToken = true;
+            }
+            else if (!inQuotes && (character == ' ' || character == ',' || character == '\t')) {
+                if (hasToken) { arguments.Add(current.ToString()); }
+                current.Clear();
+                hasToken = false;
+            }
+            else {
+                current.Append(character);
+                hasToken = true;
+            }
+        }
+        
+        if (hasToken) { arguments.Add(current.ToString()); }
+        return arguments.ToArray();
     }
     
     public static void RegisterCommands() {
@@ -88,7 +114,7 @@ public static class ChatCommandManager {
     }
     
     public static uint GetUserPermissionLevel(TABGPlayerServer player) {
-        return VisitorLog.VisitorLog.GetPermissionLevel(player.EpicUserName);
+        return VisitorLog.GetPermissionLevel(player.EpicUserName);
     }
 }
 

@@ -1,4 +1,4 @@
-using System.Text;
+using ComputeryLib.Utilities;
 using HarmonyLib;
 using Landfall.Network;
 
@@ -15,13 +15,7 @@ public static class ChatMessageCommandPatch {
     public static bool ThrowChatMessageCommandRunPrefix(byte[] data, ServerClient world, byte sender) { return Parse(data, world, sender); }
     
     private static bool Parse(byte[] msgData, ServerClient world, byte sender) {
-        byte length = msgData[1];
-        string message = Encoding.Unicode.GetString(msgData, 2, length);
-        
-        TABGPlayerServer senderPlayer = world.GameRoomReference.FindPlayer(sender);
-        if (senderPlayer == null) {
-            return true;
-        }
-        return !ChatCommandManager.HandleChatMessage(message, senderPlayer);
+        if (!MessageUtilities.TryReadChatMessage(msgData, world, sender, out TABGPlayerServer? player, out string? message)) { return true; }
+        return !ChatCommandManager.HandleChatMessage(message, player);
     }
 }

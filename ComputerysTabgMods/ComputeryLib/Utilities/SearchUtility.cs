@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using ENet;
 using Landfall.Network;
@@ -7,12 +8,25 @@ using Landfall.Network;
 namespace ComputeryLib.Utilities;
 
 public static class SearchUtility {
-    public static bool TryGetPlayerByNameOrID(string searchValue, out TABGPlayerServer? foundPlayer) {
-        List<TABGPlayerServer> players = WorldUtility.GetWorld().GameRoomReference.Players;
-        foreach (TABGPlayerServer player in players) {
-            if (player.PlayerName.ToLower() != searchValue.ToLower() && player.PlayerIndex.ToString() != searchValue && player.EpicUserName != searchValue) { continue; }
-            foundPlayer = player;
+    public static bool TryGetPlayerByNameOrID(string searchValue, TABGPlayerServer? sender, [NotNullWhen(true)] out TABGPlayerServer? foundPlayer) {
+        foundPlayer = null;
+        
+        if (!WorldUtility.TryGetWorld(out ServerClient? world)) {
+            PlayerInteractionUtility.PrivateMessageOrServerLog("The world is not available yet.", sender);
+            return false;
+        }
+        
+        GameRoom room = world.GameRoomReference;
+        List<TABGPlayerServer> players = room.Players;
+        List<TABGPlayerServer> exactMatches = players.FindAll(p => string.Equals(p.PlayerName, searchValue, StringComparison.OrdinalIgnoreCase));
+        if (byte.TryParse(searchValue, out byte playerIndex) && room.FindPlayer(playerIndex) is { } indexMatch && !exactMatches.Contains(indexMatch)) { exactMatches.Add(indexMatch); }
+        if (exactMatches.Count == 1) {
+            foundPlayer = exactMatches[0];
             return true;
+        }
+        if (exactMatches.Count > 1) {
+            PlayerInteractionUtility.PrivateMessageOrServerLog($"More than one player matches \"{searchValue}\". Use their player id instead.", sender);
+            return false;
         }
         
         string[] playerNames = players.Select(p => p.PlayerName.ToLower()).ToArray();
@@ -22,11 +36,11 @@ public static class SearchUtility {
             return true;
         }
         
-        foundPlayer = null;
+        PlayerInteractionUtility.PrivateMessageOrServerLog($"Player not found: {searchValue}", sender);
         return false;
     }
     
-    public static bool TryGetPlayerIP(TABGPlayerServer player, out string? ipAddress) {
+    public static bool TryGetPlayerIP(TABGPlayerServer player, [NotNullWhen(true)] out string? ipAddress) {
         if (ServerClient.m_Server is EnetServer server) {
             if (server.m_IndexToENetPeerDic.TryGetValue(player.PlayerIndex, out Peer enetPeer)) {
                 ipAddress = enetPeer.IP;

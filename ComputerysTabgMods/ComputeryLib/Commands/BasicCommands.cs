@@ -55,7 +55,8 @@ public static class BasicCommands {
     }
     
     private const int MaxGiveQuantity = 25500;
-    [ChatCommand("give", "Gives an item. Usage: /give <item_id> [quantity] or from the server: give <player> <item_id> [quantity]", 10)]
+    
+    [ChatCommand("give", "Gives an item. Usage: /give <item_id> [quantity] or from the server: give <player_name|player_id> <item_id> [quantity]", 10)]
     public static void GiveCommand(string[] arguments, TABGPlayerServer? sender) {
         if (!WorldUtility.TryGetWorld(out ServerClient? world)) {
             Plugin.Logger.LogError("World client is not available?");
@@ -65,18 +66,15 @@ public static class BasicCommands {
         bool isNonPlayerSender = sender == null;
         int requiredArgumentCount = isNonPlayerSender ? 2 : 1;
         if (arguments.Length < requiredArgumentCount) {
-            string usage = isNonPlayerSender ? "Usage: give <player> <item_id> [quantity]" : "Usage: /give <item_id> [quantity]";
+            string usage = isNonPlayerSender ? "Usage: give <player_name|player_id> <item_id> [quantity]" : "Usage: /give <item_id> [quantity]";
             PlayerInteractionUtility.PrivateMessageOrServerLog(usage, sender);
             return;
         }
         
         TABGPlayerServer? targetPlayer = sender;
         string[] itemArguments = arguments;
-        if (isNonPlayerSender) {
-            if (!SearchUtility.TryGetPlayerByNameOrID(arguments[0], out targetPlayer)) {
-                PlayerInteractionUtility.PrivateMessageOrServerLog($"Player not found: {arguments[0]}", sender);
-                return;
-            }
+        if (targetPlayer == null) {
+            if (!SearchUtility.TryGetPlayerByNameOrID(arguments[0], sender, out targetPlayer)) { return; }
             itemArguments = [.. arguments.Skip(1)];
         }
         
@@ -96,9 +94,9 @@ public static class BasicCommands {
         }
         
         for (int remaining = quantity; remaining > 0; remaining -= byte.MaxValue) {
-            world.GivePlayerWeapon(targetPlayer!.PlayerIndex, itemId, (byte)Math.Min(remaining, byte.MaxValue));
+            world.GivePlayerWeapon(targetPlayer.PlayerIndex, itemId, (byte)Math.Min(remaining, byte.MaxValue));
         }
         
-        PlayerInteractionUtility.PrivateMessageOrServerLog($"Gave item {itemId} x{quantity} to {targetPlayer!.PlayerName}", sender);
+        PlayerInteractionUtility.PrivateMessageOrServerLog($"Gave item {itemId} x{quantity} to {targetPlayer.PlayerName}", sender);
     }
 }
