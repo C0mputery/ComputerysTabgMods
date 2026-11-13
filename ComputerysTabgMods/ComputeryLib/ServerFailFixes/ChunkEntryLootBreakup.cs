@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection.Emit;
+using ComputeryLib.ConfigImprovements;
 using HarmonyLib;
 using Landfall.Network;
 using UnityEngine;
@@ -9,6 +10,8 @@ namespace ComputeryLib.ServerFailFixes;
 
 [HarmonyPatch]
 public static class ChunkEntryLootBreakup {
+    [HarmonyPrepare] private static bool OnlyWhenRelay() { return GameSettingsPatch.Relay; }
+    
     [HarmonyTranspiler]
     [HarmonyPatch(typeof(ChunkEntryCommand), nameof(ChunkEntryCommand.Run))]
     private static IEnumerable<CodeInstruction> SplitLoot(IEnumerable<CodeInstruction> instructions) {
@@ -40,19 +43,6 @@ public static class ChunkEntryLootBreakup {
         
         matcher.Instruction.labels.AddRange(labelsToPreserve);
         
-        // world.SendMessageToClients(EventCode.ChunkEntry, buffer, _player.UpdateMessageQueue.Receivers, reliable: true);
-        matcher.MatchForward(true,
-            new CodeMatch(instruction => instruction.LoadsConstant(EventCode.ChunkEntry)),
-            new CodeMatch(instruction => instruction.IsLdloc())
-        );
-        matcher.Advance(1);
-        
-        // buffer into TrimPlayerPadding(buffer, list)
-        matcher.Insert(
-            new CodeInstruction(OpCodes.Ldloc_1),
-            new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(ChunkEntryLootBreakup), nameof(TrimPlayerPadding)))
-        );
-        
         return matcher.InstructionEnumeration();
     }
     
@@ -77,32 +67,7 @@ public static class ChunkEntryLootBreakup {
         int carSize = 20 * cars.Count;
         foreach (TABGCarServer car in cars) { carSize += car.NumberOfSeats + MaxQuaternionSize; }
         
-        return GetPlayerSize(players) + 4 + 5 + carSize + 1;
-    }
-    
-    private static int GetVanillaPlayerSize(List<TABGPlayerServer> players) {
-        int gearSize = 0;
-        int attachmentSize = 0;
-        foreach (TABGPlayerServer player in players) {
-            gearSize += 4 * player.GearData.Length;
-            attachmentSize += 2 * player.Attachments.Length;
-        }
-        return players.Count * (9 + 4 * gearSize + 4 + 2 * TABGPlayerServer.EquipmentDataLength + 1 + attachmentSize);
-    }
-    
-    private static int GetPlayerSize(List<TABGPlayerServer> players) {
-        int size = 0;
-        foreach (TABGPlayerServer player in players) { size += 1 + 1 + 4 + 4 + 1 + 1 + 4 + 4 * player.GearData.Length + 1 + 2 * TABGPlayerServer.EquipmentDataLength + 1 + 2 * player.Attachments.Length; }
-        return size;
-    }
-    
-    private static byte[] TrimPlayerPadding(byte[] buffer, List<TABGPlayerServer> players) {
-        int padding = GetVanillaPlayerSize(players) - GetPlayerSize(players);
-        if (padding <= 0) { return buffer; }
-        
-        byte[] trimmed = new byte[buffer.Length - padding];
-        System.Array.Copy(buffer, trimmed, trimmed.Length);
-        return trimmed;
+        return ChunkEntryPlayerPaddingTrim.GetPlayerSize(players) + 4 + 5 + carSize + 1;
     }
     
     private static byte[] BuildLootOnlyChunkEntry(byte playerIndex, List<NetworkGun> loot) {
