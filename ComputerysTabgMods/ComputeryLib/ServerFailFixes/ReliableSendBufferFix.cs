@@ -59,10 +59,11 @@ public static class ReliableSendBufferFix {
                 nativeBuffer.Dispose();
                 
                 if (result < 0) {
-                    if ((StatusCode)result != StatusCode.NetworkSendQueueFull) {
-                        Plugin.Logger.LogError($"Failed to resend held {package.EventCode} to player ID {playerID}: {(StatusCode)result}.");
-                    }
-                    break;
+                    if ((StatusCode)result == StatusCode.NetworkSendQueueFull) { break; }
+                    
+                    Plugin.Logger.LogError($"Dropping held {package.EventCode} ({package.Data.Length} bytes) to player ID {playerID}: {(StatusCode)result}.");
+                    sent++;
+                    continue;
                 }
                 
                 CountSentPackage(__instance, (byte)playerID);

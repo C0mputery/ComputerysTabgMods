@@ -24,10 +24,11 @@ public static class ChunkEntryLootBreakup {
             new CodeMatch(OpCodes.Callvirt, AccessTools.Method(typeof(List<TABGCarServer>), nameof(List<TABGCarServer>.Clear)))
         );
         
-        // TrimLoot(list, list2, list3, world, _player);
         matcher.Advance(1);
         List<Label> labelsToPreserve = [.. matcher.Instruction.labels];
         matcher.Instruction.labels.Clear();
+        
+        // TrimLoot(list, list2, list3, world, _player);
         matcher.Insert(
             new CodeInstruction(OpCodes.Ldloc_1),
             new CodeInstruction(OpCodes.Ldloc_2),
@@ -36,7 +37,21 @@ public static class ChunkEntryLootBreakup {
             new CodeInstruction(OpCodes.Ldarg_2),
             new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(ChunkEntryLootBreakup), nameof(TrimLoot)))
         );
+        
         matcher.Instruction.labels.AddRange(labelsToPreserve);
+        
+        // world.SendMessageToClients(EventCode.ChunkEntry, buffer, _player.UpdateMessageQueue.Receivers, reliable: true);
+        matcher.MatchForward(true,
+            new CodeMatch(instruction => instruction.LoadsConstant(EventCode.ChunkEntry)),
+            new CodeMatch(instruction => instruction.IsLdloc())
+        );
+        matcher.Advance(1);
+        
+        // buffer into TrimPlayerPadding(buffer, list)
+        matcher.Insert(
+            new CodeInstruction(OpCodes.Ldloc_1),
+            new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(ChunkEntryLootBreakup), nameof(TrimPlayerPadding)))
+        );
         
         return matcher.InstructionEnumeration();
     }
@@ -59,18 +74,35 @@ public static class ChunkEntryLootBreakup {
     }
     
     private static int GetSizeWithoutLoot(List<TABGPlayerServer> players, List<TABGCarServer> cars) {
+        int carSize = 20 * cars.Count;
+        foreach (TABGCarServer car in cars) { carSize += car.NumberOfSeats + MaxQuaternionSize; }
+        
+        return GetPlayerSize(players) + 4 + 5 + carSize + 1;
+    }
+    
+    private static int GetVanillaPlayerSize(List<TABGPlayerServer> players) {
         int gearSize = 0;
         int attachmentSize = 0;
         foreach (TABGPlayerServer player in players) {
             gearSize += 4 * player.GearData.Length;
             attachmentSize += 2 * player.Attachments.Length;
         }
-        int playerSize = players.Count * (9 + 4 * gearSize + 4 + 2 * TABGPlayerServer.EquipmentDataLength + 1 + attachmentSize);
+        return players.Count * (9 + 4 * gearSize + 4 + 2 * TABGPlayerServer.EquipmentDataLength + 1 + attachmentSize);
+    }
+    
+    private static int GetPlayerSize(List<TABGPlayerServer> players) {
+        int size = 0;
+        foreach (TABGPlayerServer player in players) { size += 1 + 1 + 4 + 4 + 1 + 1 + 4 + 4 * player.GearData.Length + 1 + 2 * TABGPlayerServer.EquipmentDataLength + 1 + 2 * player.Attachments.Length; }
+        return size;
+    }
+    
+    private static byte[] TrimPlayerPadding(byte[] buffer, List<TABGPlayerServer> players) {
+        int padding = GetVanillaPlayerSize(players) - GetPlayerSize(players);
+        if (padding <= 0) { return buffer; }
         
-        int carSize = 20 * cars.Count;
-        foreach (TABGCarServer car in cars) { carSize += car.NumberOfSeats + MaxQuaternionSize; }
-        
-        return playerSize + 4 + 5 + carSize + 1;
+        byte[] trimmed = new byte[buffer.Length - padding];
+        System.Array.Copy(buffer, trimmed, trimmed.Length);
+        return trimmed;
     }
     
     private static byte[] BuildLootOnlyChunkEntry(byte playerIndex, List<NetworkGun> loot) {
