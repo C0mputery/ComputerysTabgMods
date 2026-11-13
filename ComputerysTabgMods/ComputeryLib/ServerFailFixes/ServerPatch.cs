@@ -108,4 +108,10 @@ public class ServerFailPatches {
     private static bool SkipNoOpStartMoving(TheRing __instance) {
         return !(__instance.hasStarted && !__instance.isMoving && __instance.currentWhiteRingPosition == __instance.endPosition);
     }
+    
+    // Landfall only clears IsSkyDiving when the client sends PlayerLand
+    // Without this respawning mid-skydive bugs out the client
+    [HarmonyPrefix]
+    [HarmonyPatch(typeof(RespawnEntityCommand), nameof(RespawnEntityCommand.RespawnEntity))]
+    private static void ClearSkydivingOnRespawn(TABGPlayerServer p) { p.Land(); }
 }
