@@ -15,9 +15,7 @@ public static class EnetConnectionFixes {
     
     [HarmonyPostfix]
     [HarmonyPatch(nameof(EnetServer.StartServer))]
-    private static void CaptureServer(EnetServer __instance) {
-        Server = __instance;
-    }
+    private static void CaptureServer(EnetServer __instance) { Server = __instance; }
     
     [HarmonyTranspiler]
     [HarmonyPatch(nameof(EnetServer.Update))]
