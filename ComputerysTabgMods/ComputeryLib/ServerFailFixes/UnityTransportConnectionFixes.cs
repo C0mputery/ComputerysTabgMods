@@ -44,6 +44,15 @@ public static class UnityTransportConnectionFixes {
         return false;
     }
     
+    [HarmonyPrefix]
+    [HarmonyPatch(nameof(UnityTransportServer.Kill))]
+    private static void DisconnectAllOnKill(UnityTransportServer __instance) {
+        if (!__instance.m_networkDriver.IsCreated) { return; }
+        
+        foreach (NetworkConnection connection in __instance.m_connections) { __instance.m_networkDriver.Disconnect(connection); }
+        __instance.m_networkDriver.ScheduleFlushSend(default).Complete();
+    }
+    
     private static void RemovePlayerConnection(UnityTransportServer server, byte playerID, NetworkConnection connection) {
         server.m_playerIDToConnection.Remove(playerID);
         server.m_BufferedPackagesDIC.Remove(playerID);

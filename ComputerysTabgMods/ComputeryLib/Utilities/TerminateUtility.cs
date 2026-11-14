@@ -23,19 +23,14 @@ public static class TerminateUtility {
     /// <param name="time"> Harmony provided time parameter </param>
     [HarmonyPrefix]
     [HarmonyPatch(typeof(ServerClient), nameof(ServerClient.Terminate), typeof(float), typeof(string))]
-    public static void AwakePrefix(ref float time) {
-        time -= 10f;
-        if (time < 0f) { time = 0f; }
-    }
+    public static void AwakePrefix(ref float time) { time -= 10f; }
     
     [HarmonyTranspiler]
     [HarmonyPatch(typeof(GameRoom), nameof(GameRoom.EndMatch), typeof(TeamStanding))]
     public static IEnumerable<CodeInstruction> FixLandLog(IEnumerable<CodeInstruction> instructions) {
         CodeMatcher matcher = new CodeMatcher(instructions);
         matcher.MatchForward(false, new CodeMatch(OpCodes.Ldc_R4, 15f));
-        matcher.Set(OpCodes.Ldc_R4, RestartTime);
-        matcher.MatchForward(false, new CodeMatch(OpCodes.Ldc_R4, 15f));
-        matcher.Set(OpCodes.Ldc_R4, RestartTime);
+        matcher.Repeat(match => match.SetOperandAndAdvance(RestartTime));
         return matcher.InstructionEnumeration();
     }
 }
