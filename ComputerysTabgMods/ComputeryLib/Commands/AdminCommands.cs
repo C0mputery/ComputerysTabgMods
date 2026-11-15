@@ -96,6 +96,24 @@ public class AdminCommands {
         PlayerInteractionHelper.PrivateMessageOrServerLog($"Banned {target.PlayerName} {duration}.", sender);
     }
     
+    [ChatCommand("broadcast", "Puts a message in the kill feed. Usage: /broadcast <message> [colour]", 10)]
+    public static void BroadcastCommand(string[] arguments, TABGPlayerServer? sender) {
+        if (arguments.Length < 1 || arguments.Length > 2) {
+            PlayerInteractionHelper.PrivateMessageOrServerLog("Usage: /broadcast <message> [colour]", sender);
+            return;
+        }
+        
+        PlayerColour colour = PlayerColour.White;
+        if (arguments.Length > 1 && (!Enum.TryParse(arguments[1], true, out colour) || !Enum.IsDefined(typeof(PlayerColour), colour))) {
+            PlayerInteractionHelper.PrivateMessageOrServerLog($"Unknown colour: {arguments[1]}. Colours: {string.Join(", ", Enum.GetNames(typeof(PlayerColour)))}", sender);
+            return;
+        }
+        
+        string message = "<\u7FE9=99><\u5A0F\uFFEC\uFFED\uFFE9=999>" + TextHelper.Reformat(arguments[0]);
+        BroadcastHelper.Broadcast(message, colour, byte.MaxValue);
+        Plugin.Logger.LogInfo($"{sender?.PlayerName ?? "Server"} broadcast: {message}");
+    }
+    
     private static bool TryResolveModerationTarget(string argument, TABGPlayerServer? sender, [NotNullWhen(true)] out TABGPlayerServer? target) {
         if (!SearchHelper.TryGetPlayerByNameOrID(argument, sender, out target)) { return false; }
         

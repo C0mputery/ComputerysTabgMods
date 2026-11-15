@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Reflection;
 using ComputeryLib.ConfigImprovements;
+using ComputeryLib.Helpers;
 using ENet;
 using HarmonyLib;
 using Landfall.Network;
@@ -71,8 +72,8 @@ public static class EnetConnectionFixes {
     
     [HarmonyPrefix]
     [HarmonyPatch(typeof(GameRoom), nameof(GameRoom.FindPlayer), typeof(Peer))]
-    private static bool FindPlayerByMappedID(GameRoom __instance, Peer peer, ref TABGPlayerServer __result) {
-        __result = __instance.FindPlayer((byte)GetPlayerID(ref peer));
+    private static bool FindPlayerByMappedID(GameRoom __instance, Peer peer, ref TABGPlayerServer? __result) {
+        __result = __instance.FindPlayerOrSpectator((byte)GetPlayerID(ref peer));
         return false;
     }
     

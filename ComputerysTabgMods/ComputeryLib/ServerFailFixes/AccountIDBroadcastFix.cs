@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Reflection.Emit;
+using ComputeryLib.Helpers;
 using HarmonyLib;
 using Landfall.Network;
 using UnityEngine;
@@ -20,7 +21,7 @@ public static class AccountIDBroadcastFix {
             return false;
         }
         
-        foreach (TABGPlayerServer player in server.GameRoomReference.Players) { Enqueue(player.PlayerIndex, PlayerIDs); }
+        foreach (TABGPlayerServer player in server.GameRoomReference.PlayersAndSpectators()) { Enqueue(player.PlayerIndex, PlayerIDs); }
         return false;
     }
     
@@ -50,14 +51,14 @@ public static class AccountIDBroadcastFix {
         GameRoom room = __instance.GameRoomReference;
         RecipientsToRemove.Clear();
         foreach ((byte recipient, List<AccountIDEntry> pending) in PendingByRecipient) {
-            TABGPlayerServer? recipientPlayer = room.FindPlayer(recipient);
+            TABGPlayerServer? recipientPlayer = room.FindPlayerOrSpectator(recipient);
             if (recipientPlayer == null) {
                 RecipientsToRemove.Add(recipient);
                 continue;
             }
             
             pending.RemoveAll(entry => {
-                TABGPlayerServer? subject = room.FindPlayer(entry.PlayerIndex);
+                TABGPlayerServer? subject = room.FindPlayerOrSpectator(entry.PlayerIndex);
                 return subject == null || subject.PlayFabID != entry.PlayFabID;
             });
             if (pending.Count > 0) {
@@ -77,8 +78,8 @@ public static class AccountIDBroadcastFix {
         int closestIndex = 0;
         float closestDistance = float.MaxValue;
         for (int i = 0; i < pending.Count; i++) {
-            TABGPlayerServer livingPlayer = room.FindPlayer(pending[i].PlayerIndex)!;
-            float distance = (livingPlayer.PlayerPosition - viewPosition).sqrMagnitude;
+            TABGPlayerServer subjectPlayer = room.FindPlayerOrSpectator(pending[i].PlayerIndex)!;
+            float distance = (subjectPlayer.PlayerPosition - viewPosition).sqrMagnitude;
             if (distance >= closestDistance) { continue; }
             closestIndex = i;
             closestDistance = distance;

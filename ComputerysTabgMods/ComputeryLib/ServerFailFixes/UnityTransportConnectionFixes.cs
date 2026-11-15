@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Reflection.Emit;
 using ComputeryLib.ConfigImprovements;
+using ComputeryLib.Helpers;
 using HarmonyLib;
 using Landfall.Network;
 using Unity.Networking.Transport;
@@ -29,7 +30,7 @@ public static class UnityTransportConnectionFixes {
             RemovePlayerConnection(__instance, playerID, connection);
             Plugin.Logger.LogWarning($"Unbound dead Unity Transport connection for player ID {playerID} (InternalId {connection.InternalId}).");
             
-            TABGPlayerServer? player = __instance.m_ServerHandler.GameRoomReference.FindPlayer(playerID);
+            TABGPlayerServer? player = __instance.m_ServerHandler.GameRoomReference.FindPlayerOrSpectator(playerID);
             if (player != null) { __instance.m_ServerHandler.HandlePlayerLeave(player); }
         }
     }
