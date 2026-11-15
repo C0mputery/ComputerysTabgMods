@@ -14,6 +14,7 @@ public static class BlessingVisibilityDesyncFix {
         if (!HasBlessings(player)) { return; }
         
         List<TABGPlayerServer> watchers = ServerChunks.Instance.GetWatchers(chunkPos);
+        watchers.Remove(player);
         if (watchers.Count <= 0) { return; }
         
         byte[] receivers = new byte[watchers.Count];
