@@ -49,6 +49,18 @@ public static class EnetConnectionFixes {
         }
     }
     
+    // Flush the server and do not de-init enet.
+    [HarmonyPrefix]
+    [HarmonyPatch(nameof(EnetServer.Kill))]
+    private static bool KillPrefix(EnetServer __instance) {
+        foreach (Peer peer in __instance.m_IndexToENetPeerDic.Values) { peer.DisconnectNow(0u); }
+        foreach (Peer peer in __instance.m_JoiningPeers.Values) { peer.DisconnectNow(0u); }
+        __instance.Host.Flush();
+        __instance.Host.Dispose();
+        ServerClient.m_Server = null; // We gotta remove this or it will try to reuse the disposed host.
+        return false;
+    }
+    
     [HarmonyPostfix]
     [HarmonyPatch(nameof(EnetServer.Kill))]
     private static void ClearPlayerIDs() {

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using ComputeryLib.ConfigImprovements;
 using HarmonyLib;
 using Landfall.Network;
 using Unity.Collections;
@@ -13,7 +14,7 @@ public static class ReliableSendBufferFix {
     
     private static readonly List<int> PlayerIDBuffer = [];
     
-    [HarmonyPrepare] private static bool OnlyWhenEnabled() { return MaxBufferedReliablePacketsPerPlayer > 0; }
+    [HarmonyPrepare] private static bool OnlyWhenEnabled() { return GameSettingsUtility.Relay && MaxBufferedReliablePacketsPerPlayer > 0; }
     
     [HarmonyPrefix]
     [HarmonyPatch(nameof(UnityTransportServer.SendMessageToClients), typeof(NativeArray<byte>), typeof(byte), typeof(byte[]), typeof(bool), typeof(EventCode))]

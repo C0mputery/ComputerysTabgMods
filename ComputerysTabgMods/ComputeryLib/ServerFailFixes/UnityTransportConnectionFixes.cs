@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Reflection.Emit;
+using ComputeryLib.ConfigImprovements;
 using HarmonyLib;
 using Landfall.Network;
 using Unity.Networking.Transport;
@@ -9,6 +10,8 @@ namespace ComputeryLib.ServerFailFixes;
 [HarmonyPatch(typeof(UnityTransportServer))]
 public static class UnityTransportConnectionFixes {
     private static readonly List<byte> DisconnectedPlayerIDBuffer = [];
+    
+    [HarmonyPrepare] private static bool OnlyWhenRelay() { return GameSettingsUtility.Relay; }
     
     [HarmonyPrefix]
     [HarmonyPatch(nameof(UnityTransportServer.Update))]
