@@ -1,12 +1,12 @@
 using System;
 using System.IO;
 using BepInEx.Logging;
-using ComputeryLib.Utilities;
+using ComputeryLib.Helpers;
 
 namespace ComputeryLib.MessageLogging;
 
 public static class MessageLogger {
-    private static readonly string MessageLogDirectory = Path.Combine(PersistantDataUtility.PersistentDataPath, "MessageLogs");
+    private static readonly string MessageLogDirectory = Path.Combine(PersistentDataHelper.PersistentDataPath, "MessageLogs");
     private static readonly ManualLogSource Logger = new ManualLogSource("Player Messages");
     
     static MessageLogger() {
@@ -21,6 +21,6 @@ public static class MessageLogger {
     }
     
     public static void InitializeLogger() {
-        MessageUtilities.OnChatMessage += (player, message, wasThrown) => { LogMessage(player.PlayerName, player.EpicUserName, message, wasThrown); };
+        MessageHelper.OnChatMessage += (player, message, wasThrown) => { LogMessage(player.PlayerName, player.EpicUserName, message, wasThrown); };
     }
 }

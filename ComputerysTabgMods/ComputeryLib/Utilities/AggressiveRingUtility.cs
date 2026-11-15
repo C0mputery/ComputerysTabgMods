@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using ComputeryLib.Helpers;
 using HarmonyLib;
 using Landfall.Network;
 using UnityEngine;
@@ -32,7 +33,7 @@ public static class AggressiveRingUtility {
     [HarmonyPatch(typeof(TheRing), nameof(TheRing.Update))]
     private static void UpdatePostfix() {
         if (!_ringHasClosedEver) { return; }
-        if (!WorldUtility.TryGetWorld(out ServerClient? world)) { return; }
+        if (!WorldHelper.TryGetWorld(out ServerClient? world)) { return; }
         
         List<TABGPlayerServer> players = world.GameRoomReference.Players;
         for (int i = players.Count - 1; i >= 0; i--) {

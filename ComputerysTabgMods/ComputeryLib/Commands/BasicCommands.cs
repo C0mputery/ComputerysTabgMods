@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using ComputeryLib.Utilities;
+using ComputeryLib.Helpers;
 using Landfall.Network;
 
 namespace ComputeryLib.Commands;
@@ -17,24 +17,24 @@ public static class BasicCommands {
                 if (userPermissionLevel >= command.Value.PermissionLevel) { commandListBuilder.Append($"{command.Key}, "); }
             }
             string commandList = commandListBuilder.ToString().TrimEnd(',', ' ');
-            PlayerInteractionUtility.PrivateMessageOrServerLog($"Available commands: {commandList}", sender);
+            PlayerInteractionHelper.PrivateMessageOrServerLog($"Available commands: {commandList}", sender);
         }
         else {
             string commandName = arguments[0].ToLower();
-            if (ChatCommandManager.Commands.TryGetValue(commandName, out ChatCommandContext chatCommandContext)) { PlayerInteractionUtility.PrivateMessageOrServerLog($"/{commandName}: {chatCommandContext.Description}", sender); }
-            else { PlayerInteractionUtility.PrivateMessageOrServerLog($"No description found for command: {commandName}", sender); }
+            if (ChatCommandManager.Commands.TryGetValue(commandName, out ChatCommandContext chatCommandContext)) { PlayerInteractionHelper.PrivateMessageOrServerLog($"/{commandName}: {chatCommandContext.Description}", sender); }
+            else { PlayerInteractionHelper.PrivateMessageOrServerLog($"No description found for command: {commandName}", sender); }
         }
     }
     
     [ChatCommand("start", "Starts the game with default countdown or specified countdown in seconds.", 1)]
     public static void StartCommand(string[] arguments, TABGPlayerServer? sender) {
-        if (!WorldUtility.TryGetWorld(out ServerClient? world)) {
+        if (!WorldHelper.TryGetWorld(out ServerClient? world)) {
             Plugin.Logger.LogError("World client is not available?");
             return;
         }
         
         if (world.GameRoomReference.CurrentGameState != GameState.WaitingForPlayers && world.GameRoomReference.CurrentGameState != GameState.CountDown) {
-            PlayerInteractionUtility.PrivateMessageOrServerLog("Game is already in progress.", sender);
+            PlayerInteractionHelper.PrivateMessageOrServerLog("Game is already in progress.", sender);
             return;
         }
         
@@ -44,7 +44,7 @@ public static class BasicCommands {
         }
         
         if (!float.TryParse(arguments[0], out float timeInSeconds) || timeInSeconds < 0) {
-            PlayerInteractionUtility.PrivateMessageOrServerLog("Invalid time specified. Must be a non-negative number.", sender);
+            PlayerInteractionHelper.PrivateMessageOrServerLog("Invalid time specified. Must be a non-negative number.", sender);
             return;
         }
         if (timeInSeconds == 0) {
@@ -58,7 +58,7 @@ public static class BasicCommands {
     
     [ChatCommand("give", "Gives an item. Usage: /give <item_id> [quantity] or from the server: give <player_name|player_id> <item_id> [quantity]", 10)]
     public static void GiveCommand(string[] arguments, TABGPlayerServer? sender) {
-        if (!WorldUtility.TryGetWorld(out ServerClient? world)) {
+        if (!WorldHelper.TryGetWorld(out ServerClient? world)) {
             Plugin.Logger.LogError("World client is not available?");
             return;
         }
@@ -67,19 +67,19 @@ public static class BasicCommands {
         int requiredArgumentCount = isNonPlayerSender ? 2 : 1;
         if (arguments.Length < requiredArgumentCount) {
             string usage = isNonPlayerSender ? "Usage: give <player_name|player_id> <item_id> [quantity]" : "Usage: /give <item_id> [quantity]";
-            PlayerInteractionUtility.PrivateMessageOrServerLog(usage, sender);
+            PlayerInteractionHelper.PrivateMessageOrServerLog(usage, sender);
             return;
         }
         
         TABGPlayerServer? targetPlayer = sender;
         string[] itemArguments = arguments;
         if (targetPlayer == null) {
-            if (!SearchUtility.TryGetPlayerByNameOrID(arguments[0], sender, out targetPlayer)) { return; }
+            if (!SearchHelper.TryGetPlayerByNameOrID(arguments[0], sender, out targetPlayer)) { return; }
             itemArguments = [.. arguments.Skip(1)];
         }
         
         if (!int.TryParse(itemArguments[0], out int itemId)) {
-            PlayerInteractionUtility.PrivateMessageOrServerLog("Invalid item ID. Must be a number.", sender);
+            PlayerInteractionHelper.PrivateMessageOrServerLog("Invalid item ID. Must be a number.", sender);
             return;
         }
         
@@ -87,7 +87,7 @@ public static class BasicCommands {
         bool hasQuantityArgument = itemArguments.Length > 1;
         if (hasQuantityArgument) {
             if (!int.TryParse(itemArguments[1], out int parsedQuantity) || parsedQuantity < 1) {
-                PlayerInteractionUtility.PrivateMessageOrServerLog("Invalid quantity. Must be a positive number.", sender);
+                PlayerInteractionHelper.PrivateMessageOrServerLog("Invalid quantity. Must be a positive number.", sender);
                 return;
             }
             quantity = Math.Min(parsedQuantity, MaxGiveQuantity);
@@ -97,6 +97,6 @@ public static class BasicCommands {
             world.GivePlayerWeapon(targetPlayer.PlayerIndex, itemId, (byte)Math.Min(remaining, byte.MaxValue));
         }
         
-        PlayerInteractionUtility.PrivateMessageOrServerLog($"Gave item {itemId} x{quantity} to {targetPlayer.PlayerName}", sender);
+        PlayerInteractionHelper.PrivateMessageOrServerLog($"Gave item {itemId} x{quantity} to {targetPlayer.PlayerName}", sender);
     }
 }

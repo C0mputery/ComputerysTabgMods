@@ -4,10 +4,10 @@ using System.Text;
 using HarmonyLib;
 using Landfall.Network;
 
-namespace ComputeryLib.Utilities;
+namespace ComputeryLib.Helpers;
 
 [HarmonyPatch]
-public static class MessageUtilities {
+public static class MessageHelper {
     /// <summary>
     ///     This does include commands!
     /// </summary>

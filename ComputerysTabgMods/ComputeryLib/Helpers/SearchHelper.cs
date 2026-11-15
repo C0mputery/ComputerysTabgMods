@@ -5,14 +5,14 @@ using System.Linq;
 using ENet;
 using Landfall.Network;
 
-namespace ComputeryLib.Utilities;
+namespace ComputeryLib.Helpers;
 
-public static class SearchUtility {
+public static class SearchHelper {
     public static bool TryGetPlayerByNameOrID(string searchValue, TABGPlayerServer? sender, [NotNullWhen(true)] out TABGPlayerServer? foundPlayer) {
         foundPlayer = null;
         
-        if (!WorldUtility.TryGetWorld(out ServerClient? world)) {
-            PlayerInteractionUtility.PrivateMessageOrServerLog("The world is not available yet.", sender);
+        if (!WorldHelper.TryGetWorld(out ServerClient? world)) {
+            PlayerInteractionHelper.PrivateMessageOrServerLog("The world is not available yet.", sender);
             return false;
         }
         
@@ -25,7 +25,7 @@ public static class SearchUtility {
             return true;
         }
         if (exactMatches.Count > 1) {
-            PlayerInteractionUtility.PrivateMessageOrServerLog($"More than one player matches \"{searchValue}\". Use their player id instead.", sender);
+            PlayerInteractionHelper.PrivateMessageOrServerLog($"More than one player matches \"{searchValue}\". Use their player id instead.", sender);
             return false;
         }
         
@@ -36,7 +36,7 @@ public static class SearchUtility {
             return true;
         }
         
-        PlayerInteractionUtility.PrivateMessageOrServerLog($"Player not found: {searchValue}", sender);
+        PlayerInteractionHelper.PrivateMessageOrServerLog($"Player not found: {searchValue}", sender);
         return false;
     }
     

@@ -5,7 +5,7 @@ using System.Reflection;
 using System.Text;
 using BepInEx;
 using BepInEx.Configuration;
-using ComputeryLib.Utilities;
+using ComputeryLib.Helpers;
 using ComputeryLib.Visitors;
 using Landfall.Network;
 
@@ -40,20 +40,20 @@ public static class ChatCommandManager {
         }
         
         if (!Commands.TryGetValue(commandName, out ChatCommandContext chatCommandContext)) {
-            PlayerInteractionUtility.PrivateMessage($"Unknown command: {commandName}, type /help for a list of commands you can use.", sender);
+            PlayerInteractionHelper.PrivateMessage($"Unknown command: {commandName}, type /help for a list of commands you can use.", sender);
             return true;
         }
         
         uint userPermissionLevel = GetUserPermissionLevel(sender);
         if (userPermissionLevel < chatCommandContext.PermissionLevel) {
-            PlayerInteractionUtility.PrivateMessage($"You do not have permission to use the /{commandName} command.", sender);
+            PlayerInteractionHelper.PrivateMessage($"You do not have permission to use the /{commandName} command.", sender);
             return true;
         }
         
         try { chatCommandContext.Command(arguments, sender); }
         catch (Exception e) {
             Plugin.Logger.LogError($"Error executing command '{commandName}': {e.Message}");
-            PlayerInteractionUtility.PrivateMessage($"An error occurred while executing the command: {e.Message}", sender);
+            PlayerInteractionHelper.PrivateMessage($"An error occurred while executing the command: {e.Message}", sender);
         }
         
         return true;

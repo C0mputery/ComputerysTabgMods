@@ -3,10 +3,10 @@ using System.Diagnostics.CodeAnalysis;
 using HarmonyLib;
 using Landfall.Network;
 
-namespace ComputeryLib.Utilities;
+namespace ComputeryLib.Helpers;
 
 [HarmonyPatch(typeof(ServerClient))]
-public static class WorldUtility {
+public static class WorldHelper {
     private static ServerClient? _worldClient;
     
     public static bool TryGetWorld([NotNullWhen(true)] out ServerClient? world) {

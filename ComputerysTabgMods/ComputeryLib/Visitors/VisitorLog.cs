@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using ComputeryLib.Utilities;
+using ComputeryLib.Helpers;
 using Landfall.Network;
 using Newtonsoft.Json;
 using PlayFab;
@@ -11,7 +11,7 @@ using PlayFab.ClientModels;
 namespace ComputeryLib.Visitors;
 
 public static class VisitorLog {
-    private static readonly string VisitorLogPath = Path.Combine(PersistantDataUtility.PersistentDataPath, "VisitorLog.json");
+    private static readonly string VisitorLogPath = Path.Combine(PersistentDataHelper.PersistentDataPath, "VisitorLog.json");
     private static Dictionary<string, VisitorInfo> _visitors = LoadVisitorLogFromFile();
     
     private static Dictionary<string, VisitorInfo> LoadVisitorLogFromFile() {
@@ -147,7 +147,7 @@ public static class VisitorLog {
         DatedString.UpdateDatedStringSet(visitorInfo.SteamIds, steamId, currentTime);
         DatedString.UpdateDatedStringSet(visitorInfo.PlayfabIds, player.PlayFabID, currentTime);
         DatedString.UpdateDatedStringSet(visitorInfo.UnityIds, player.UnityID, currentTime);
-        if (SearchUtility.TryGetPlayerIP(player, out string? ipAddress)) {
+        if (SearchHelper.TryGetPlayerIP(player, out string? ipAddress)) {
             DatedString.UpdateDatedStringSet(visitorInfo.IpAddresses, ipAddress, currentTime);
         }
         visitorInfo.LastSeen = currentTime;

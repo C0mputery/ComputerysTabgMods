@@ -5,9 +5,9 @@ using System.Text;
 using Landfall.Network;
 using UnityEngine;
 
-namespace ComputeryLib.Utilities;
+namespace ComputeryLib.Helpers;
 
-public static class PlayerInteractionUtility {
+public static class PlayerInteractionHelper {
     public static void PrivateMessageOrServerLog(string message, TABGPlayerServer? sender) {
         if (sender == null) { Plugin.Logger.LogInfo(message); }
         else { PrivateMessage(message, sender); }
@@ -83,7 +83,7 @@ public static class PlayerInteractionUtility {
         writer.Write((byte)chunkLength);
         writer.Write(chunkBytes);
         
-        if (WorldUtility.TryGetWorld(out ServerClient? world)) {
+        if (WorldHelper.TryGetWorld(out ServerClient? world)) {
             world.SendMessageToClients(EventCode.ThrowChatMessage, memoryStream.ToArray(), sender.PlayerIndex, true);
         }
     }
