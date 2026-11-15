@@ -13,8 +13,7 @@ public static class BlessingVisibilityDesyncFix {
     private static void PlayerEnteredChunkPostfix(ServerClient world, TABGPlayerServer player, ChunkDataServer chunkPos) {
         if (!HasBlessings(player)) { return; }
         
-        List<TABGPlayerServer> watchers = ServerChunks.Instance.GetWatchers(chunkPos);
-        watchers.Remove(player);
+        List<TABGPlayerServer> watchers = PlayerEnteredChunkReceiverFix.GetNewWatchers(chunkPos, player);
         if (watchers.Count <= 0) { return; }
         
         byte[] receivers = new byte[watchers.Count];
