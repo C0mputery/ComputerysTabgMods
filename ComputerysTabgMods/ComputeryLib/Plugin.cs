@@ -3,6 +3,7 @@ using BepInEx;
 using BepInEx.Configuration;
 using BepInEx.Logging;
 using ComputeryLib.Commands;
+using ComputeryLib.Helpers;
 using ComputeryLib.MessageLogging;
 using HarmonyLib;
 using UnityEngine;
@@ -21,6 +22,7 @@ public class Plugin : BaseUnityPlugin {
     private void Awake() {
         Logger = base.Logger;
         Config = base.Config;
+        ConfigArrayHelper.RegisterConverters();
         
         Logger.LogInfo($"Plugin {PluginInfo.PLUGIN_GUID} is loaded!");
         
