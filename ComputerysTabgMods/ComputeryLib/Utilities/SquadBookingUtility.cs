@@ -7,7 +7,7 @@ namespace ComputeryLib.Utilities;
 
 [HarmonyPatch]
 public static class SquadBookingUtility {
-    public static readonly bool AllowJoinWithoutBooking = Plugin.Config.Bind("Gameplay", "AllowJoinWithoutBooking", false, "Let's squad members skip the squad host requirement. Fixes a weird client issue as well, where for some reason in certain cases they can just never connect to the server.").Value;
+    public static readonly bool AllowJoinWithoutBooking = Plugin.Config.Bind("Gameplay", "AllowJoinWithoutBooking", true, "Let's squad members skip the squad host requirement. Fixes a weird client issue as well, where for some reason in certain cases they can just never connect to the server.").Value;
     
     [HarmonyPrepare] private static bool OnlyWhenEnabled() { return AllowJoinWithoutBooking; }
     
