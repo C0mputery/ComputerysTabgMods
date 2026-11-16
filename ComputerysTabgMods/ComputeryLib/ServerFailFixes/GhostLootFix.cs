@@ -1,6 +1,8 @@
 using System;
+using System.IO;
 using HarmonyLib;
 using Landfall.Network;
+using UnityEngine;
 
 namespace ComputeryLib.ServerFailFixes;
 
@@ -14,7 +16,47 @@ public static class GhostLootFix {
         
         [HarmonyPrefix]
         [HarmonyPatch(typeof(RequestPickupCommand), nameof(RequestPickupCommand.PickUpGun))]
-        private static void Prefix(GameRoom room, NetworkGun weapon) { SendRemoval(room.m_server, weapon.Index); }
+        private static void Prefix(GameRoom room, NetworkGun weapon, TABGPlayerServer player) {
+            if (TrySendSoundPickup(room, weapon, player)) { SendRemoval(room.m_server, weapon.Index); }
+        }
+        
+        // Early removal breaks the sound.
+        // HACK HACK HACK
+        private static bool TrySendSoundPickup(GameRoom room, NetworkGun weapon, TABGPlayerServer player) {
+            TABGPlayerLootItem? held = player.Loot.Find(loot => loot.ItemCount > 0 && room.GetItem(loot.ItemIdentifier).weaponType is Pickup.WeaponType.Health or Pickup.WeaponType.Ammo);
+            if (held == null) { return false; }
+            int itemId = held.ItemIdentifier;
+            
+            Vector3 position = weapon.Position;
+            byte[] drop = new byte[24];
+            using (MemoryStream dropStream = new MemoryStream(drop))
+            using (BinaryWriter dropWriter = new BinaryWriter(dropStream)) {
+                dropWriter.Write(weapon.Index);
+                dropWriter.Write(itemId);
+                dropWriter.Write(0);
+                dropWriter.Write(position.x);
+                dropWriter.Write(position.y);
+                dropWriter.Write(position.z);
+            }
+            
+            byte[] accept = new byte[14];
+            using (MemoryStream acceptStream = new MemoryStream(accept))
+            using (BinaryWriter acceptWriter = new BinaryWriter(acceptStream)) {
+                acceptWriter.Write(player.PlayerIndex);
+                acceptWriter.Write(weapon.Index);
+                acceptWriter.Write(itemId);
+                acceptWriter.Write(0);
+                acceptWriter.Write((byte)Pickup.EquipSlots.None);
+            }
+            
+            room.m_server.SendMessageToClients(EventCode.ItemDrop, drop, player.PlayerIndex, true);
+            room.m_server.SendMessageToClients(EventCode.WeaponPickUpAccepted, accept, player.PlayerIndex, true);
+            return true;
+        }
+        
+        private static bool IsSafeToStackZero(Pickup pickup) {
+            return pickup.weaponType is Pickup.WeaponType.Health or Pickup.WeaponType.Ammo;
+        }
     }
     
     [HarmonyPatch]
