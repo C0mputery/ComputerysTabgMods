@@ -12,6 +12,10 @@ namespace ComputeryLib.ServerFailFixes;
 public static class AccountIDBroadcastFix {
     public static readonly float SendInterval = Plugin.Config.Bind("Network", "AccountIDSendInterval", 2.5f, "Seconds between account ID packets sent to the same client. Too fast, clients will hit a rate limit and won't load in the cosmetics like Gangster mode.").Value;
     
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(ServerClient), nameof(ServerClient.ValidateSteamTicket))]
+    private static void AssignDummySteamID(TABGPlayerServer player) { player.AssignAccountIDs("0", player.PlayFabID); }
+    
     // Unfortunate force prefix override.
     [HarmonyPrefix]
     [HarmonyPatch(typeof(AssignPlayerAccountIDsCommand), nameof(AssignPlayerAccountIDsCommand.Run), typeof(ServerClient), typeof(List<AccountIDEntry>), typeof(byte))]

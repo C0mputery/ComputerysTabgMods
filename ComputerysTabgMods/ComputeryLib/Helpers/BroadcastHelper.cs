@@ -24,6 +24,18 @@ public enum PlayerColour {
 public static class BroadcastHelper {
     private const int MaxNameLength = 32;
     
+    /// <summary>
+    /// As it turns out, Landfold didn't implement the kill list properly, and after enough kills, for some reason, it literally just slowly sinks off of the screen.
+    /// It walks off the screen. It's insane. Fuck landfall.
+    ///
+    /// Basically, all the time I spent making this is pointless.
+    /// This is only good to send as a player joins the game. Otherwise, there is a very likely chance it won't show up for them.
+    ///
+    /// I'm gonna make a fix for this at some point and put it in landfall please fix as the client-side mod.
+    /// </summary>
+    /// <param name="message"> you know </param>
+    /// <param name="colour"> you know </param>
+    /// <param name="target"> you know </param>
     public static void Broadcast(string message, PlayerColour colour, byte target) {
         if (!WorldHelper.TryGetWorld(out ServerClient? world)) {
             Plugin.Logger.LogError("World client is not available?");
