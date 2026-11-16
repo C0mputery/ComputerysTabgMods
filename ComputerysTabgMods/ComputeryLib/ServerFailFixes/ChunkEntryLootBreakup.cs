@@ -56,11 +56,12 @@ public static class ChunkEntryLootBreakup {
         int lootThatFits = Mathf.Max(0, (MaxPayloadSize - GetSizeWithoutLoot(players, cars)) / LootEntrySize);
         if (loot.Count <= lootThatFits) { return; }
         
-        for (int i = lootThatFits; i < loot.Count; i += LootPerPacket) {
-            List<NetworkGun> batch = loot.GetRange(i, Mathf.Min(LootPerPacket, loot.Count - i));
+        int overflow = loot.Count - lootThatFits;
+        for (int i = 0; i < overflow; i += LootPerPacket) {
+            List<NetworkGun> batch = loot.GetRange(i, Mathf.Min(LootPerPacket, overflow - i));
             world.SendMessageToClients(EventCode.ChunkEntry, BuildLootOnlyChunkEntry(player.PlayerIndex, batch), player.UpdateMessageQueue.Receivers, true);
         }
-        loot.RemoveRange(lootThatFits, loot.Count - lootThatFits);
+        loot.RemoveRange(0, overflow);
     }
     
     private static int GetSizeWithoutLoot(List<TABGPlayerServer> players, List<TABGCarServer> cars) {
