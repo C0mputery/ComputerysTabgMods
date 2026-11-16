@@ -8,8 +8,9 @@ using UnityEngine;
 
 namespace ComputeryLib.Helpers;
 
-[HarmonyPatch]
 public static class ChunkHelper {
+    public static bool PatchApplied { get; private set; }
+    
     /// <summary>
     ///     Sets the chunk sizes
     /// </summary>
@@ -42,6 +43,11 @@ public static class ChunkHelper {
         Vector2 corner = ChunkCenter - new Vector2(size / 2f, size / 2f);
         _originX = Mathf.Repeat(corner.x, size);
         _originZ = Mathf.Repeat(corner.y, size);
+        
+        if (!PatchApplied) {
+            Plugin.Harmony.PatchAll(typeof(ChunkHelper));
+            PatchApplied = true;
+        }
     }
     
     [HarmonyPrefix]
