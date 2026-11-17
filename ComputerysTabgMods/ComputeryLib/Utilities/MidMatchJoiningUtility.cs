@@ -88,7 +88,7 @@ public static class MidMatchJoiningUtility {
         
         foreach (TABGPlayerServer other in room.Players) {
             if (other == player) { continue; }
-            BroadcastHelper.SpoofKills(world, other, Math.Min((int)other.NumberOfKills, 10), playerID);
+            FakePlayerHelper.SpoofKills(world, other, Math.Min((int)other.NumberOfKills, 10), playerID);
         }
         
         // Jank solution to make it so that people's weapons show up

@@ -48,6 +48,27 @@ public static class FakePlayerHelper {
         index = 0;
         return false;
     }
+    
+    public static void SpoofKills(ServerClient world, TABGPlayerServer killer, int kills, byte target) {
+        if (kills <= 0) { return; }
+        
+        using (FakeGroup group = FakePlayerHelper.ReserveGroup(world)) {
+            if (!group.IsValid) {
+                Plugin.Logger.LogWarning($"Out of free group indexes, cannot spoof {kills} kills for {killer.PlayerName}.");
+                return;
+            }
+            
+            using (FakePlayer phantom = FakePlayerHelper.Login(world, group, "", PlayerColour.White, target)) {
+                if (!phantom.IsValid) {
+                    Plugin.Logger.LogWarning($"Out of free player indexes, cannot spoof {kills} kills for {killer.PlayerName}.");
+                    return;
+                }
+                
+                byte[] dead = PacketHelper.BuildPlayerDead(phantom.Index, killer.PlayerIndex, "");
+                for (int i = 0; i < kills; i++) { world.SendMessageToClients(EventCode.PlayerDead, dead, target, true); }
+            }
+        }
+    }
 }
 
 public readonly struct FakeGroup : IDisposable {
