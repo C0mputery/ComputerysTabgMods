@@ -26,6 +26,19 @@ public static class BasicCommands {
         }
     }
     
+    [ChatCommand("list", "Lists all connected players.", 0)]
+    public static void ListCommand(string[] arguments, TABGPlayerServer? sender) {
+        if (!WorldHelper.TryGetWorld(out ServerClient? world)) {
+            PlayerInteractionHelper.PrivateMessageOrServerLog("The world is not available yet.", sender);
+            return;
+        }
+        
+        bool showIds = sender == null || ChatCommandManager.GetUserPermissionLevel(sender) >= 1;
+        List<TABGPlayerServer> players = world.GameRoomReference.PlayersAndSpectators().ToList();
+        IEnumerable<string> entries = players.Select(p => showIds ? $"{p.PlayerName} ({p.PlayerIndex})" : p.PlayerName);
+        PlayerInteractionHelper.PrivateMessageOrServerLog($"Players ({players.Count}): {string.Join(", ", entries)}", sender);
+    }
+    
     [ChatCommand("start", "Starts the game with default countdown or specified countdown in seconds.", 1)]
     public static void StartCommand(string[] arguments, TABGPlayerServer? sender) {
         if (!WorldHelper.TryGetWorld(out ServerClient? world)) {
