@@ -1,5 +1,4 @@
 using System;
-using System.IO;
 using HarmonyLib;
 using Landfall.Network;
 using UnityEngine;
@@ -62,30 +61,8 @@ public static class RingHelper {
         TheRing ring = world.SpawnedRing;
         if (!ring.hasStarted || world.GameRoomReference.FindPlayer(playerIndex) == null) { return; }
         
-        world.SendMessageToClients(EventCode.RingUpdate, BuildRingCircle(ring), playerIndex, true); // circle and ring id
+        world.SendMessageToClients(EventCode.RingUpdate, PacketHelper.BuildRingCircle(ring), playerIndex, true); // circle and ring id
         world.SendMessageToClients(EventCode.RingUpdate, [2], playerIndex, true); // start moving toward it.
-        world.SendMessageToClients(EventCode.RingUpdate, BuildRingTime(ring), playerIndex, true); // travel time, past the end so it closes now
-    }
-    
-    private static byte[] BuildRingCircle(TheRing ring) {
-        byte[] buffer = new byte[2 + 4 * sizeof(float)];
-        using MemoryStream stream = new MemoryStream(buffer);
-        using BinaryWriter writer = new BinaryWriter(stream);
-        writer.Write((byte)1);
-        writer.Write((byte)ring.currentRingID);
-        writer.Write(ring.currentWhiteRingPosition.x);
-        writer.Write(ring.currentWhiteRingPosition.y);
-        writer.Write(ring.currentWhiteRingPosition.z);
-        writer.Write(ring.currentWhiteSize);
-        return buffer;
-    }
-    
-    private static byte[] BuildRingTime(TheRing ring) {
-        byte[] buffer = new byte[1 + sizeof(float)];
-        using MemoryStream stream = new MemoryStream(buffer);
-        using BinaryWriter writer = new BinaryWriter(stream);
-        writer.Write((byte)0);
-        writer.Write(Mathf.Max(ring.GetTimeTravelled(), ring.timeToTravel));
-        return buffer;
+        world.SendMessageToClients(EventCode.RingUpdate, PacketHelper.BuildRingTime(ring), playerIndex, true); // travel time, past the end so it closes now
     }
 }

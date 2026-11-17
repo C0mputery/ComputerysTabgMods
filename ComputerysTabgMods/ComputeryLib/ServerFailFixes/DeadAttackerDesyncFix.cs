@@ -1,4 +1,5 @@
 using System;
+using ComputeryLib.Helpers;
 using ComputeryLib.Utilities;
 using HarmonyLib;
 using Landfall.Network;
@@ -25,24 +26,8 @@ public static class DeadAttackerDesyncFix {
         float clientHealth = BitConverter.ToSingle(msgData, HealthOffset);
         if (clientHealth <= 0f && !victim.IsDowned) {
             Plugin.Logger.LogInfo($"Dead player {attacker.PlayerName} ({attackerIndex}) downed {victim.PlayerName} ({victim.PlayerIndex}) on their client, resyncing.");
-            world.SendMessageToClients(EventCode.ReviveState, BuildReviveFinished(victim), senderIndex, true);
+            world.SendMessageToClients(EventCode.ReviveState, PacketHelper.BuildReviveFinished(victim), senderIndex, true);
         }
-        world.SendMessageToClients(EventCode.PlayerHealthStateChanged, BuildHealthChanged(victim), senderIndex, true);
-    }
-    
-    private static byte[] BuildReviveFinished(TABGPlayerServer victim) {
-        byte[] buffer = new byte[3 + sizeof(float)];
-        buffer[0] = (byte)ReviveState.Finished;
-        buffer[1] = victim.PlayerIndex;
-        buffer[2] = byte.MaxValue; // Reviver
-        Buffer.BlockCopy(BitConverter.GetBytes(victim.Health), 0, buffer, 3, sizeof(float));
-        return buffer;
-    }
-    
-    private static byte[] BuildHealthChanged(TABGPlayerServer victim) {
-        byte[] buffer = new byte[1 + sizeof(float)];
-        buffer[0] = victim.PlayerIndex;
-        Buffer.BlockCopy(BitConverter.GetBytes(victim.Health), 0, buffer, 1, sizeof(float));
-        return buffer;
+        world.SendMessageToClients(EventCode.PlayerHealthStateChanged, PacketHelper.BuildHealthChanged(victim), senderIndex, true);
     }
 }

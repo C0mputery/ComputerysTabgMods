@@ -1,7 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Text;
 using Landfall.Network;
 
 namespace ComputeryLib.Helpers;
@@ -32,7 +30,7 @@ public static class FakePlayerHelper {
         byte minPlayerIndex = (byte)(world.GameRoomReference.CurrentGameSettings.MaxPlayers + 1);
         if (!TryTakeFree([..LoggedInFakeIndexes], minPlayerIndex, out byte playerIndex)) { return default; }
         
-        world.SendMessageToClients(EventCode.Login, BuildRemoteLogin(playerIndex, group.Index, name, colour), target, true);
+        world.SendMessageToClients(EventCode.Login, PacketHelper.BuildRemoteLogin(playerIndex, group.Index, name, colour), target, true);
         LoggedInFakeIndexes.Add(playerIndex);
         return new FakePlayer(world, playerIndex, target);
     }
@@ -49,22 +47,6 @@ public static class FakePlayerHelper {
         }
         index = 0;
         return false;
-    }
-    
-    private static byte[] BuildRemoteLogin(byte playerIndex, byte groupIndex, string playerName, PlayerColour colour) {
-        using MemoryStream memoryStream = new MemoryStream();
-        using BinaryWriter writer = new BinaryWriter(memoryStream);
-        
-        byte[] nameBytes = Encoding.UTF8.GetBytes(playerName);
-        writer.Write(playerIndex);
-        writer.Write(groupIndex);
-        writer.Write(nameBytes.Length);
-        writer.Write(nameBytes);
-        writer.Write(0);
-        writer.Write(false);
-        writer.Write((int)colour);
-        
-        return memoryStream.ToArray();
     }
 }
 

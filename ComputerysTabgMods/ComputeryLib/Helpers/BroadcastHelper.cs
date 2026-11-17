@@ -1,6 +1,4 @@
-using System.IO;
 using System.Linq;
-using System.Text;
 using Landfall.Network;
 
 namespace ComputeryLib.Helpers;
@@ -56,7 +54,7 @@ public static class BroadcastHelper {
                     return;
                 }
                 
-                world.SendMessageToClients(EventCode.PlayerDead, BuildPlayerDead(victim.Index, killer.Index, message), target, true);
+                world.SendMessageToClients(EventCode.PlayerDead, PacketHelper.BuildPlayerDead(victim.Index, killer.Index, message), target, true);
             }
         }
     }
@@ -102,26 +100,9 @@ public static class BroadcastHelper {
                     return;
                 }
                 
-                byte[] dead = BuildPlayerDead(phantom.Index, killer.PlayerIndex, "");
+                byte[] dead = PacketHelper.BuildPlayerDead(phantom.Index, killer.PlayerIndex, "");
                 for (int i = 0; i < kills; i++) { world.SendMessageToClients(EventCode.PlayerDead, dead, target, true); }
             }
         }
-    }
-    
-    private static byte[] BuildPlayerDead(byte victimIndex, byte killerIndex, string victimName) {
-        using MemoryStream memoryStream = new MemoryStream();
-        using BinaryWriter writer = new BinaryWriter(memoryStream);
-        
-        byte[] nameBytes = Encoding.Unicode.GetBytes(victimName);
-        if (nameBytes.Length > byte.MaxValue) { nameBytes = Encoding.Unicode.GetBytes(victimName[..(byte.MaxValue / 2)]); }
-        writer.Write(victimIndex);
-        writer.Write(killerIndex);
-        writer.Write(byte.MaxValue);
-        writer.Write((byte)nameBytes.Length);
-        writer.Write(nameBytes);
-        writer.Write(int.MaxValue);
-        writer.Write(false);
-        
-        return memoryStream.ToArray();
     }
 }

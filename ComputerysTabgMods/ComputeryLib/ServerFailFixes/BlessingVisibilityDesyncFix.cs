@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using System.IO;
+using ComputeryLib.Helpers;
 using HarmonyLib;
 using Landfall.Network;
 
@@ -18,7 +18,7 @@ public static class BlessingVisibilityDesyncFix {
         
         byte[] receivers = new byte[watchers.Count];
         for (int i = 0; i < receivers.Length; i++) { receivers[i] = watchers[i].PlayerIndex; }
-        world.SendMessageToClients(EventCode.BlessingRecieved, BuildBlessingRecieved(player), receivers, true);
+        world.SendMessageToClients(EventCode.BlessingRecieved, PacketHelper.BuildBlessingRecieved(player), receivers, true);
     }
     
     // ChunkEntry never sends blessings
@@ -32,7 +32,7 @@ public static class BlessingVisibilityDesyncFix {
             
             foreach (TABGPlayerServer other in players) {
                 if (other == _player || !other.HasDropped || !HasBlessings(other)) { continue; }
-                world.SendMessageToClients(EventCode.BlessingRecieved, BuildBlessingRecieved(other), _player.PlayerIndex, true);
+                world.SendMessageToClients(EventCode.BlessingRecieved, PacketHelper.BuildBlessingRecieved(other), _player.PlayerIndex, true);
             }
         }
     }
@@ -41,17 +41,5 @@ public static class BlessingVisibilityDesyncFix {
     private static bool HasBlessings(TABGPlayerServer player) {
         int[] blessings = player.GetBlessings();
         return blessings[0] != NoBlessing || blessings[1] != NoBlessing || blessings[2] != NoBlessing;
-    }
-    
-    private static byte[] BuildBlessingRecieved(TABGPlayerServer player) {
-        int[] blessings = player.GetBlessings();
-        byte[] buffer = new byte[1 + 3 * sizeof(int)];
-        using MemoryStream stream = new MemoryStream(buffer);
-        using BinaryWriter writer = new BinaryWriter(stream);
-        writer.Write(player.PlayerIndex);
-        writer.Write(blessings[0]);
-        writer.Write(blessings[1]);
-        writer.Write(blessings[2]);
-        return buffer;
     }
 }

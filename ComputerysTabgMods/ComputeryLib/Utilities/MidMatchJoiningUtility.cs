@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Reflection.Emit;
 using ComputeryLib.Helpers;
 using HarmonyLib;
@@ -108,7 +107,7 @@ public static class MidMatchJoiningUtility {
             
             foreach (TABGPlayerServer other in players) {
                 if (other == joiner || other.IsDead || !other.HasDropped) { continue; }
-                world.SendMessageToClients(EventCode.WeaponChanged, BuildWeaponChanged(other), joinerID, true);
+                world.SendMessageToClients(EventCode.WeaponChanged, PacketHelper.BuildWeaponChanged(other, Throwables.GetValueOrDefault(other.PlayerIndex, (short)-1)), joinerID, true);
             }
         }
     }
@@ -118,17 +117,4 @@ public static class MidMatchJoiningUtility {
     [HarmonyPostfix]
     [HarmonyPatch(typeof(WeaponChangedCommand), nameof(WeaponChangedCommand.Run))]
     private static void StoreThrowable(byte[] msgData) { Throwables[msgData[0]] = BitConverter.ToInt16(msgData, msgData.Length - 2); }
-    
-    private static byte[] BuildWeaponChanged(TABGPlayerServer player) {
-        byte[] buffer = new byte[2 + 5 * 2 + 1 + player.Attachments.Length * 2 + 2];
-        using MemoryStream stream = new MemoryStream(buffer);
-        using BinaryWriter writer = new BinaryWriter(stream);
-        writer.Write(player.PlayerIndex);
-        writer.Write((byte)player.Equipment[5]);
-        for (int i = 0; i < 5; i++) { writer.Write(player.Equipment[i]); }
-        writer.Write((byte)player.Attachments.Length);
-        foreach (short attachment in player.Attachments) { writer.Write(attachment); }
-        writer.Write(Throwables.GetValueOrDefault(player.PlayerIndex, (short)-1));
-        return buffer;
-    }
 }

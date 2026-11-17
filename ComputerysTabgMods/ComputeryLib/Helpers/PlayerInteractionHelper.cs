@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Text;
 using Landfall.Network;
 using UnityEngine;
@@ -67,24 +66,8 @@ public static class PlayerInteractionHelper {
     }
     
     private static void ThrowChunk(string chunk, Vector3 position, TABGPlayerServer sender) {
-        using MemoryStream memoryStream = new MemoryStream();
-        using BinaryWriter writer = new BinaryWriter(memoryStream);
-        
-        writer.Write(sender.PlayerIndex);
-        writer.Write(position.x);
-        writer.Write(position.y);
-        writer.Write(position.z);
-        writer.Write(90f);
-        writer.Write(0f);
-        
-        byte[] chunkBytes = Encoding.Unicode.GetBytes(chunk);
-        int chunkLength = chunkBytes.Length;
-        if (chunkLength > byte.MaxValue) { throw new ArgumentException("Chunk size exceeds maximum allowed length??? Something broke with the chunking logic."); }
-        writer.Write((byte)chunkLength);
-        writer.Write(chunkBytes);
-        
         if (WorldHelper.TryGetWorld(out ServerClient? world)) {
-            world.SendMessageToClients(EventCode.ThrowChatMessage, memoryStream.ToArray(), sender.PlayerIndex, true);
+            world.SendMessageToClients(EventCode.ThrowChatMessage, PacketHelper.BuildThrowChatMessage(sender.PlayerIndex, position, chunk), sender.PlayerIndex, true);
         }
     }
 }
