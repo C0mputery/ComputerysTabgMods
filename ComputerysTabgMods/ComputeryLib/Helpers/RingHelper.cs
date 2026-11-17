@@ -17,7 +17,7 @@ public static class RingHelper {
     /// <param name="center"> Center of the ring on the X/Z plane. </param>
     /// <param name="diameter"> Diameter in Unity meters(?). </param>
     public static void SetFixedRing(Vector2 center, float diameter) {
-        ServerStartHelper.ThrowIfServerStarted("Ring settings cannot be set after server start.");
+        ServerStartHelper.ThrowIfServerStarted("Ring settings cannot be set while the server is running.");
         if (diameter <= 0f) { throw new ArgumentOutOfRangeException(nameof(diameter), diameter, "Ring diameter must be greater than 0."); }
         
         RingCenter = center;

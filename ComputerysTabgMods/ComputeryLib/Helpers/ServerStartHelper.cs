@@ -13,4 +13,8 @@ public static class ServerStartHelper {
     [HarmonyPrefix]
     [HarmonyPatch(MethodType.Constructor)]
     private static void ConstructorPrefix() { HasServerStarted = true; }
+    
+    [HarmonyPostfix]
+    [HarmonyPatch(nameof(ServerClient.Terminate), typeof(float), typeof(string))]
+    private static void TerminatePostfix() { HasServerStarted = false; }
 }

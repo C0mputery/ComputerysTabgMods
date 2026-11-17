@@ -34,10 +34,12 @@ public static class ChunkHelper {
     private static float _originX;
     private static float _originZ;
     private static void ApplySettings(Vector2 center, float size) {
-        ServerStartHelper.ThrowIfServerStarted("Chunk settings cannot be set after server start.");
+        ServerStartHelper.ThrowIfServerStarted("Chunk settings cannot be set while the server is running.");
         if (size < 16f) { throw new ArgumentOutOfRangeException(nameof(size), size, $"Chunk size must be at least 16. Chunk coordinates are sbytes (-128 to 127), any smaller leads to overflow too easily."); }
         
         ServerChunks.CHUNK_SIZE = size;
+        EntityUpdatesCommand.RECEIVE_ALL_DISTANCE = size / 6f;
+        EntityUpdatesCommand.RECEIVE_HALF_DISTANCE = size / 3f;
         ChunkCenter = center;
         
         Vector2 corner = ChunkCenter - new Vector2(size / 2f, size / 2f);
