@@ -3,6 +3,7 @@ using BepInEx;
 using BepInEx.Configuration;
 using BepInEx.Logging;
 using ComputeryLib.Commands;
+using ComputeryLib.ConfigImprovements;
 using ComputeryLib.Helpers;
 using ComputeryLib.MessageLogging;
 using HarmonyLib;
@@ -26,6 +27,7 @@ public class Plugin : BaseUnityPlugin {
         
         Logger.LogInfo($"Plugin {PluginInfo.PLUGIN_GUID} is loaded!");
         
+        if (GameSettingsUtility.GameMode != GameMode.BattleRoyale) { Logger.LogWarning($"Battle Royale is the only officially supported (landfall) game mode game!!! You've configured it to something else, expect issues."); }
         ApplyPatches();
         
         MessageLogger.InitializeLogger();

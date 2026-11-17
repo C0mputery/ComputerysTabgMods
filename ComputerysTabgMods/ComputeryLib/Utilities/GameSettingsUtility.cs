@@ -31,15 +31,15 @@ public static class GameSettingsUtility {
     public static readonly string ServerDescription = LandfallConfig.Bind("Server List", "ServerDescription", "Description for server /n for new line", "Server Description").Value;
     
     // Gameplay
-    public static readonly MatchMode MatchMode = (MatchMode)Enum.Parse(typeof(MatchMode), LandfallConfig.Bind("Gameplay", "TeamMode", "SQUAD", "Sets the MatchMode. Valid inputs: SQUAD, DUO, SOLO").Value);
-    public static readonly int MaxPlayers = Mathf.Clamp(LandfallConfig.Bind("Gameplay", "MaxPlayers", 70, "Max players on server. Max being 253").Value, 1, 253);
-    public static readonly float ForceStartTime = LandfallConfig.Bind("Gameplay", "ForceStartTime", 200f, "Seconds until force start the countdown").Value;
-    public static readonly float Countdown = LandfallConfig.Bind("Gameplay", "Countdown", 20f, "Seconds it takes to start the game after Players have joined or force start triggered").Value;
+    public static readonly MatchMode MatchMode = LandfallConfig.Bind("Gameplay", "TeamMode", MatchMode.SQUAD, "Sets the MatchMode.").Value;
+    public static readonly int MaxPlayers = LandfallConfig.Bind("Gameplay", "MaxPlayers", 70, new ConfigDescription("Max players on server.", new AcceptableValueRange<int>(1, 253))).Value;
+    public static readonly float ForceStartTime = LandfallConfig.Bind("Gameplay", "ForceStartTime", 200f, new ConfigDescription("Seconds until force start the countdown", new AcceptableValueRange<float>(0f, float.MaxValue))).Value;
+    public static readonly float Countdown = LandfallConfig.Bind("Gameplay", "Countdown", 20f, new ConfigDescription("Seconds it takes to start the game after Players have joined or force start triggered", new AcceptableValueRange<float>(0f, float.MaxValue))).Value;
     public static readonly int PlayersBeforeStarting = LandfallConfig.Bind("Gameplay", "PlayersToStart", 2, "Players to start countdown").Value;
     public static readonly bool AutoTeam = LandfallConfig.Bind("Gameplay", "AutoTeam", false, "Forces auto teaming for all players").Value;
     public static readonly int AutoTeamNumberOfTeams = LandfallConfig.Bind("Gameplay", "AutoTeamNumberOfTeams", 2, "Number of teams to force players into when force auto teaming is enabled").Value;
     public static readonly bool UseSouls = LandfallConfig.Bind("Gameplay", "UseSouls", true, "If a player should drop a soul when they run the DropAllLootCommand on death").Value;
-    public static readonly GameMode GameMode = (GameMode)Enum.Parse(typeof(GameMode), LandfallConfig.Bind("Gameplay", "GameMode", "BattleRoyale", "Sets the GameMode. Valid inputs: BattleRoyale, Brawl, Test, Bomb, Deception. Most of these do not work.").Value);
+    public static readonly GameMode GameMode = LandfallConfig.Bind("Gameplay", "GameMode", GameMode.BattleRoyale, "Sets the GameMode. Most of these do not work.").Value;
     public static readonly bool AllowRejoins = LandfallConfig.Bind("Gameplay", "AllowRejoins", false, "Tries to allow rejoins, does not really work. Using this will break mid-match joining as well.").Value;
     public static readonly bool UseTimedForceStart = LandfallConfig.Bind("Gameplay", "UseTimedForceStart", true, "Will start match with fewer players than PlayersToStart if waited longer than ForceStartTime").Value;
     public static readonly int MinPlayersToForceStart = LandfallConfig.Bind("Gameplay", "MinPlayersToForceStart", 2, "Players needed to start the force start timer").Value;
@@ -47,14 +47,14 @@ public static class GameSettingsUtility {
     
     // Battle Royale
     public static readonly bool AllowSpectating = LandfallConfig.Bind("Battle Royale", "AllowSpectating", true, "Allows spectating in battle royale").Value;
-    public static readonly float StripLootByPercentage = LandfallConfig.Bind("Battle Royale", "StripLootByPercentage", 0.1f, "0.0 - 1.0 percentage chance for loot spawn points to spawn loot. 0 being 0% and 1.0 being 100%").Value;
-    public static readonly float CarSpawnRate = LandfallConfig.Bind("Battle Royale", "CarSpawnRate", 1f, "0.0 - 1.0 percentage chance for vehical spawn points to spawn a vehical. 0 being 0% and 1.0 being 100%").Value;
+    public static readonly float StripLootByPercentage = LandfallConfig.Bind("Battle Royale", "StripLootByPercentage", 0.1f, new ConfigDescription("0.0 - 1.0 percentage chance for loot spawn points to spawn loot. 0 being 0% and 1.0 being 100%", new AcceptableValueRange<float>(0f, 1f))).Value;
+    public static readonly float CarSpawnRate = LandfallConfig.Bind("Battle Royale", "CarSpawnRate", 1f, new ConfigDescription("0.0 - 1.0 percentage chance for vehical spawn points to spawn a vehical. 0 being 0% and 1.0 being 100%", new AcceptableValueRange<float>(0f, 1f))).Value;
     public static readonly bool AllowRespawnMinigame = LandfallConfig.Bind("Battle Royale", "AllowRespawnMinigame", true, "Enable or disable the respawn minigame in battle royale").Value;
     public static readonly bool Use_Ring = LandfallConfig.Bind("Battle Royale", "Use_Ring", true, "If to use the ring in battle royale").Value;
-    public static readonly float TimeBeforeFirstRing = LandfallConfig.Bind("Battle Royale", "TimeBeforeFirstRing", 70f, "Time before first ring").Value;
+    public static readonly float TimeBeforeFirstRing = LandfallConfig.Bind("Battle Royale", "TimeBeforeFirstRing", 70f, new ConfigDescription("Time before first ring", new AcceptableValueRange<float>(0f, float.MaxValue))).Value;
     
     // Brawl
-    public static readonly float TimeUntilWeaponsDissapear = LandfallConfig.Bind("Brawl", "TimeUntilWeaponsDissapear", 10f, "Time until thrown grenades get removed from the map in brawl. Why is this even a setting???").Value;
+    public static readonly float TimeUntilWeaponsDissapear = LandfallConfig.Bind("Brawl", "TimeUntilWeaponsDissapear", 10f, new ConfigDescription("Time until thrown grenades get removed from the map in brawl. Why is this even a setting???", new AcceptableValueRange<float>(0f, float.MaxValue))).Value;
     public static readonly int GroupsBeforeStarting = LandfallConfig.Bind("Brawl", "GroupsBeforeStarting", int.MaxValue, $"Groups before a brawl game starts. If set too {int.MaxValue} in solos it will be set to 10 and in squads it will be set to 5").Value;
     public static readonly int MaxNumberOfTeams = LandfallConfig.Bind("Brawl", "MaxNumberOfTeams", int.MaxValue, "Maximum teams in brawl").Value;
     public static readonly int NumberOfLivesPerTeam = LandfallConfig.Bind("Brawl", "NumberOfLivesPerTeam", 5, "Lives per team in brawl").Value;
@@ -62,9 +62,9 @@ public static class GameSettingsUtility {
     
     // Bomb
     public static readonly int RoundsToWin = LandfallConfig.Bind("Bomb", "RoundsToWin", 13, "Rounds to win in bomb").Value;
-    public static readonly float BombTime = LandfallConfig.Bind("Bomb", "BombTime", 30f, "Bomb detonation time").Value;
-    public static readonly float BombDefuseTime = LandfallConfig.Bind("Bomb", "BombDefuseTime", 5f, "Bomb defuse time").Value;
-    public static readonly int RoundTime = LandfallConfig.Bind("Bomb", "RoundTime", 90, "Bomb round time").Value;
+    public static readonly float BombTime = LandfallConfig.Bind("Bomb", "BombTime", 30f, new ConfigDescription("Bomb detonation time", new AcceptableValueRange<float>(0f, float.MaxValue))).Value;
+    public static readonly float BombDefuseTime = LandfallConfig.Bind("Bomb", "BombDefuseTime", 5f, new ConfigDescription("Bomb defuse time", new AcceptableValueRange<float>(0f, float.MaxValue))).Value;
+    public static readonly int RoundTime = LandfallConfig.Bind("Bomb", "RoundTime", 90, new ConfigDescription("Bomb round time", new AcceptableValueRange<int>(0, int.MaxValue))).Value;
     
     // Misc
     public static readonly bool DEBUG_DEATHMATCH = LandfallConfig.Bind("Misc", "DEBUG_DEATHMATCH", false, "Forces automatic respawns").Value;
