@@ -86,9 +86,10 @@ public static class MidMatchJoiningUtility {
             world.ForceChunkEntry(player);
         }
         
-        foreach (TABGPlayerServer other in room.Players) {
+        foreach (TABGPlayerServer other in room.PlayersAndSpectators()) {
             if (other == player) { continue; }
-            FakePlayerHelper.SpoofKills(world, other, Math.Min((int)other.NumberOfKills, 10), playerID);
+            int kills = Math.Min((int)other.NumberOfKills, 10);
+            for (int i = 0; i < kills; i++) { FakePlayerHelper.SpoofKill(world, other, playerID); }
         }
         
         // Jank solution to make it so that people's weapons show up
