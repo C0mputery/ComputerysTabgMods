@@ -68,6 +68,31 @@ public static class BroadcastHelper {
         world.SendMessageToClients(EventCode.PlayerLeft, [killerIndex, 1], target, true);
     }
     
+    public static void KillWithFakePlayer(TABGPlayerServer victim, string killerName, PlayerColour colour) {
+        if (!WorldHelper.TryGetWorld(out ServerClient? world)) {
+            Plugin.Logger.LogError("World client is not available?");
+            return;
+        }
+        
+        HashSet<byte> usedPlayerIndexes = [];
+        HashSet<byte> usedGroupIndexes = [];
+        foreach (TABGPlayerServer player in world.GameRoomReference.PlayersAndSpectators()) {
+            usedPlayerIndexes.Add(player.PlayerIndex);
+            usedGroupIndexes.Add(player.GroupIndex);
+        }
+        
+        if (!TryTakeFree(usedPlayerIndexes, out byte killerIndex) || !TryTakeFree(usedGroupIndexes, out byte groupIndex)) {
+            Plugin.Logger.LogWarning($"Out of free indexes, killing {victim.PlayerName} without a fake killer \"{killerName}\".");
+            ServerKillCommand.Run(world, victim);
+            return;
+        }
+        
+        world.SendMessageToClients(EventCode.Login, BuildRemoteLogin(killerIndex, groupIndex, killerName, colour), byte.MaxValue, true);
+        victim.UpdateLastAttacker(killerIndex);
+        ServerKillCommand.Run(world, victim);
+        world.SendMessageToClients(EventCode.PlayerLeft, [killerIndex, 1], byte.MaxValue, true);
+    }
+    
     private static bool TryTakeFree(HashSet<byte> usedIndexes, out byte index) {
         for (int i = byte.MaxValue - 1; i >= 0; i--) {
             if (!usedIndexes.Add((byte)i)) { continue; }
