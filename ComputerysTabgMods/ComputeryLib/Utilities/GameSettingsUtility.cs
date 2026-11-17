@@ -54,7 +54,7 @@ public static class GameSettingsUtility {
     public static readonly float TimeBeforeFirstRing = LandfallConfig.Bind("Battle Royale", "TimeBeforeFirstRing", 70f, new ConfigDescription("Time before first ring", new AcceptableValueRange<float>(0f, float.MaxValue))).Value;
     
     // Brawl
-    public static readonly float TimeUntilWeaponsDissapear = LandfallConfig.Bind("Brawl", "TimeUntilWeaponsDissapear", 10f, new ConfigDescription("Time until thrown grenades get removed from the map in brawl. Why is this even a setting???", new AcceptableValueRange<float>(0f, float.MaxValue))).Value;
+    public static readonly float TimeUntilWeaponsDissapear = LandfallConfig.Bind("Brawl", "TimeUntilWeaponsDissapear", 10f, new ConfigDescription("Time until thrown grenades get removed from the map in brawl.", new AcceptableValueRange<float>(0f, float.MaxValue))).Value;
     public static readonly int GroupsBeforeStarting = LandfallConfig.Bind("Brawl", "GroupsBeforeStarting", int.MaxValue, $"Groups before a brawl game starts. If set too {int.MaxValue} in solos it will be set to 10 and in squads it will be set to 5").Value;
     public static readonly int MaxNumberOfTeams = LandfallConfig.Bind("Brawl", "MaxNumberOfTeams", int.MaxValue, "Maximum teams in brawl").Value;
     public static readonly int NumberOfLivesPerTeam = LandfallConfig.Bind("Brawl", "NumberOfLivesPerTeam", 5, "Lives per team in brawl").Value;
