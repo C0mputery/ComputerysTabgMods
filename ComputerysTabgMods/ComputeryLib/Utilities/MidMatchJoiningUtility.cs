@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection.Emit;
+using ComputeryLib.Helpers;
 using HarmonyLib;
 using Landfall.Network;
 
@@ -84,6 +85,11 @@ public static class MidMatchJoiningUtility {
         else {
             player.Dropped();
             world.ForceChunkEntry(player);
+        }
+        
+        foreach (TABGPlayerServer other in room.Players) {
+            if (other == player) { continue; }
+            BroadcastHelper.SpoofKills(world, other, Math.Min((int)other.NumberOfKills, 10), playerID);
         }
         
         // Jank solution to make it so that people's weapons show up

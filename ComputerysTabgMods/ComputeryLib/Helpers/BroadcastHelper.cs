@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -44,28 +43,22 @@ public static class BroadcastHelper {
         
         if (message.Length > MaxNameLength) { Plugin.Logger.LogWarning($"Broadcast \"{message}\" is longer than {MaxNameLength} characters. Will be cropped."); }
         
-        HashSet<byte> usedPlayerIndexes = [];
-        HashSet<byte> usedGroupIndexes = [];
-        foreach (TABGPlayerServer player in world.GameRoomReference.PlayersAndSpectators()) {
-            usedPlayerIndexes.Add(player.PlayerIndex);
-            usedGroupIndexes.Add(player.GroupIndex);
+        using (FakeGroup group = FakePlayerHelper.ReserveGroup(world)) {
+            if (!group.IsValid) {
+                Plugin.Logger.LogWarning($"Out of free group indexes, cannot broadcast: \"{message}\".");
+                return;
+            }
+            
+            using (FakePlayer killer = FakePlayerHelper.Login(world, group, "", colour, target))
+            using (FakePlayer victim = FakePlayerHelper.Login(world, group, message, colour, target)) {
+                if (!killer.IsValid || !victim.IsValid) {
+                    Plugin.Logger.LogWarning($"Out of free player indexes, cannot broadcast: \"{message}\".");
+                    return;
+                }
+                
+                world.SendMessageToClients(EventCode.PlayerDead, BuildPlayerDead(victim.Index, killer.Index, message), target, true);
+            }
         }
-
-        if (!TryTakeFree(usedPlayerIndexes, out byte killerIndex) || !TryTakeFree(usedPlayerIndexes, out byte victimIndex)) {
-            Plugin.Logger.LogWarning($"Out of free player indexes cannot broadcast: \"{message}\".");
-            return;
-        }
-
-        if (!TryTakeFree(usedGroupIndexes, out byte groupIndex)) {
-            Plugin.Logger.LogWarning($"Out of free group indexes cannot broadcast: \"{message}\".");
-            return;
-        }
-
-        world.SendMessageToClients(EventCode.Login, BuildRemoteLogin(killerIndex, groupIndex, "", colour), target, true);
-        world.SendMessageToClients(EventCode.Login, BuildRemoteLogin(victimIndex, groupIndex, message, colour), target, true);
-        world.SendMessageToClients(EventCode.PlayerDead, BuildPlayerDead(victimIndex, killerIndex, message), target, true);
-        world.SendMessageToClients(EventCode.PlayerLeft, [victimIndex, 1], target, true);
-        world.SendMessageToClients(EventCode.PlayerLeft, [killerIndex, 1], target, true);
     }
     
     public static void KillWithFakePlayer(TABGPlayerServer victim, string killerName, PlayerColour colour) {
@@ -74,48 +67,45 @@ public static class BroadcastHelper {
             return;
         }
         
-        HashSet<byte> usedPlayerIndexes = [];
-        HashSet<byte> usedGroupIndexes = [];
-        foreach (TABGPlayerServer player in world.GameRoomReference.PlayersAndSpectators()) {
-            usedPlayerIndexes.Add(player.PlayerIndex);
-            usedGroupIndexes.Add(player.GroupIndex);
+        using (FakeGroup group = FakePlayerHelper.ReserveGroup(world)) {
+            if (!group.IsValid) {
+                Plugin.Logger.LogWarning($"Out of free group indexes, killing {victim.PlayerName} without a fake killer \"{killerName}\".");
+                ServerKillCommand.Run(world, victim);
+                return;
+            }
+            
+            using (FakePlayer killer = FakePlayerHelper.Login(world, group, killerName, colour, byte.MaxValue)) {
+                if (!killer.IsValid) {
+                    Plugin.Logger.LogWarning($"Out of free player indexes, killing {victim.PlayerName} without a fake killer \"{killerName}\".");
+                    ServerKillCommand.Run(world, victim);
+                    return;
+                }
+                
+                victim.UpdateLastAttacker(killer.Index);
+                ServerKillCommand.Run(world, victim);
+            }
         }
-        
-        if (!TryTakeFree(usedPlayerIndexes, out byte killerIndex) || !TryTakeFree(usedGroupIndexes, out byte groupIndex)) {
-            Plugin.Logger.LogWarning($"Out of free indexes, killing {victim.PlayerName} without a fake killer \"{killerName}\".");
-            ServerKillCommand.Run(world, victim);
-            return;
-        }
-        
-        world.SendMessageToClients(EventCode.Login, BuildRemoteLogin(killerIndex, groupIndex, killerName, colour), byte.MaxValue, true);
-        victim.UpdateLastAttacker(killerIndex);
-        ServerKillCommand.Run(world, victim);
-        world.SendMessageToClients(EventCode.PlayerLeft, [killerIndex, 1], byte.MaxValue, true);
     }
     
-    private static bool TryTakeFree(HashSet<byte> usedIndexes, out byte index) {
-        for (int i = byte.MaxValue - 1; i >= 0; i--) {
-            if (!usedIndexes.Add((byte)i)) { continue; }
-            index = (byte)i; return true;
+    public static void SpoofKills(ServerClient world, TABGPlayerServer killer, int kills, byte target) {
+        if (kills <= 0) { return; }
+        
+        using (FakeGroup group = FakePlayerHelper.ReserveGroup(world)) {
+            if (!group.IsValid) {
+                Plugin.Logger.LogWarning($"Out of free group indexes, cannot spoof {kills} kills for {killer.PlayerName}.");
+                return;
+            }
+            
+            using (FakePlayer phantom = FakePlayerHelper.Login(world, group, "", PlayerColour.White, target)) {
+                if (!phantom.IsValid) {
+                    Plugin.Logger.LogWarning($"Out of free player indexes, cannot spoof {kills} kills for {killer.PlayerName}.");
+                    return;
+                }
+                
+                byte[] dead = BuildPlayerDead(phantom.Index, killer.PlayerIndex, "");
+                for (int i = 0; i < kills; i++) { world.SendMessageToClients(EventCode.PlayerDead, dead, target, true); }
+            }
         }
-        index = 0;
-        return false;
-    }
-    
-    private static byte[] BuildRemoteLogin(byte playerIndex, byte groupIndex, string playerName, PlayerColour colour) {
-        using MemoryStream memoryStream = new MemoryStream();
-        using BinaryWriter writer = new BinaryWriter(memoryStream);
-        
-        byte[] nameBytes = Encoding.UTF8.GetBytes(playerName);
-        writer.Write(playerIndex);
-        writer.Write(groupIndex);
-        writer.Write(nameBytes.Length);
-        writer.Write(nameBytes);
-        writer.Write(0);
-        writer.Write(false);
-        writer.Write((int)colour);
-        
-        return memoryStream.ToArray();
     }
     
     private static byte[] BuildPlayerDead(byte victimIndex, byte killerIndex, string victimName) {
