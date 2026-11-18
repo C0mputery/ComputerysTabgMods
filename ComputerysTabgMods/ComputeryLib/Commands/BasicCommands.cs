@@ -36,7 +36,7 @@ public static class BasicCommands {
         bool showIds = sender == null || ChatCommandManager.GetUserPermissionLevel(sender) >= 1;
         List<TABGPlayerServer> players = world.GameRoomReference.PlayersAndSpectators().ToList();
         IEnumerable<string> entries = players.Select(p => showIds ? $"{p.PlayerName} ({p.PlayerIndex})" : p.PlayerName);
-        PlayerInteractionHelper.PrivateMessageOrServerLog($"Players ({players.Count}): {string.Join(", ", entries)}", sender);
+        PlayerInteractionHelper.PrivateMessageOrServerLog($"{players.Count} players: {string.Join(", ", entries)}", sender);
     }
     
     [ChatCommand("start", "Starts the game with default countdown or specified countdown in seconds.", 1)]
