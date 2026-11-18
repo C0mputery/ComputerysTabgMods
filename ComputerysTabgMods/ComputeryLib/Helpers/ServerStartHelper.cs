@@ -4,17 +4,17 @@ using Landfall.Network;
 
 namespace ComputeryLib.Helpers;
 
-[HarmonyPatch(typeof(ServerClient))]
+[HarmonyPatch]
 public static class ServerStartHelper {
     public static bool ServerIsRunning { get; private set; }
     
     public static void ThrowIfServerRunning(string action) { if (ServerIsRunning) { throw new InvalidOperationException($"Server has already started, {action}."); } }
     
     [HarmonyPrefix]
-    [HarmonyPatch(MethodType.Constructor)]
-    private static void ConstructorPrefix() { ServerIsRunning = true; }
+    [HarmonyPatch(typeof(GameRoom), nameof(GameRoom.StartGameRoom))]
+    private static void StartGameRoomPrefix() { ServerIsRunning = true; }
     
     [HarmonyPostfix]
-    [HarmonyPatch(nameof(ServerClient.Terminate), typeof(float), typeof(string))]
-    private static void TerminatePostfix() { ServerIsRunning = false; }
+    [HarmonyPatch(typeof(ServerClient), nameof(ServerClient.OnDestroy))]
+    private static void OnDestroyPostfix() { ServerIsRunning = false; }
 }
