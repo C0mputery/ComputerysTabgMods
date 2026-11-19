@@ -125,10 +125,10 @@ public static class AntiCheatUtility {
         return true;
     }
     
-    private static int CountOwned(TABGPlayerServer player, int itemIndex) {
+    private static int CountOwned(TABGPlayerServer player, int itemIdentifier) {
         int count = 0;
         foreach (TABGPlayerLootItem loot in player.Loot) {
-            if (loot.ItemIdentifier == itemIndex) { count += loot.ItemCount; }
+            if (loot.ItemIdentifier == itemIdentifier) { count += loot.ItemCount; }
         }
         return count;
     }

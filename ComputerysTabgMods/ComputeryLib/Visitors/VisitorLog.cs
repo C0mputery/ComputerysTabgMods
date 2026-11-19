@@ -70,7 +70,7 @@ public static class VisitorLog {
         SyncFromFile();
         if (!_visitors.TryGetValue(epicUserName, out VisitorInfo visitorInfo)) { return false; }
         
-        ModerationAction? active = visitorInfo.ModerationHistory.LastOrDefault(a => a.Type == ModerationActionType.Ban && a.EndedAt == null);
+        ModerationAction? active = visitorInfo.ModerationHistory.LastOrDefault(action => action.Type == ModerationActionType.Ban && action.EndedAt == null);
         if (active == null) { return false; }
         
         if (active.Expires.HasValue && active.Expires.Value <= DateTime.UtcNow) {

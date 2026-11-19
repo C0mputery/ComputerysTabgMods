@@ -32,7 +32,7 @@ public static class BasicCommands {
         
         bool showIDs = sender == null || ChatCommandManager.GetUserPermissionLevel(sender) >= 1;
         List<TABGPlayerServer> players = world.GameRoomReference.PlayersAndSpectators().ToList();
-        IEnumerable<string> entries = players.Select(p => showIDs ? $"{p.PlayerName} ({p.PlayerIndex})" : p.PlayerName);
+        IEnumerable<string> entries = players.Select(player => showIDs ? $"{player.PlayerName} ({player.PlayerIndex})" : player.PlayerName);
         PlayerInteractionHelper.PrivateMessageOrServerLog($"{players.Count} players: {string.Join(", ", entries)}", sender);
     }
     

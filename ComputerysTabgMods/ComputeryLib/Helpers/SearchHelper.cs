@@ -15,7 +15,7 @@ public static class SearchHelper {
         
         GameRoom room = world.GameRoomReference;
         List<TABGPlayerServer> players = room.PlayersAndSpectators().ToList();
-        List<TABGPlayerServer> exactMatches = players.FindAll(p => string.Equals(p.PlayerName, searchValue, StringComparison.OrdinalIgnoreCase));
+        List<TABGPlayerServer> exactMatches = players.FindAll(player => string.Equals(player.PlayerName, searchValue, StringComparison.OrdinalIgnoreCase));
         if (byte.TryParse(searchValue, out byte playerIndex) && room.FindPlayerOrSpectator(playerIndex) is { } indexMatch && !exactMatches.Contains(indexMatch)) { exactMatches.Add(indexMatch); }
         if (exactMatches.Count == 1) {
             foundPlayer = exactMatches[0];
@@ -26,7 +26,7 @@ public static class SearchHelper {
             return false;
         }
         
-        string[] playerNames = players.Select(p => p.PlayerName.ToLower()).ToArray();
+        string[] playerNames = players.Select(player => player.PlayerName.ToLower()).ToArray();
         int closestMatchIndex = GetClosestMatch(searchValue.ToLower(), playerNames);
         if (closestMatchIndex != -1) {
             foundPlayer = players[closestMatchIndex];

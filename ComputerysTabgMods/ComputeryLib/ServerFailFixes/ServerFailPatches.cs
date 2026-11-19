@@ -20,7 +20,7 @@ public static class ServerFailPatches {
         
         // When the init fails we need to make sure the server does not try to use the half-initialized server instance.
         // Note, this does not scale and stuff.
-        ServerClient.m_Server = null!;
+        ServerClient.m_Server = null;
         
         WorldHelper.GetWorld().Terminate(TerminateUtility.RestartTime, "Server failed to start properly. Terminating connection.");
         return __exception;

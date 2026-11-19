@@ -27,7 +27,7 @@ public static class MidMatchJoiningUtility {
         
         matcher.MatchForward(false,
             new CodeMatch(OpCodes.Switch),
-            new CodeMatch(code => code.opcode == OpCodes.Br || code.opcode == OpCodes.Br_S)
+            new CodeMatch(instruction => instruction.opcode == OpCodes.Br || instruction.opcode == OpCodes.Br_S)
         );
         Label[] caseTargets = (Label[])matcher.Operand;
         Label bookingCheck = caseTargets[(int)GameState.WaitingForPlayers];
@@ -38,7 +38,7 @@ public static class MidMatchJoiningUtility {
         caseTargets[(int)GameState.Flying] = flyingBookingCheck;
         caseTargets[(int)GameState.Started] = startedBookingCheck;
         
-        matcher.MatchForward(false, new CodeMatch(code => code.labels.Contains(bookingCheck)));
+        matcher.MatchForward(false, new CodeMatch(instruction => instruction.labels.Contains(bookingCheck)));
         matcher.AddLabels([flyingBookingCheck, startedBookingCheck]);
         
         return matcher.InstructionEnumeration();
