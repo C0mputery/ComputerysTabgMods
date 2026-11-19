@@ -46,7 +46,7 @@ public static class AggressiveRingUtility {
             float distanceFromCenterSquared = offsetX * offsetX + offsetZ * offsetZ;
             if (distanceFromCenterSquared <= _closedRingRadiusSquared) { continue; }
             
-            Plugin.Logger.LogInfo($"Player {player.PlayerName} is outside of the closed ring, killing.");
+            Plugin.Logger.LogInfo($"Player {player.PlayerName} ({player.PlayerIndex}) is outside of the closed ring, killing.");
             ServerKillCommand.Run(world, player);
         }
     }

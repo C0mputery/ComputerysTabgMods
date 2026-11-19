@@ -52,7 +52,7 @@ public static class AdminCommands {
         
         VisitorLog.RecordKick(target.EpicUserName, reason, sender?.PlayerName ?? "Server");
         PlayerKickCommand.Run(target, world, KickReason.BackendViolation);
-        Plugin.Logger.LogInfo($"{sender?.PlayerName ?? "Server"} kicked {target.PlayerName} ({target.EpicUserName}). Reason: {reason ?? "none"}");
+        Plugin.Logger.LogInfo($"{FormatSender(sender)} kicked {target.PlayerName}. Reason: {reason ?? "none"}");
         PlayerInteractionHelper.PrivateMessageOrServerLog($"Kicked {target.PlayerName}.", sender);
     }
     
@@ -92,7 +92,7 @@ public static class AdminCommands {
         PlayerKickCommand.Run(target, world, expires.HasValue ? KickReason.TemporaryBanned : KickReason.PermanentBanned);
         
         string duration = expires.HasValue ? $"until {expires.Value:u}" : "permanently";
-        Plugin.Logger.LogInfo($"{sender?.PlayerName ?? "Server"} banned {target.PlayerName} ({target.EpicUserName}) {duration}. Reason: {reason ?? "none"}");
+        Plugin.Logger.LogInfo($"{FormatSender(sender)} banned {target.PlayerName} {duration}. Reason: {reason ?? "none"}");
         PlayerInteractionHelper.PrivateMessageOrServerLog($"Banned {target.PlayerName} {duration}.", sender);
     }
     
@@ -111,7 +111,7 @@ public static class AdminCommands {
         
         string message = "<\u7FE9=99><\u5A0F\uFFEC\uFFED\uFFE9=999>" + TextHelper.Reformat(arguments[0]);
         PlayerInteractionHelper.Broadcast(message, colour, null);
-        Plugin.Logger.LogInfo($"{sender?.PlayerName ?? "Server"} broadcast: {message}");
+        Plugin.Logger.LogInfo($"{FormatSender(sender)} broadcast: {message}");
     }
     
     private static bool TryResolveModerationTarget(string argument, TABGPlayerServer? sender, [NotNullWhen(true)] out TABGPlayerServer? target) {
@@ -130,4 +130,6 @@ public static class AdminCommands {
         
         return true;
     }
+    
+    private static string FormatSender(TABGPlayerServer? sender) { return sender != null ? $"{sender.PlayerName} ({sender.PlayerIndex})" : "Server"; }
 }

@@ -61,14 +61,14 @@ public static class FakePlayerHelper {
         
         using (FakeGroup group = ReserveGroup()) {
             if (!group.IsValid) {
-                Plugin.Logger.LogWarning($"Out of free group indexes, killing {victim.PlayerName} without a fake killer \"{killerName}\".");
+                Plugin.Logger.LogWarning($"Out of free group indexes, killing {victim.PlayerName} ({victim.PlayerIndex}) without a fake killer \"{killerName}\".");
                 ServerKillCommand.Run(world, victim);
                 return;
             }
             
             using (FakePlayer killer = Login(group, killerName, colour, byte.MaxValue)) {
                 if (!killer.IsValid) {
-                    Plugin.Logger.LogWarning($"Out of free player indexes, killing {victim.PlayerName} without a fake killer \"{killerName}\".");
+                    Plugin.Logger.LogWarning($"Out of free player indexes, killing {victim.PlayerName} ({victim.PlayerIndex}) without a fake killer \"{killerName}\".");
                     ServerKillCommand.Run(world, victim);
                     return;
                 }

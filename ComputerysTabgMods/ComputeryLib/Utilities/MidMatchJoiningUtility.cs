@@ -104,13 +104,13 @@ public static class MidMatchJoiningUtility {
         
         using (FakeGroup group = FakePlayerHelper.ReserveGroup()) {
             if (!group.IsValid) {
-                Plugin.Logger.LogWarning($"Out of free group indexes, cannot spoof kill for {killer.PlayerName}.");
+                Plugin.Logger.LogWarning($"Out of free group indexes, cannot spoof kill for {killer.PlayerName} ({killer.PlayerIndex}).");
                 return;
             }
             
             using (FakePlayer phantom = FakePlayerHelper.Login(group, "", PlayerColour.White, targetIndex)) {
                 if (!phantom.IsValid) {
-                    Plugin.Logger.LogWarning($"Out of free player indexes, cannot spoof kill for {killer.PlayerName}.");
+                    Plugin.Logger.LogWarning($"Out of free player indexes, cannot spoof kill for {killer.PlayerName} ({killer.PlayerIndex}).");
                     return;
                 }
                 

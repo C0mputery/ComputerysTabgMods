@@ -21,6 +21,6 @@ public static class MessageLogger {
     }
     
     public static void InitializeLogger() {
-        MessageHelper.OnChatMessage += (player, message, wasThrown) => { LogMessage(player.PlayerName, player.EpicUserName, message, wasThrown); };
+        MessageHelper.OnChatMessage += (player, message, wasThrown) => { LogMessage($"{player.PlayerName} ({player.PlayerIndex})", player.EpicUserName, message, wasThrown); };
     }
 }
