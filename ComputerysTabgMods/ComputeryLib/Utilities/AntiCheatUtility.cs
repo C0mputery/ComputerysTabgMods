@@ -114,7 +114,7 @@ public static class AntiCheatUtility {
             int ownedCount = CountOwned(player, blessing);
             if (equippedCount > ownedCount) {
                 Plugin.Logger.LogWarning($"{player.PlayerName} tried to equip blessing {blessing} {equippedCount} times but only owns {ownedCount}. Duper...");
-                BroadcastHelper.KillWithFakePlayer(player, "Anti-Cheat", PlayerColour.Red);
+                FakePlayerHelper.KillWithFakePlayer(player, "Anti-Cheat", PlayerColour.Red);
                 return false;
             }
         }

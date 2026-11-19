@@ -50,22 +50,25 @@ public static class FakePlayerHelper {
         return false;
     }
     
-    public static void SpoofKill(TABGPlayerServer killer, byte target) {
+    public static void KillWithFakePlayer(TABGPlayerServer victim, string killerName, PlayerColour colour) {
         ServerClient world = WorldHelper.GetWorld();
         
         using (FakeGroup group = FakePlayerHelper.ReserveGroup()) {
             if (!group.IsValid) {
-                Plugin.Logger.LogWarning($"Out of free group indexes, cannot spoof kill for {killer.PlayerName}.");
+                Plugin.Logger.LogWarning($"Out of free group indexes, killing {victim.PlayerName} without a fake killer \"{killerName}\".");
+                ServerKillCommand.Run(world, victim);
                 return;
             }
             
-            using (FakePlayer phantom = FakePlayerHelper.Login(group, "", PlayerColour.White, target)) {
-                if (!phantom.IsValid) {
-                    Plugin.Logger.LogWarning($"Out of free player indexes, cannot spoof kill for {killer.PlayerName}.");
+            using (FakePlayer killer = FakePlayerHelper.Login(group, killerName, colour, byte.MaxValue)) {
+                if (!killer.IsValid) {
+                    Plugin.Logger.LogWarning($"Out of free player indexes, killing {victim.PlayerName} without a fake killer \"{killerName}\".");
+                    ServerKillCommand.Run(world, victim);
                     return;
                 }
                 
-                world.SendMessageToClients(EventCode.PlayerDead, PacketHelper.BuildPlayerDead(phantom.Index, killer.PlayerIndex, ""), target, true);
+                victim.UpdateLastAttacker(killer.Index);
+                ServerKillCommand.Run(world, victim);
             }
         }
     }

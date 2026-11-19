@@ -90,12 +90,33 @@ public static class MidMatchJoiningUtility {
         foreach (TABGPlayerServer other in room.PlayersAndSpectators()) {
             if (other == player) { continue; }
             int kills = Math.Min((int)other.NumberOfKills, 10);
-            for (int i = 0; i < kills; i++) { FakePlayerHelper.SpoofKill(other, playerID); }
+            for (int i = 0; i < kills; i++) { SpoofKill(other, player); }
         }
         
         // Jank solution to make it so that people's weapons show up
         // Don't know why the like current game world command doesn't properly send the stuff over
         world.WaitThenDoAction(2f, () => ResyncWeapons(playerID));
+    }
+    
+    private static void SpoofKill(TABGPlayerServer killer, TABGPlayerServer target) {
+        ServerClient world = WorldHelper.GetWorld();
+        byte targetIndex = target.PlayerIndex;
+        
+        using (FakeGroup group = FakePlayerHelper.ReserveGroup()) {
+            if (!group.IsValid) {
+                Plugin.Logger.LogWarning($"Out of free group indexes, cannot spoof kill for {killer.PlayerName}.");
+                return;
+            }
+            
+            using (FakePlayer phantom = FakePlayerHelper.Login(group, "", PlayerColour.White, targetIndex)) {
+                if (!phantom.IsValid) {
+                    Plugin.Logger.LogWarning($"Out of free player indexes, cannot spoof kill for {killer.PlayerName}.");
+                    return;
+                }
+                
+                world.SendMessageToClients(EventCode.PlayerDead, PacketHelper.BuildPlayerDead(phantom.Index, killer.PlayerIndex, ""), targetIndex, true);
+            }
+        }
     }
     
     private static void ResyncWeapons(byte joinerID) {

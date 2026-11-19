@@ -110,7 +110,7 @@ public class AdminCommands {
         }
         
         string message = "<\u7FE9=99><\u5A0F\uFFEC\uFFED\uFFE9=999>" + TextHelper.Reformat(arguments[0]);
-        BroadcastHelper.Broadcast(message, colour, byte.MaxValue);
+        PlayerInteractionHelper.Broadcast(message, colour, null);
         Plugin.Logger.LogInfo($"{sender?.PlayerName ?? "Server"} broadcast: {message}");
     }
     
