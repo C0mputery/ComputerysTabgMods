@@ -12,7 +12,7 @@ namespace ComputeryLib.Visitors;
 public class RoomInitRequestCommandPatch {
     [HarmonyPostfix]
     [HarmonyPatch(nameof(RoomInitRequestCommand.OnVerifiesEpicToken))]
-    public static void OnVerifiesEpicTokenPostfix(ref VerifyIdTokenCallbackInfo data) {
+    private static void OnVerifiesEpicTokenPostfix(ref VerifyIdTokenCallbackInfo data) {
         if (data.ResultCode != Result.Success || data.ClientData is not TABGPlayerServer tabgPlayerServer) { return; }
         if (VisitorLog.TryGetActiveBan(tabgPlayerServer.EpicUserName, out string? reason, out DateTime? expires)) {
             Plugin.Logger.LogInfo($"Banned player {tabgPlayerServer.PlayerName} ({tabgPlayerServer.EpicUserName}) tried to join. Reason: {reason ?? "none"}, expires: {(expires.HasValue ? expires.Value.ToString("u") : "never")}");

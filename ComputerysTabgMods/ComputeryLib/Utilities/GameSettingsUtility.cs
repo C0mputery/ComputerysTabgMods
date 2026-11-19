@@ -13,7 +13,7 @@ namespace ComputeryLib.ConfigImprovements;
 public static class GameSettingsUtility {
     [HarmonyPrefix]
     [HarmonyPatch(MethodType.Constructor, typeof(TheRing), typeof(string))]
-    public static bool GameSettingsConstructorPrefix(ref GameSettings __instance, TheRing ringRef, string overridePath) {
+    private static bool GameSettingsConstructorPrefix(ref GameSettings __instance, TheRing ringRef, string overridePath) {
         SetDefaultValues(ref __instance, ringRef);
         LoadFromConfig(ref __instance, ringRef);
         return false;

@@ -8,11 +8,11 @@ namespace ComputeryLib.Commands;
 public static class ChatMessageCommandPatch {
     [HarmonyPrefix]
     [HarmonyPatch(typeof(ChatMessageCommand), nameof(ChatMessageCommand.Run))]
-    public static bool ChatMessageCommandRunPrefix(byte[] msgData, ServerClient world, byte sender) { return Parse(msgData, sender); }
+    private static bool ChatMessageCommandRunPrefix(byte[] msgData, ServerClient world, byte sender) { return Parse(msgData, sender); }
     
     [HarmonyPrefix]
     [HarmonyPatch(typeof(ThrowChatMessageCommand), nameof(ThrowChatMessageCommand.Run))]
-    public static bool ThrowChatMessageCommandRunPrefix(byte[] data, ServerClient world, byte sender) { return Parse(data, sender); }
+    private static bool ThrowChatMessageCommandRunPrefix(byte[] data, ServerClient world, byte sender) { return Parse(data, sender); }
     
     private static bool Parse(byte[] msgData, byte sender) {
         if (!MessageHelper.TryReadChatMessage(msgData, sender, out TABGPlayerServer? player, out string? message)) { return true; }

@@ -17,7 +17,7 @@ public static class LoggerImprover {
         Plugin.Harmony.Patch(targetMethod, transpiler: new HarmonyMethod(typeof(LoggerImprover), nameof(SuppressCommunityBackendHeartbeatLogs)));
     }
     
-    public static IEnumerable<CodeInstruction> SuppressCommunityBackendHeartbeatLogs(IEnumerable<CodeInstruction> instructions) {
+    private static IEnumerable<CodeInstruction> SuppressCommunityBackendHeartbeatLogs(IEnumerable<CodeInstruction> instructions) {
         CodeMatcher matcher = new CodeMatcher(instructions);
         matcher.MatchForward(false, new CodeMatch(OpCodes.Ldstr, "Heartbeat sent! Code: "));
         matcher.RemoveInstructions(13);
@@ -26,7 +26,7 @@ public static class LoggerImprover {
     
     [HarmonyTranspiler]
     [HarmonyPatch(typeof(LandLog), nameof(LandLog.Log), typeof(string), typeof(object))]
-    public static IEnumerable<CodeInstruction> FixLandLog(IEnumerable<CodeInstruction> instructions) {
+    private static IEnumerable<CodeInstruction> FixLandLog(IEnumerable<CodeInstruction> instructions) {
         CodeMatcher matcher = new CodeMatcher(instructions);
         matcher.MatchForward(false, new CodeMatch(OpCodes.Call, AccessTools.Method(typeof(Console), nameof(Console.WriteLine), [typeof(string)])));
         matcher.Set(OpCodes.Call, AccessTools.Method(typeof(Console), nameof(Console.Write), [typeof(string)]));
@@ -36,7 +36,7 @@ public static class LoggerImprover {
     [HarmonyTranspiler]
     [HarmonyPatch(typeof(GameRoom), nameof(GameRoom.EndMatch))]
     [HarmonyPatch(typeof(TeamDeadCommand), nameof(TeamDeadCommand.Run))]
-    public static IEnumerable<CodeInstruction> FixPlayFabDisabledLog(IEnumerable<CodeInstruction> instructions) {
+    private static IEnumerable<CodeInstruction> FixPlayFabDisabledLog(IEnumerable<CodeInstruction> instructions) {
         CodeMatcher matcher = new CodeMatcher(instructions);
         matcher.MatchForward(false, new CodeMatch(OpCodes.Ldstr, "Playfab Is Disabled!"));
         matcher.RemoveInstructions(3);
@@ -45,7 +45,7 @@ public static class LoggerImprover {
     
     [HarmonyTranspiler]
     [HarmonyPatch(typeof(PlayerLeaveCommand), nameof(PlayerLeaveCommand.Run))]
-    public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) {
+    private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) {
         CodeMatcher matcher = new CodeMatcher(instructions);
         
         matcher.MatchForward(false, new CodeMatch(OpCodes.Ldstr, "Playfab Is Disabled!"));
@@ -60,5 +60,5 @@ public static class LoggerImprover {
     [HarmonyPatch(typeof(RuntimeManager), nameof(RuntimeManager.LoadBank), typeof(string), typeof(bool))]
     [HarmonyPatch(typeof(RuntimeManager), nameof(RuntimeManager.CreateInstance), typeof(string))]
     [HarmonyPatch(typeof(StudioEventEmitter), nameof(StudioEventEmitter.Start))]
-    public static bool Disable() { return false; }
+    private static bool Disable() { return false; }
 }

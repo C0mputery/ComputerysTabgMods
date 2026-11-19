@@ -9,5 +9,5 @@ public static class TickRateUtility {
     
     [HarmonyPostfix]
     [HarmonyPatch(nameof(ServerClient.Awake))]
-    public static void AwakePostfix(ServerClient __instance) { __instance.SetTickRate(TickRate); }
+    private static void AwakePostfix(ServerClient __instance) { __instance.SetTickRate(TickRate); }
 }

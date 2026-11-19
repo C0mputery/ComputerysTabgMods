@@ -13,7 +13,7 @@ public static class PacketQueueUtility {
     
     [HarmonyPostfix]
     [HarmonyPatch(nameof(Easy_AC_Server.InitEpic))]
-    public static void InitEpicPostfix() {
+    private static void InitEpicPostfix() {
         if (Easy_AC_Server.s_PlatformInterface == null) {
             Plugin.Logger.LogError("Failed to set the EOS P2P packet queue size likely bcs epic failed to init.");
             return;

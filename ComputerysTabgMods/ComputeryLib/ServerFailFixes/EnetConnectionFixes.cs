@@ -77,7 +77,7 @@ public static class EnetConnectionFixes {
         return false;
     }
     
-    public static uint GetPlayerID(ref Peer peer) {
+    private static uint GetPlayerID(ref Peer peer) {
         if (PeerIDToPlayer.TryGetValue(peer.ID, out (Peer Peer, byte PlayerID) mapped)) { return mapped.PlayerID; }
         
         byte playerID = GetFreePlayerID();

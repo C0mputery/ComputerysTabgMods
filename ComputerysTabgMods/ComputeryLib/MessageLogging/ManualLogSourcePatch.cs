@@ -12,7 +12,7 @@ namespace ComputeryLib.MessageLogging;
 public class ManualLogSourcePatch {
     [HarmonyPrefix]
     [HarmonyPatch(MethodType.Constructor, typeof(string))]
-    public static bool ConstructorPrefix(ManualLogSource __instance, ref string sourceName) {
+    private static bool ConstructorPrefix(ManualLogSource __instance, ref string sourceName) {
         if (sourceName != "Console") { return true; }
         sourceName = "Yo dipshit don't name your logger `Console` pls and tank you";
         return false;
@@ -20,7 +20,7 @@ public class ManualLogSourcePatch {
     
     [HarmonyPrefix]
     [HarmonyPatch(nameof(ManualLogSource.Log))]
-    public static bool LogPrefix(ManualLogSource __instance, LogLevel level, object data) {
+    private static bool LogPrefix(ManualLogSource __instance, LogLevel level, object data) {
         if (__instance.SourceName == "Console") { return false; }
         Console.WriteLine(new LogEventArgs(data, level, __instance));
         return true;
