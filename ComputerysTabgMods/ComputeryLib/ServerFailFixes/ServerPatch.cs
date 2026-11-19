@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
+using ComputeryLib.Helpers;
 using ComputeryLib.Utilities;
 using HarmonyLib;
 using Landfall.Network;
@@ -21,7 +22,7 @@ public class ServerFailPatches {
         // Note, this does not scale and stuff.
         ServerClient.m_Server = null!;
         
-        TerminateUtility.TerminateServer("Server failed to start properly. Terminating connection.");
+        WorldHelper.GetWorld().Terminate(TerminateUtility.RestartTime, "Server failed to start properly. Terminating connection.");
         return __exception;
     }
     
