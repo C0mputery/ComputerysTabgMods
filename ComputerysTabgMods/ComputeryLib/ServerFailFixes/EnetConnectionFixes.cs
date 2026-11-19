@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Reflection;
-using ComputeryLib.ConfigImprovements;
 using ComputeryLib.Helpers;
+using ComputeryLib.Utilities;
 using ENet;
 using HarmonyLib;
 using Landfall.Network;

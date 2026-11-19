@@ -7,7 +7,7 @@ using Landfall.Network;
 
 namespace ComputeryLib.Commands;
 
-public class AdminCommands {
+public static class AdminCommands {
     [ChatCommand("setlevel", "Sets the permission level of a player. Usage: /setlevel <player_name|player_id> <level>", 10)]
     public static void SetLevelCommand(string[] arguments, TABGPlayerServer? sender) {
         if (arguments.Length < 2) {

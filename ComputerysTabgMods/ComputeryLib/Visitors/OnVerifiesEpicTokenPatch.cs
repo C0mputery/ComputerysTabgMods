@@ -8,7 +8,7 @@ using Landfall.Network;
 namespace ComputeryLib.Visitors;
 
 [HarmonyPatch(typeof(RoomInitRequestCommand))]
-public class RoomInitRequestCommandPatch {
+public static class OnVerifiesEpicTokenPatch {
     [HarmonyPostfix]
     [HarmonyPatch(nameof(RoomInitRequestCommand.OnVerifiesEpicToken))]
     private static void OnVerifiesEpicTokenPostfix(ref VerifyIdTokenCallbackInfo data) {

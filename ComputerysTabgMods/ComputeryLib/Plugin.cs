@@ -3,9 +3,9 @@ using BepInEx;
 using BepInEx.Configuration;
 using BepInEx.Logging;
 using ComputeryLib.Commands;
-using ComputeryLib.ConfigImprovements;
 using ComputeryLib.Helpers;
 using ComputeryLib.MessageLogging;
+using ComputeryLib.Utilities;
 using HarmonyLib;
 using UnityEngine;
 

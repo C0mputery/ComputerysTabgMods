@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using ComputeryLib.ConfigImprovements;
+using ComputeryLib.Utilities;
 using HarmonyLib;
 using Landfall.Network;
 using Unity.Networking.Transport;

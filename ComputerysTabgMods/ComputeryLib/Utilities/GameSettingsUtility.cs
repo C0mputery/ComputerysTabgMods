@@ -6,7 +6,7 @@ using HarmonyLib;
 using Landfall.Network;
 using Random = UnityEngine.Random;
 
-namespace ComputeryLib.ConfigImprovements;
+namespace ComputeryLib.Utilities;
 
 [HarmonyPatch(typeof(GameSettings))]
 public static class GameSettingsUtility {

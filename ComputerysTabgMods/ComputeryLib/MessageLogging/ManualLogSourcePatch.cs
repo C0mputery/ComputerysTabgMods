@@ -9,7 +9,7 @@ namespace ComputeryLib.MessageLogging;
 ///     This is needed so bepin actually logs to the standard out when using the CLI.
 /// </summary>
 [HarmonyPatch(typeof(ManualLogSource))]
-public class ManualLogSourcePatch {
+public static class ManualLogSourcePatch {
     [HarmonyPrefix]
     [HarmonyPatch(MethodType.Constructor, typeof(string))]
     private static bool ConstructorPrefix(ManualLogSource __instance, ref string sourceName) {
