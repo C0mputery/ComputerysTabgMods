@@ -8,7 +8,6 @@ using UnityEngine;
 namespace ComputeryLib.Helpers;
 
 public static class PlayerInteractionHelper {
-    private const char ZeroWidthSpace = '\u200B';
     private static readonly string[] FilteredWords = new DontBeRude().m_badWordsCollection.SelectMany(words => words).Select(word => word.ToLowerInvariant()).ToArray();
     
     public static void PrivateMessageOrServerLog(string message, TABGPlayerServer? sender) {
@@ -31,8 +30,6 @@ public static class PlayerInteractionHelper {
         }
     }
     
-    private const int MaxNameLength = 32;
-    
     /// <summary>
     /// As it turns out, Landfold didn't implement the kill list properly, and after enough kills, for some reason, it literally just slowly sinks off of the screen.
     /// It walks off the screen. It's insane. Fuck landfall.
@@ -46,10 +43,12 @@ public static class PlayerInteractionHelper {
     /// <param name="colour"> you know </param>
     /// <param name="target"> you know </param>
     public static void Broadcast(string message, PlayerColour colour, TABGPlayerServer? target) {
+        const int maxNameLengthForBroadcast = 32;
+        
         ServerClient world = WorldHelper.GetWorld();
         byte targetIndex = target?.PlayerIndex ?? byte.MaxValue;
         
-        if (message.Length > MaxNameLength) { Plugin.Logger.LogWarning($"Broadcast \"{message}\" is longer than {MaxNameLength} characters. Will be cropped."); }
+        if (message.Length > maxNameLengthForBroadcast) { Plugin.Logger.LogWarning($"Broadcast \"{message}\" is longer than {maxNameLengthForBroadcast} characters. Will be cropped."); }
         
         using (FakeGroup group = FakePlayerHelper.ReserveGroup()) {
             if (!group.IsValid) {
@@ -70,6 +69,8 @@ public static class PlayerInteractionHelper {
     }
     
     private static string BreakUpFilteredWords(string message) {
+        const char zeroWidthSpace = '\u200B';
+        
         if (string.IsNullOrEmpty(message)) { return message; }
         
         StringBuilder builder = new StringBuilder(message);
@@ -83,7 +84,7 @@ public static class PlayerInteractionHelper {
                 int matchIndex = lowered.IndexOf(word, StringComparison.Ordinal);
                 if (matchIndex < 0) { continue; }
                 
-                builder.Insert(matchIndex + 1, ZeroWidthSpace);
+                builder.Insert(matchIndex + 1, zeroWidthSpace);
                 foundMatch = true;
                 break;
             }

@@ -45,26 +45,27 @@ public static class ChunkEntryLootBreakup {
         return matcher.InstructionEnumeration();
     }
     
-    private const int MaxPayloadSize = UnityTransportConnectionFixes.ClientFragmentationPayloadCapacity - 1024;
-    private const int LootPerPacket = (MaxPayloadSize - PacketHelper.LootOnlyChunkEntryHeaderSize) / PacketHelper.LootEntrySize;
-    private const int MaxQuaternionSize = 7;
-    
     private static void TrimLoot(List<TABGPlayerServer> players, List<TABGCarServer> cars, List<NetworkGun> loot, TABGPlayerServer player) {
+        const int maxPayloadSize = UnityTransportConnectionFixes.ClientFragmentationPayloadCapacity - 1024;
+        const int lootPerPacket = (maxPayloadSize - PacketHelper.LootOnlyChunkEntryHeaderSize) / PacketHelper.LootEntrySize;
+        
         ServerClient world = WorldHelper.GetWorld();
-        int lootThatFits = Mathf.Max(0, (MaxPayloadSize - GetSizeWithoutLoot(players, cars)) / PacketHelper.LootEntrySize);
+        int lootThatFits = Mathf.Max(0, (maxPayloadSize - GetSizeWithoutLoot(players, cars)) / PacketHelper.LootEntrySize);
         if (loot.Count <= lootThatFits) { return; }
         
         int overflow = loot.Count - lootThatFits;
-        for (int i = 0; i < overflow; i += LootPerPacket) {
-            List<NetworkGun> batch = loot.GetRange(i, Mathf.Min(LootPerPacket, overflow - i));
+        for (int i = 0; i < overflow; i += lootPerPacket) {
+            List<NetworkGun> batch = loot.GetRange(i, Mathf.Min(lootPerPacket, overflow - i));
             world.SendMessageToClients(EventCode.ChunkEntry, PacketHelper.BuildLootOnlyChunkEntry(player.PlayerIndex, batch), player.UpdateMessageQueue.Receivers, true);
         }
         loot.RemoveRange(0, overflow);
     }
     
     private static int GetSizeWithoutLoot(List<TABGPlayerServer> players, List<TABGCarServer> cars) {
+        const int maxQuaternionSize = 7;
+        
         int carSize = 20 * cars.Count;
-        foreach (TABGCarServer car in cars) { carSize += car.NumberOfSeats + MaxQuaternionSize; }
+        foreach (TABGCarServer car in cars) { carSize += car.NumberOfSeats + maxQuaternionSize; }
         
         return ChunkEntryPlayerPaddingTrim.GetPlayerSize(players) + 4 + 5 + carSize + 1;
     }

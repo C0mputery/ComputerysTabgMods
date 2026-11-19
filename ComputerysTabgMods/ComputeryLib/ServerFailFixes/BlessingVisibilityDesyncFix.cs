@@ -37,9 +37,10 @@ public static class BlessingVisibilityDesyncFix {
         }
     }
     
-    private const int NoBlessing = -1;
     private static bool HasBlessings(TABGPlayerServer player) {
+        const int noBlessing = -1;
+        
         int[] blessings = player.GetBlessings();
-        return blessings[0] != NoBlessing || blessings[1] != NoBlessing || blessings[2] != NoBlessing;
+        return blessings[0] != noBlessing || blessings[1] != noBlessing || blessings[2] != noBlessing;
     }
 }

@@ -22,16 +22,17 @@ public static class VoidWeaponFix {
         LastWeaponReceived.GetOrCreateValue(__instance).Value = Time.realtimeSinceStartup;
     }
     
-    private const int WeaponSlotCount = 5;
     [HarmonyPostfix]
     [HarmonyPatch(typeof(WeaponChangedCommand), nameof(WeaponChangedCommand.Run))]
     private static void WeaponChangedPostfix(byte[] msgData, ServerClient world) {
+        const int weaponSlotCount = 5;
+        
         TABGPlayerServer? player = world.GameRoomReference.FindPlayer(msgData[0]);
         if (player == null || player.IsDead) { return; }
         if (LastWeaponReceived.TryGetValue(player, out StrongBox<float> received) && Time.realtimeSinceStartup - received.Value < UnslottedWeaponGracePeriod) { return; }
         
         Dictionary<int, int> slotted = new Dictionary<int, int>();
-        for (int i = 0; i < WeaponSlotCount; i++) {
+        for (int i = 0; i < weaponSlotCount; i++) {
             int itemIdentifier = player.Equipment[i];
             slotted.TryGetValue(itemIdentifier, out int count);
             slotted[itemIdentifier] = count + 1;

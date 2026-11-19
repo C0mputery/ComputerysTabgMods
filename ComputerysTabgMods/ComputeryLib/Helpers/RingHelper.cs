@@ -50,11 +50,12 @@ public static class RingHelper {
         RingUpdateCommand.Run([0], __instance);
     }
     
-    private const float JoinCatchupDelaySeconds = 1f;
     [HarmonyPostfix]
     [HarmonyPatch(typeof(CurrentGameWorldCommand), nameof(CurrentGameWorldCommand.Run))]
     private static void CurrentGameWorldPostfix(ServerClient world, byte playerID) {
-        if (world.GameRoomReference.CurrentGameState == GameState.Started) { world.WaitThenDoAction(JoinCatchupDelaySeconds, () => SendRingToPlayer(playerID)); }
+        const float joinCatchupDelaySeconds = 1f;
+        
+        if (world.GameRoomReference.CurrentGameState == GameState.Started) { world.WaitThenDoAction(joinCatchupDelaySeconds, () => SendRingToPlayer(playerID)); }
     }
     
     private static void SendRingToPlayer(byte playerIndex) {

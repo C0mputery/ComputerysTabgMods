@@ -61,10 +61,10 @@ public static class BasicCommands {
         world.GameRoomReference.StartCountDown(timeInSeconds);
     }
     
-    private const int MaxGiveQuantity = 25500;
-    
     [ChatCommand("give", "Gives an item. Usage: /give <item_id> [quantity] or from the server: give <player_name|player_id> <item_id> [quantity]", 10)]
     public static void GiveCommand(string[] arguments, TABGPlayerServer? sender) {
+        const int maxGiveQuantity = 25500;
+        
         ServerClient world = WorldHelper.GetWorld();
         
         bool isNonPlayerSender = sender == null;
@@ -94,7 +94,7 @@ public static class BasicCommands {
                 PlayerInteractionHelper.PrivateMessageOrServerLog("Invalid quantity. Must be a positive number.", sender);
                 return;
             }
-            quantity = Math.Min(parsedQuantity, MaxGiveQuantity);
+            quantity = Math.Min(parsedQuantity, maxGiveQuantity);
         }
         
         for (int remaining = quantity; remaining > 0; remaining -= byte.MaxValue) {

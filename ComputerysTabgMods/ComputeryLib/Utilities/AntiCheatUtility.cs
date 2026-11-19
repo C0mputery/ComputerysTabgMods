@@ -13,17 +13,18 @@ public static class AntiCheatUtility {
     public static readonly bool AntiCheat = Plugin.Config.Bind("Anticheat", "Enable", true, "Enables or disables the anti-cheat").Value;
     [HarmonyPrepare] private static bool OnlyWhenEnabled() { return AntiCheat; }
     
-    private const int ItemIdentifierOffset = 1;
-    private const int ItemCountOffset = 5;
     [HarmonyPrefix]
     [HarmonyPatch(typeof(ItemDropCommand), nameof(ItemDropCommand.Run))]
     [HarmonyPatch(typeof(ItemThrownCommand), nameof(ItemThrownCommand.Run))]
     private static bool DropThrowPrefix(byte[] msgData, ServerClient world, byte sender) {
+        const int itemIdentifierOffset = 1;
+        const int itemCountOffset = 5;
+        
         TABGPlayerServer? player = world.GameRoomReference.FindPlayer(sender);
         if (player == null) { return false; }
         
-        int itemIdentifier = BitConverter.ToInt32(msgData, ItemIdentifierOffset);
-        int requestedCount = BitConverter.ToInt32(msgData, ItemCountOffset);
+        int itemIdentifier = BitConverter.ToInt32(msgData, itemIdentifierOffset);
+        int requestedCount = BitConverter.ToInt32(msgData, itemCountOffset);
         int ownedCount = player.HasLoot(itemIdentifier);
         if (requestedCount <= 0 || ownedCount <= 0) {
             Plugin.Logger.LogWarning($"Player {player.PlayerName} ({sender}) tried to drop/throw {requestedCount} of item {itemIdentifier} but has {ownedCount}. Duper.");
@@ -31,7 +32,7 @@ public static class AntiCheatUtility {
         }
         if (requestedCount > ownedCount) {
             Plugin.Logger.LogWarning($"Player {player.PlayerName} ({sender}) tried to drop/throw {requestedCount} of item {itemIdentifier} but has {ownedCount}. Duper.");
-            Buffer.BlockCopy(BitConverter.GetBytes(ownedCount), 0, msgData, ItemCountOffset, sizeof(int));
+            Buffer.BlockCopy(BitConverter.GetBytes(ownedCount), 0, msgData, itemCountOffset, sizeof(int));
         }
         
         return true;
@@ -73,11 +74,12 @@ public static class AntiCheatUtility {
         PickupDeadlines[itemSpawnIndex] = Time.realtimeSinceStartup + window;
     }
     
-    private const int WeaponIndexOffset = 1;
     [HarmonyPrefix]
     [HarmonyPatch(typeof(RequestPickupCommand), nameof(RequestPickupCommand.Run))]
     private static bool RequestPickupPrefix(byte[] msgData) {
-        int weaponIndex = BitConverter.ToInt32(msgData, WeaponIndexOffset);
+        const int weaponIndexOffset = 1;
+        
+        int weaponIndex = BitConverter.ToInt32(msgData, weaponIndexOffset);
         if (!PickupDeadlines.TryGetValue(weaponIndex, out float deadline)) { return true; }
         if (Time.realtimeSinceStartup < deadline) { return true; }
         
@@ -92,16 +94,17 @@ public static class AntiCheatUtility {
         PickupDeadlines.Remove(weapon.Index);
     }
     
-    private const int FirstBlessingOffset = 1;
     [HarmonyPrefix]
     [HarmonyPatch(typeof(PlayerRequestBlessingCommand), nameof(PlayerRequestBlessingCommand.Run))]
     private static bool RequestBlessingPrefix(byte[] msgData, ServerClient world, byte sender) {
+        const int firstBlessingOffset = 1;
+        
         TABGPlayerServer? player = world.GameRoomReference.FindPlayer(sender);
         if (player == null) { return true; }
         
         int[] blessings = new int[3];
         for (int i = 0; i < blessings.Length; i++) {
-            blessings[i] = BitConverter.ToInt32(msgData, FirstBlessingOffset + i * sizeof(int));
+            blessings[i] = BitConverter.ToInt32(msgData, firstBlessingOffset + i * sizeof(int));
         }
         
         for (int i = 0; i < blessings.Length; i++) {

@@ -57,15 +57,16 @@ public static class RemoteItemPickupFix {
         if (observers.Count > 0) { world.SendMessageToClients(EventCode.LootRemovedFromMap, BitConverter.GetBytes(lootIndex), observers.ToArray(), reliable); }
     }
     
-    private const int LootPackHeaderSize = 2;
-    private const int LootPackItemSize = 9;
     private static void SendLootPack(ServerClient world, EventCode opCode, byte[] buffer, byte[] recipients, bool reliable, bool alsoSendToTeamates) {
+        const int lootPackHeaderSize = 2;
+        const int lootPackItemSize = 9;
+        
         byte receiverIndex = buffer[0];
         int count = buffer[1];
         
         List<int> weaponOffsets = new List<int>(count);
         for (int i = 0; i < count; i++) {
-            int offset = LootPackHeaderSize + i * LootPackItemSize;
+            int offset = lootPackHeaderSize + i * lootPackItemSize;
             if (KeepVanillaPickup(BitConverter.ToInt32(buffer, offset + 4))) { weaponOffsets.Add(offset); }
         }
         if (weaponOffsets.Count == count) {
@@ -81,11 +82,11 @@ public static class RemoteItemPickupFix {
         world.SendMessageToClients(opCode, buffer, receiverIndex, reliable, alsoSendToTeamates);
         if (observers.Count <= 0 || weaponOffsets.Count <= 0) { return; }
         
-        byte[] observerBuffer = new byte[LootPackHeaderSize + weaponOffsets.Count * LootPackItemSize];
+        byte[] observerBuffer = new byte[lootPackHeaderSize + weaponOffsets.Count * lootPackItemSize];
         observerBuffer[0] = receiverIndex;
         observerBuffer[1] = (byte)weaponOffsets.Count;
         for (int i = 0; i < weaponOffsets.Count; i++) {
-            Buffer.BlockCopy(buffer, weaponOffsets[i], observerBuffer, LootPackHeaderSize + i * LootPackItemSize, LootPackItemSize);
+            Buffer.BlockCopy(buffer, weaponOffsets[i], observerBuffer, lootPackHeaderSize + i * lootPackItemSize, lootPackItemSize);
         }
         world.SendMessageToClients(opCode, observerBuffer, observers.ToArray(), reliable, alsoSendToTeamates);
     }
