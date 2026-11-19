@@ -3,7 +3,7 @@
     <PropertyGroup>
         <TargetFramework>netstandard2.1</TargetFramework>
         <AssemblyName>ComputeryLib</AssemblyName>
-        <Description>Libary For Easy Server Mods</Description>
+        <Description>Library For Easy Server Mods</Description>
         <Version>1.0.0</Version>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <LangVersion>latest</LangVersion>
