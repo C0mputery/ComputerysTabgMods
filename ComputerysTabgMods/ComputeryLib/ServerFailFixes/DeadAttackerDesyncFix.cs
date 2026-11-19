@@ -19,7 +19,7 @@ public static class DeadAttackerDesyncFix {
         if (senderIndex != attackerIndex) { return; }
         
         GameRoom room = world.GameRoomReference;
-        TABGPlayerServer? attacker = room.FindPlayer(attackerIndex);
+        TABGPlayerServer? attacker = room.FindPlayerOrSpectator(attackerIndex);
         TABGPlayerServer? victim = room.FindPlayer(msgData[VictimIndexOffset]);
         if (attacker == null || victim == null || !attacker.IsDead || victim.IsDead) { return; }
         

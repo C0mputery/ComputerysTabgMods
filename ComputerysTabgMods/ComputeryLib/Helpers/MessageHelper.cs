@@ -28,7 +28,7 @@ public static class MessageHelper {
     }
     
     internal static bool TryReadChatMessage(byte[] data, ServerClient world, byte sender, [NotNullWhen(true)] out TABGPlayerServer? player, [NotNullWhen(true)] out string? message) {
-        player = world.GameRoomReference.FindPlayer(sender);
+        player = world.GameRoomReference.FindPlayerOrSpectator(sender);
         if (player == null) {
             message = null;
             return false;

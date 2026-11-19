@@ -178,4 +178,18 @@ public static class PacketHelper {
         writer.Write(Mathf.Max(ring.GetTimeTravelled(), ring.timeToTravel));
         return buffer;
     }
+    
+    public static byte[] BuildItemDropRequest(byte playerIndex, int itemId, int quantity, Vector3 position) {
+        byte[] buffer = new byte[21];
+        using (MemoryStream stream = new MemoryStream(buffer)) {
+            using BinaryWriter writer = new BinaryWriter(stream);
+            writer.Write(playerIndex);
+            writer.Write(itemId);
+            writer.Write(quantity);
+            writer.Write(position.x);
+            writer.Write(position.y);
+            writer.Write(position.z);
+        }
+        return buffer;
+    }
 }

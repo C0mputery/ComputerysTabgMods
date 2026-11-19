@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection.Emit;
+using System.Runtime.CompilerServices;
 using ComputeryLib.Helpers;
 using HarmonyLib;
 using Landfall.Network;
@@ -108,14 +109,19 @@ public static class MidMatchJoiningUtility {
             
             foreach (TABGPlayerServer other in players) {
                 if (other == joiner || other.IsDead || !other.HasDropped) { continue; }
-                world.SendMessageToClients(EventCode.WeaponChanged, PacketHelper.BuildWeaponChanged(other, Throwables.GetValueOrDefault(other.PlayerIndex, (short)-1)), joinerID, true);
+                short throwableIdentifier = Throwables.TryGetValue(other, out StrongBox<short> throwable) ? throwable.Value : (short)-1;
+                world.SendMessageToClients(EventCode.WeaponChanged, PacketHelper.BuildWeaponChanged(other, throwableIdentifier), joinerID, true);
             }
         }
     }
     
-    private static readonly Dictionary<byte, short> Throwables = [];
+    private static readonly ConditionalWeakTable<TABGPlayerServer, StrongBox<short>> Throwables = new ConditionalWeakTable<TABGPlayerServer, StrongBox<short>>();
     
     [HarmonyPostfix]
     [HarmonyPatch(typeof(WeaponChangedCommand), nameof(WeaponChangedCommand.Run))]
-    private static void StoreThrowable(byte[] msgData) { Throwables[msgData[0]] = BitConverter.ToInt16(msgData, msgData.Length - 2); }
+    private static void StoreThrowable(byte[] msgData, ServerClient world) {
+        TABGPlayerServer? player = world.GameRoomReference.FindPlayer(msgData[0]);
+        if (player == null) { return; }
+        Throwables.GetOrCreateValue(player).Value = BitConverter.ToInt16(msgData, msgData.Length - 2);
+    }
 }

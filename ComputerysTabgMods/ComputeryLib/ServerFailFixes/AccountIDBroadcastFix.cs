@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Reflection.Emit;
+using System.Runtime.CompilerServices;
 using ComputeryLib.Helpers;
 using HarmonyLib;
 using Landfall.Network;
@@ -21,20 +22,18 @@ public static class AccountIDBroadcastFix {
     [HarmonyPatch(typeof(AssignPlayerAccountIDsCommand), nameof(AssignPlayerAccountIDsCommand.Run), typeof(ServerClient), typeof(List<AccountIDEntry>), typeof(byte))]
     private static bool RunPrefix(ServerClient server, List<AccountIDEntry> PlayerIDs, byte recievingPlayer) {
         if (recievingPlayer != byte.MaxValue) {
-            Enqueue(recievingPlayer, PlayerIDs);
+            TABGPlayerServer? recipient = server.GameRoomReference.FindPlayerOrSpectator(recievingPlayer);
+            if (recipient != null) { Enqueue(recipient, PlayerIDs); }
             return false;
         }
         
-        foreach (TABGPlayerServer player in server.GameRoomReference.PlayersAndSpectators()) { Enqueue(player.PlayerIndex, PlayerIDs); }
+        foreach (TABGPlayerServer player in server.GameRoomReference.PlayersAndSpectators()) { Enqueue(player, PlayerIDs); }
         return false;
     }
     
-    private static readonly Dictionary<byte, List<AccountIDEntry>> PendingByRecipient = new Dictionary<byte, List<AccountIDEntry>>();
-    private static void Enqueue(byte recipient, List<AccountIDEntry> entries) {
-        if (!PendingByRecipient.TryGetValue(recipient, out List<AccountIDEntry> pending)) {
-            pending = [];
-            PendingByRecipient[recipient] = pending;
-        }
+    private static readonly ConditionalWeakTable<TABGPlayerServer, List<AccountIDEntry>> PendingByRecipient = new ConditionalWeakTable<TABGPlayerServer, List<AccountIDEntry>>();
+    private static void Enqueue(TABGPlayerServer recipient, List<AccountIDEntry> entries) {
+        List<AccountIDEntry> pending = PendingByRecipient.GetOrCreateValue(recipient);
         
         foreach (AccountIDEntry entry in entries) {
             int queuedIndex = pending.FindIndex(queued => queued.PlayerIndex == entry.PlayerIndex);
@@ -44,7 +43,6 @@ public static class AccountIDBroadcastFix {
     }
     
     private static float _nextSendTime;
-    private static readonly List<byte> RecipientsToRemove = [];
     [HarmonyPostfix]
     [HarmonyPatch(typeof(ServerClient), nameof(ServerClient.Update))]
     private static void UpdatePostfix(ServerClient __instance) {
@@ -53,11 +51,9 @@ public static class AccountIDBroadcastFix {
         _nextSendTime = now + SendInterval;
         
         GameRoom room = __instance.GameRoomReference;
-        RecipientsToRemove.Clear();
-        foreach ((byte recipient, List<AccountIDEntry> pending) in PendingByRecipient) {
-            TABGPlayerServer? recipientPlayer = room.FindPlayerOrSpectator(recipient);
-            if (recipientPlayer == null) {
-                RecipientsToRemove.Add(recipient);
+        foreach ((TABGPlayerServer recipient, List<AccountIDEntry> pending) in PendingByRecipient) {
+            if (room.FindPlayerOrSpectator(recipient.PlayerIndex) != recipient) {
+                PendingByRecipient.Remove(recipient);
                 continue;
             }
             
@@ -66,16 +62,14 @@ public static class AccountIDBroadcastFix {
                 return subject == null || subject.PlayFabID != entry.PlayFabID;
             });
             if (pending.Count > 0) {
-                TABGPlayerServer recipientPlayerIsSpectatingPlayer = recipientPlayer.IsSpectatingPlayer ?? recipientPlayer;
+                TABGPlayerServer recipientPlayerIsSpectatingPlayer = recipient.IsSpectatingPlayer ?? recipient;
                 int closestIndex = FindClosestEntryIndex(room, recipientPlayerIsSpectatingPlayer.PlayerPosition, pending);
                 AccountIDEntry entry = pending[closestIndex];
                 pending.RemoveAt(closestIndex);
-                AssignPlayerAccountIDsCommandNoLog(__instance, [entry], recipient);
+                AssignPlayerAccountIDsCommandNoLog(__instance, [entry], recipient.PlayerIndex);
             }
-            if (pending.Count == 0) { RecipientsToRemove.Add(recipient); }
+            if (pending.Count == 0) { PendingByRecipient.Remove(recipient); }
         }
-        
-        foreach (byte recipient in RecipientsToRemove) { PendingByRecipient.Remove(recipient); }
     }
     
     private static int FindClosestEntryIndex(GameRoom room, Vector3 viewPosition, List<AccountIDEntry> pending) {
