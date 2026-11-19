@@ -30,9 +30,9 @@ public static class BasicCommands {
     public static void ListCommand(string[] arguments, TABGPlayerServer? sender) {
         ServerClient world = WorldHelper.GetWorld();
         
-        bool showIds = sender == null || ChatCommandManager.GetUserPermissionLevel(sender) >= 1;
+        bool showIDs = sender == null || ChatCommandManager.GetUserPermissionLevel(sender) >= 1;
         List<TABGPlayerServer> players = world.GameRoomReference.PlayersAndSpectators().ToList();
-        IEnumerable<string> entries = players.Select(p => showIds ? $"{p.PlayerName} ({p.PlayerIndex})" : p.PlayerName);
+        IEnumerable<string> entries = players.Select(p => showIDs ? $"{p.PlayerName} ({p.PlayerIndex})" : p.PlayerName);
         PlayerInteractionHelper.PrivateMessageOrServerLog($"{players.Count} players: {string.Join(", ", entries)}", sender);
     }
     
@@ -79,10 +79,10 @@ public static class BasicCommands {
         string[] itemArguments = arguments;
         if (targetPlayer == null) {
             if (!SearchHelper.TryGetPlayerByNameOrID(arguments[0], sender, out targetPlayer)) { return; }
-            itemArguments = [.. arguments.Skip(1)];
+            itemArguments = arguments.Skip(1).ToArray();
         }
         
-        if (!int.TryParse(itemArguments[0], out int itemId)) {
+        if (!int.TryParse(itemArguments[0], out int itemID)) {
             PlayerInteractionHelper.PrivateMessageOrServerLog("Invalid item ID. Must be a number.", sender);
             return;
         }
@@ -98,9 +98,9 @@ public static class BasicCommands {
         }
         
         for (int remaining = quantity; remaining > 0; remaining -= byte.MaxValue) {
-            world.GivePlayerWeapon(targetPlayer.PlayerIndex, itemId, (byte)Math.Min(remaining, byte.MaxValue));
+            world.GivePlayerWeapon(targetPlayer.PlayerIndex, itemID, (byte)Math.Min(remaining, byte.MaxValue));
         }
         
-        PlayerInteractionHelper.PrivateMessageOrServerLog($"Gave item {itemId} x{quantity} to {targetPlayer.PlayerName}", sender);
+        PlayerInteractionHelper.PrivateMessageOrServerLog($"Gave item {itemID} x{quantity} to {targetPlayer.PlayerName}", sender);
     }
 }

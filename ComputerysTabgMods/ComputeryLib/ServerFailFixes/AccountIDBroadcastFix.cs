@@ -31,7 +31,7 @@ public static class AccountIDBroadcastFix {
         return false;
     }
     
-    private static readonly ConditionalWeakTable<TABGPlayerServer, List<AccountIDEntry>> PendingByRecipient = new ConditionalWeakTable<TABGPlayerServer, List<AccountIDEntry>>();
+    private static readonly ConditionalWeakTable<TABGPlayerServer, List<AccountIDEntry>> PendingByRecipient = [];
     private static void Enqueue(TABGPlayerServer recipient, List<AccountIDEntry> entries) {
         List<AccountIDEntry> pending = PendingByRecipient.GetOrCreateValue(recipient);
         
@@ -94,7 +94,7 @@ public static class AccountIDBroadcastFix {
             
             // LandLog.Log($"Sending Player steam IDs to {recievingPlayer} of count: {PlayerIDs.Count}");
             matcher.MatchForward(false, new CodeMatch(OpCodes.Ldstr, "Sending Player steam IDs to {0} of count: {1}"));
-            List<Label> labelsToPreserve = [.. matcher.Instruction.labels];
+            List<Label> labelsToPreserve = new List<Label>(matcher.Instruction.labels);
             matcher.RemoveInstructions(9);
             matcher.Instruction.labels.AddRange(labelsToPreserve);
             

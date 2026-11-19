@@ -137,7 +137,7 @@ public static class MidMatchJoiningUtility {
         }
     }
     
-    private static readonly ConditionalWeakTable<TABGPlayerServer, StrongBox<short>> Throwables = new ConditionalWeakTable<TABGPlayerServer, StrongBox<short>>();
+    private static readonly ConditionalWeakTable<TABGPlayerServer, StrongBox<short>> Throwables = [];
     
     [HarmonyPostfix]
     [HarmonyPatch(typeof(WeaponChangedCommand), nameof(WeaponChangedCommand.Run))]

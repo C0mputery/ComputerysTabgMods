@@ -28,7 +28,7 @@ public static class ChunkEntryLootBreakup {
         );
         
         matcher.Advance(1);
-        List<Label> labelsToPreserve = [.. matcher.Instruction.labels];
+        List<Label> labelsToPreserve = new List<Label>(matcher.Instruction.labels);
         matcher.Instruction.labels.Clear();
         
         // TrimLoot(list, list2, list3, _player);

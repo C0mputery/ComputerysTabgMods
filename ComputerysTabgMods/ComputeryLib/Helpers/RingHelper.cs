@@ -7,8 +7,8 @@ namespace ComputeryLib.Helpers;
 
 public static class RingHelper {
     public static bool PatchApplied { get; private set; }
-    private static Vector2 RingCenter;
-    private static float RingDiameter;
+    private static Vector2 _ringCenter;
+    private static float _ringDiameter;
     
     /// <summary>
     ///     Makes a fixed ring pinned at a given location.
@@ -19,8 +19,8 @@ public static class RingHelper {
         ServerStartHelper.ThrowIfServerRunning("Ring settings cannot be set while the server is running.");
         if (diameter <= 0f) { throw new ArgumentOutOfRangeException(nameof(diameter), diameter, "Ring diameter must be greater than 0."); }
         
-        RingCenter = center;
-        RingDiameter = diameter;
+        _ringCenter = center;
+        _ringDiameter = diameter;
         
         if (!PatchApplied) {
             Plugin.Harmony.PatchAll(typeof(RingHelper));
@@ -33,7 +33,7 @@ public static class RingHelper {
     private static void SpawnTheRingPostfix(ServerClient __instance) {
         TheRing ring = __instance.SpawnedRing;
         // Y has to be 1 to avoid possible bug over conflicts with the default starting position
-        ring.SyncRing(1, new Vector3(RingCenter.x, 1f, RingCenter.y), RingDiameter);
+        ring.SyncRing(1, new Vector3(_ringCenter.x, 1f, _ringCenter.y), _ringDiameter);
     }
     
     [HarmonyPrefix]

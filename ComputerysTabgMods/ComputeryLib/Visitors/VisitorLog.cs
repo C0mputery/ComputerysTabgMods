@@ -15,10 +15,10 @@ public static class VisitorLog {
     private static Dictionary<string, VisitorInfo> _visitors = LoadVisitorLogFromFile();
     
     private static Dictionary<string, VisitorInfo> LoadVisitorLogFromFile() {
-        if (!File.Exists(VisitorLogPath)) { return new Dictionary<string, VisitorInfo>(); }
+        if (!File.Exists(VisitorLogPath)) { return []; }
         string json = File.ReadAllText(VisitorLogPath);
-        try { return JsonConvert.DeserializeObject<Dictionary<string, VisitorInfo>>(json) ?? new Dictionary<string, VisitorInfo>(); }
-        catch (JsonException) { return new Dictionary<string, VisitorInfo>(); }
+        try { return JsonConvert.DeserializeObject<Dictionary<string, VisitorInfo>>(json) ?? []; }
+        catch (JsonException) { return []; }
     }
     
     private static void SaveVisitorLog() { File.WriteAllText(VisitorLogPath, JsonConvert.SerializeObject(_visitors, Formatting.Indented)); }
@@ -117,8 +117,8 @@ public static class VisitorLog {
                 PlayerLeaderboardEntry entry = result.Leaderboard[0];
                 foreach (LinkedPlatformAccountModel account in entry.Profile.LinkedAccounts) {
                     if (account.Platform != LoginIdentityProvider.Steam) { continue; }
-                    string steamId = account.PlatformUserId;
-                    LogVisitor(player, steamId, currentTime);
+                    string steamID = account.PlatformUserId;
+                    LogVisitor(player, steamID, currentTime);
                     return;
                 }
             }
@@ -134,7 +134,7 @@ public static class VisitorLog {
         });
     }
     
-    private static void LogVisitor(TABGPlayerServer player, string steamId, DateTime currentTime) {
+    private static void LogVisitor(TABGPlayerServer player, string steamID, DateTime currentTime) {
         SyncFromFile();
         if (!_visitors.TryGetValue(player.EpicUserName, out VisitorInfo visitorInfo)) {
             visitorInfo = new VisitorInfo {
@@ -144,7 +144,7 @@ public static class VisitorLog {
         }
         
         DatedString.UpdateDatedStringSet(visitorInfo.DisplayNames, player.PlayerName, currentTime);
-        DatedString.UpdateDatedStringSet(visitorInfo.SteamIds, steamId, currentTime);
+        DatedString.UpdateDatedStringSet(visitorInfo.SteamIds, steamID, currentTime);
         DatedString.UpdateDatedStringSet(visitorInfo.PlayfabIds, player.PlayFabID, currentTime);
         DatedString.UpdateDatedStringSet(visitorInfo.UnityIds, player.UnityID, currentTime);
         if (SearchHelper.TryGetPlayerIP(player, out string? ipAddress)) {

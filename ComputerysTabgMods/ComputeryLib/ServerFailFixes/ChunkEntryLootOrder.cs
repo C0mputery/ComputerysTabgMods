@@ -25,7 +25,7 @@ public static class ChunkEntryLootOrder {
             new CodeMatch(OpCodes.Callvirt, AccessTools.PropertyGetter(typeof(GameRoom), nameof(GameRoom.CurrentGameState)))
         );
         
-        List<Label> labelsToPreserve = [.. matcher.Instruction.labels];
+        List<Label> labelsToPreserve = new List<Label>(matcher.Instruction.labels);
         matcher.Instruction.labels.Clear();
         
         // SortByDistanceFrom(list3, _player);

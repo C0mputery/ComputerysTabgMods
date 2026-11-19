@@ -12,7 +12,7 @@ using Landfall.Network;
 namespace ComputeryLib.Commands;
 
 public struct ChatCommandContext {
-    public int PermissionLevel;
+    public uint PermissionLevel;
     public string Description;
     public ChatCommandHandler Command;
 }
@@ -22,7 +22,7 @@ public delegate void ChatCommandHandler(string[] arguments, TABGPlayerServer? se
 public static class ChatCommandManager {
     private static readonly ConfigFile ChatCommandsConfig = new ConfigFile(Path.Combine(Paths.ConfigPath, "ChatCommands.cfg"), true);
     
-    public static readonly Dictionary<string, ChatCommandContext> Commands = new Dictionary<string, ChatCommandContext>();
+    public static readonly Dictionary<string, ChatCommandContext> Commands = [];
     public static bool HandleChatMessage(string message, TABGPlayerServer sender) {
         if (message.Length == 0 || message[0] != '/') { return false; }
         
@@ -119,8 +119,8 @@ public static class ChatCommandManager {
 }
 
 [AttributeUsage(AttributeTargets.Method, Inherited = false, AllowMultiple = true)]
-public class ChatCommandAttribute(string commandName, string description, int defaultPermissionLevel) : Attribute {
+public class ChatCommandAttribute(string commandName, string description, uint defaultPermissionLevel) : Attribute {
     public readonly string CommandName = commandName;
     public readonly string Description = description;
-    public readonly int DefaultPermissionLevel = defaultPermissionLevel;
+    public readonly uint DefaultPermissionLevel = defaultPermissionLevel;
 }

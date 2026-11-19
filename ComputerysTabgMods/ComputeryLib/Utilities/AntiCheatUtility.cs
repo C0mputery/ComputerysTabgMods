@@ -68,7 +68,7 @@ public static class AntiCheatUtility {
     }
     
     public static readonly Dictionary<int, float> PickupWindows = Plugin.Config.Bind("Anticheat", "ThrownPickupWindows", new Dictionary<int, float> { { 205, 3f } }, "ItemID: Time after throw in seconds to disable pickup").Value;
-    private static readonly Dictionary<int, float> PickupDeadlines = new Dictionary<int, float>();
+    private static readonly Dictionary<int, float> PickupDeadlines = [];
     private static void TrackThrownItem(int itemSpawnIndex, int itemIdentifier) {
         if (!PickupWindows.TryGetValue(itemIdentifier, out float window)) { return; }
         PickupDeadlines[itemSpawnIndex] = Time.realtimeSinceStartup + window;

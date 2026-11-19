@@ -13,7 +13,7 @@ public static class VoidWeaponFix {
     public static readonly float UnslottedWeaponGracePeriod = Plugin.Config.Bind("Gameplay", "DropVoidedWeaponsDelay", 1f, "Seconds until considering a newly picked up weapon voided").Value;
     [HarmonyPrepare] private static bool OnlyWhenEnabled() { return DropUnslottedWeapons; }
     
-    private static readonly ConditionalWeakTable<TABGPlayerServer, StrongBox<float>> LastWeaponReceived = new ConditionalWeakTable<TABGPlayerServer, StrongBox<float>>();
+    private static readonly ConditionalWeakTable<TABGPlayerServer, StrongBox<float>> LastWeaponReceived = [];
     
     [HarmonyPostfix]
     [HarmonyPatch(typeof(TABGPlayerServer), nameof(TABGPlayerServer.AddLoot))]
@@ -31,7 +31,7 @@ public static class VoidWeaponFix {
         if (player == null || player.IsDead) { return; }
         if (LastWeaponReceived.TryGetValue(player, out StrongBox<float> received) && Time.realtimeSinceStartup - received.Value < UnslottedWeaponGracePeriod) { return; }
         
-        Dictionary<int, int> slotted = new Dictionary<int, int>();
+        Dictionary<int, int> slotted = [];
         for (int i = 0; i < weaponSlotCount; i++) {
             int itemIdentifier = player.Equipment[i];
             slotted.TryGetValue(itemIdentifier, out int count);

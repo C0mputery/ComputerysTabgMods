@@ -9,7 +9,7 @@ public static class FakePlayerHelper {
     
     public static FakeGroup ReserveGroup() {
         GameRoom room = WorldHelper.GetWorld().GameRoomReference;
-        HashSet<byte> usedGroupIndexes = [.. ReservedFakeGroupIndexes];
+        HashSet<byte> usedGroupIndexes = new HashSet<byte>(ReservedFakeGroupIndexes);
         foreach (TeamStanding team in room.CurrentGameStats.GetAllTeams()) { usedGroupIndexes.Add(team.TeamIndex); }
         foreach (TABGPlayerServer player in room.PlayersAndSpectators()) { usedGroupIndexes.Add(player.GroupIndex); }
         
@@ -31,7 +31,7 @@ public static class FakePlayerHelper {
         
         ServerClient world = WorldHelper.GetWorld();
         byte minPlayerIndex = (byte)(world.GameRoomReference.CurrentGameSettings.MaxPlayers + 1);
-        if (!TryTakeFree([.. LoggedInFakeIndexes], minPlayerIndex, out byte playerIndex)) { return default; }
+        if (!TryTakeFree(new HashSet<byte>(LoggedInFakeIndexes), minPlayerIndex, out byte playerIndex)) { return default; }
         
         world.SendMessageToClients(EventCode.Login, PacketHelper.BuildRemoteLogin(playerIndex, group.Index, name, colour), target, true);
         LoggedInFakeIndexes.Add(playerIndex);
