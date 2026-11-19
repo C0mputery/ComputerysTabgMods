@@ -27,8 +27,8 @@ public static class ServerFailPatches {
     }
     
     /// <summary>
-    ///     Actually protect from malformed packets causing massive lag spikes and shit
-    ///     AND mAKE SURE THE PACKETS GET DISCARDED SO NO MEM LEAKS OMG LANDFALL PLEASE
+    /// Actually protect from malformed packets causing massive lag spikes and shit
+    /// AND mAKE SURE THE PACKETS GET DISCARDED SO NO MEM LEAKS OMG LANDFALL PLEASE
     /// </summary>
     /// <param name="__exception"> harmony provided exception </param>
     /// <returns> null to swallow exception </returns>
@@ -40,12 +40,12 @@ public static class ServerFailPatches {
     }
     
     /// <summary>
-    ///     ALRIGHT LANDFALL NEVER CHECKS IF THEY ARE GETTING A PLAYER FROM THE ACTUAL PLAYER OR ANOTHER PERSON CAUSING QUANTUM
-    ///     ENTANGLING
-    ///     at least I think this fixes quantum entanging
+    /// ALRIGHT LANDFALL NEVER CHECKS IF THEY ARE GETTING A PLAYER FROM THE ACTUAL PLAYER OR ANOTHER PERSON CAUSING QUANTUM
+    /// ENTANGLING
+    /// at least I think this fixes quantum entanging
     /// </summary>
-    /// <param name="instructions"></param>
-    /// <returns></returns>
+    /// <param name="instructions"> </param>
+    /// <returns> </returns>
     [HarmonyTranspiler]
     [HarmonyPatch(typeof(ServerClient), nameof(ServerClient.HandleNetorkEvent))]
     private static IEnumerable<CodeInstruction> ValidatePlayerUpdateSender(IEnumerable<CodeInstruction> instructions) {

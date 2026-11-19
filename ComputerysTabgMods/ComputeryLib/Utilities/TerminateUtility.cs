@@ -10,7 +10,7 @@ public static class TerminateUtility {
     public static readonly float RestartTime = Plugin.Config.Bind("Server", "RestartTime", 25f, "Time that it takes the server to reload when the game ends or when a it cannot start properly (in seconds)").Value;
     
     /// <summary>
-    ///     Removes Landfalls hardcoded 10-second delay on termination to allowing our custom restart time to be accurate.
+    /// Removes Landfalls hardcoded 10-second delay on termination to allowing our custom restart time to be accurate.
     /// </summary>
     /// <param name="time"> Harmony provided time parameter </param>
     [HarmonyPrefix]

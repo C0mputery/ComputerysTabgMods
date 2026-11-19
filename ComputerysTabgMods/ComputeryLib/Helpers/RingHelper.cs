@@ -11,7 +11,7 @@ public static class RingHelper {
     private static float _ringDiameter;
     
     /// <summary>
-    ///     Makes a fixed ring pinned at a given location.
+    /// Makes a fixed ring pinned at a given location.
     /// </summary>
     /// <param name="center"> Center of the ring on the X/Z plane. </param>
     /// <param name="diameter"> Diameter in Unity meters(?). </param>

@@ -12,21 +12,21 @@ public static class ChunkHelper {
     public static bool PatchApplied { get; private set; }
     
     /// <summary>
-    ///     Sets the chunk sizes
+    /// Sets the chunk sizes
     /// </summary>
     /// <param name="size"> Size in Unity meters(?) </param>
     public static void SetChunkSize(float size) { ApplySettings(ChunkCenter, size); }
     
     /// <summary>
-    ///     Sets the center of the chunk system
+    /// Sets the center of the chunk system
     /// </summary>
-    /// <param name="center"> This is different from the origin! Think of it like the center of the first chunk.</param>
+    /// <param name="center"> This is different from the origin! Think of it like the center of the first chunk. </param>
     public static void SetChunkCenter(Vector2 center) { ApplySettings(center, ServerChunks.CHUNK_SIZE); }
     
     /// <summary>
-    ///     Sets the center and size of the chunk system.
+    /// Sets the center and size of the chunk system.
     /// </summary>
-    /// <param name="center"> This is different from the origin! Think of it like the center of the first chunk.</param>
+    /// <param name="center"> This is different from the origin! Think of it like the center of the first chunk. </param>
     /// <param name="size"> Size in Unity meters(?) </param>
     public static void SetChunkSettings(Vector2 center, float size) { ApplySettings(center, size); }
     

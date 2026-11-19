@@ -9,7 +9,7 @@ namespace ComputeryLib.Helpers;
 [HarmonyPatch]
 public static class MessageHelper {
     /// <summary>
-    ///     This does include commands!
+    /// This does include commands!
     /// </summary>
     public static event Action<TABGPlayerServer, string, bool>? OnChatMessage;
     
