@@ -93,8 +93,6 @@ public static class PlayerInteractionHelper {
     }
     
     private static void ThrowChunk(string chunk, Vector3 position, TABGPlayerServer sender) {
-        if (WorldHelper.TryGetWorld(out ServerClient? world)) {
-            world.SendMessageToClients(EventCode.ThrowChatMessage, PacketHelper.BuildThrowChatMessage(sender.PlayerIndex, position, chunk), sender.PlayerIndex, true);
-        }
+        WorldHelper.GetWorld().SendMessageToClients(EventCode.ThrowChatMessage, PacketHelper.BuildThrowChatMessage(sender.PlayerIndex, position, chunk), sender.PlayerIndex, true);
     }
 }

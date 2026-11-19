@@ -34,10 +34,7 @@ public static class BroadcastHelper {
     /// <param name="colour"> you know </param>
     /// <param name="target"> you know </param>
     public static void Broadcast(string message, PlayerColour colour, byte target) {
-        if (!WorldHelper.TryGetWorld(out ServerClient? world)) {
-            Plugin.Logger.LogError("World client is not available?");
-            return;
-        }
+        ServerClient world = WorldHelper.GetWorld();
         
         if (message.Length > MaxNameLength) { Plugin.Logger.LogWarning($"Broadcast \"{message}\" is longer than {MaxNameLength} characters. Will be cropped."); }
         
@@ -60,10 +57,7 @@ public static class BroadcastHelper {
     }
     
     public static void KillWithFakePlayer(TABGPlayerServer victim, string killerName, PlayerColour colour) {
-        if (!WorldHelper.TryGetWorld(out ServerClient? world)) {
-            Plugin.Logger.LogError("World client is not available?");
-            return;
-        }
+        ServerClient world = WorldHelper.GetWorld();
         
         using (FakeGroup group = FakePlayerHelper.ReserveGroup(world)) {
             if (!group.IsValid) {

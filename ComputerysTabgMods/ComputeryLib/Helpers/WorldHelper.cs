@@ -1,5 +1,4 @@
 using System;
-using System.Diagnostics.CodeAnalysis;
 using HarmonyLib;
 using Landfall.Network;
 
@@ -7,22 +6,15 @@ namespace ComputeryLib.Helpers;
 
 [HarmonyPatch(typeof(ServerClient))]
 public static class WorldHelper {
-    private static ServerClient? _worldClient;
+    private static ServerClient? _world;
     
-    public static bool TryGetWorld([NotNullWhen(true)] out ServerClient? world) {
-        if (_worldClient != null) {
-            world = _worldClient;
-            return true;
-        }
-        world = null;
-        return false;
-    }
-    
-    public static ServerClient GetWorld() { return _worldClient == null ? throw new InvalidOperationException("World client has not been set yet.") : _worldClient; }
-    
-    internal static void SetWorldClient(ServerClient world) { _worldClient = world; }
+    public static ServerClient GetWorld() { return _world == null ? throw new InvalidOperationException("World doesn't exist??") : _world; }
     
     [HarmonyPrefix]
     [HarmonyPatch(nameof(ServerClient.Awake))]
-    public static void AwakePrefix(ref ServerClient __instance) { SetWorldClient(__instance); }
+    private static void AwakePrefix(ServerClient __instance) { _world = __instance; }
+    
+    [HarmonyPostfix]
+    [HarmonyPatch(nameof(ServerClient.OnDestroy))]
+    private static void OnDestroyPostfix() { _world = null; }
 }

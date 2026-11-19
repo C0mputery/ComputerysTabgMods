@@ -28,10 +28,7 @@ public static class BasicCommands {
     
     [ChatCommand("list", "Lists all connected players.", 0)]
     public static void ListCommand(string[] arguments, TABGPlayerServer? sender) {
-        if (!WorldHelper.TryGetWorld(out ServerClient? world)) {
-            PlayerInteractionHelper.PrivateMessageOrServerLog("The world is not available yet.", sender);
-            return;
-        }
+        ServerClient world = WorldHelper.GetWorld();
         
         bool showIds = sender == null || ChatCommandManager.GetUserPermissionLevel(sender) >= 1;
         List<TABGPlayerServer> players = world.GameRoomReference.PlayersAndSpectators().ToList();
@@ -41,10 +38,7 @@ public static class BasicCommands {
     
     [ChatCommand("start", "Starts the game with default countdown or specified countdown in seconds.", 1)]
     public static void StartCommand(string[] arguments, TABGPlayerServer? sender) {
-        if (!WorldHelper.TryGetWorld(out ServerClient? world)) {
-            Plugin.Logger.LogError("World client is not available?");
-            return;
-        }
+        ServerClient world = WorldHelper.GetWorld();
         
         if (world.GameRoomReference.CurrentGameState != GameState.WaitingForPlayers && world.GameRoomReference.CurrentGameState != GameState.CountDown) {
             PlayerInteractionHelper.PrivateMessageOrServerLog("Game is already in progress.", sender);
@@ -71,10 +65,7 @@ public static class BasicCommands {
     
     [ChatCommand("give", "Gives an item. Usage: /give <item_id> [quantity] or from the server: give <player_name|player_id> <item_id> [quantity]", 10)]
     public static void GiveCommand(string[] arguments, TABGPlayerServer? sender) {
-        if (!WorldHelper.TryGetWorld(out ServerClient? world)) {
-            Plugin.Logger.LogError("World client is not available?");
-            return;
-        }
+        ServerClient world = WorldHelper.GetWorld();
         
         bool isNonPlayerSender = sender == null;
         int requiredArgumentCount = isNonPlayerSender ? 2 : 1;

@@ -11,10 +11,7 @@ public static class SearchHelper {
     public static bool TryGetPlayerByNameOrID(string searchValue, TABGPlayerServer? sender, [NotNullWhen(true)] out TABGPlayerServer? foundPlayer) {
         foundPlayer = null;
         
-        if (!WorldHelper.TryGetWorld(out ServerClient? world)) {
-            PlayerInteractionHelper.PrivateMessageOrServerLog("The world is not available yet.", sender);
-            return false;
-        }
+        ServerClient world = WorldHelper.GetWorld();
         
         GameRoom room = world.GameRoomReference;
         List<TABGPlayerServer> players = room.PlayersAndSpectators().ToList();

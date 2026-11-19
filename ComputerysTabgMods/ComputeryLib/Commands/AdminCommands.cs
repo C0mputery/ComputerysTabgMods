@@ -48,7 +48,7 @@ public class AdminCommands {
         if (!TryResolveModerationTarget(arguments[0], sender, out TABGPlayerServer? target)) { return; }
         string? reason = arguments.Length > 1 && arguments[1].Length > 0 ? arguments[1] : null;
         
-        if (!WorldHelper.TryGetWorld(out ServerClient? world)) { return; }
+        ServerClient world = WorldHelper.GetWorld();
         
         VisitorLog.RecordKick(target.EpicUserName, reason, sender?.PlayerName ?? "Server");
         PlayerKickCommand.Run(target, world, KickReason.BackendViolation);
@@ -86,7 +86,7 @@ public class AdminCommands {
         
         if (!TryResolveModerationTarget(arguments[0], sender, out TABGPlayerServer? target)) { return; }
         
-        if (!WorldHelper.TryGetWorld(out ServerClient? world)) { return; }
+        ServerClient world = WorldHelper.GetWorld();
         
         VisitorLog.SetBan(target.EpicUserName, reason, expires, sender?.PlayerName ?? "Server");
         PlayerKickCommand.Run(target, world, expires.HasValue ? KickReason.TemporaryBanned : KickReason.PermanentBanned);

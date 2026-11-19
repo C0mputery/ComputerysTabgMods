@@ -33,7 +33,7 @@ public static class AggressiveRingUtility {
     [HarmonyPatch(typeof(TheRing), nameof(TheRing.Update))]
     private static void UpdatePostfix() {
         if (!_ringHasClosedEver) { return; }
-        if (!WorldHelper.TryGetWorld(out ServerClient? world)) { return; }
+        ServerClient world = WorldHelper.GetWorld();
         
         List<TABGPlayerServer> players = world.GameRoomReference.Players;
         for (int i = players.Count - 1; i >= 0; i--) {
