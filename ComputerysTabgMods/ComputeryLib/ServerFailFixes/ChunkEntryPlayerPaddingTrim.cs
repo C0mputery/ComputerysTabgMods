@@ -30,18 +30,22 @@ public static class ChunkEntryPlayerPaddingTrim {
     }
     
     private static int GetVanillaPlayerSize(List<TABGPlayerServer> players) {
+        const int vanillaBasePlayerSize = 9 + 4 + 1;
+        
         int gearSize = 0;
         int attachmentSize = 0;
         foreach (TABGPlayerServer player in players) {
-            gearSize += 4 * player.GearData.Length;
-            attachmentSize += 2 * player.Attachments.Length;
+            gearSize += sizeof(int) * player.GearData.Length;
+            attachmentSize += sizeof(short) * player.Attachments.Length;
         }
-        return players.Count * (9 + 4 * gearSize + 4 + 2 * TABGPlayerServer.EquipmentDataLength + 1 + attachmentSize);
+        return players.Count * (vanillaBasePlayerSize + sizeof(int) * gearSize + sizeof(short) * TABGPlayerServer.EquipmentDataLength + attachmentSize);
     }
     
     public static int GetPlayerSize(List<TABGPlayerServer> players) {
+        const int basePlayerSize = sizeof(byte) + sizeof(byte) + sizeof(int) + sizeof(float) + sizeof(bool) + sizeof(bool) + sizeof(int) + sizeof(byte) + sizeof(byte);
+        
         int size = 0;
-        foreach (TABGPlayerServer player in players) { size += 1 + 1 + 4 + 4 + 1 + 1 + 4 + 4 * player.GearData.Length + 1 + 2 * TABGPlayerServer.EquipmentDataLength + 1 + 2 * player.Attachments.Length; }
+        foreach (TABGPlayerServer player in players) { size += basePlayerSize + sizeof(int) * player.GearData.Length + sizeof(short) * TABGPlayerServer.EquipmentDataLength + sizeof(short) * player.Attachments.Length; }
         return size;
     }
     

@@ -28,13 +28,16 @@ public static class MessageHelper {
     }
     
     internal static bool TryReadChatMessage(byte[] data, byte sender, [NotNullWhen(true)] out TABGPlayerServer? player, [NotNullWhen(true)] out string? message) {
+        const int lengthOffset = 1;
+        const int messageOffset = 2;
+        
         player = WorldHelper.GetWorld().GameRoomReference.FindPlayerOrSpectator(sender);
         if (player == null) {
             message = null;
             return false;
         }
-        int length = data[1];
-        message = Encoding.Unicode.GetString(data, 2, length);
+        int length = data[lengthOffset];
+        message = Encoding.Unicode.GetString(data, messageOffset, length);
         return true;
     }
 }

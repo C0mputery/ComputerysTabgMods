@@ -40,9 +40,13 @@ public static class RemoteItemPickupFix {
     }
     
     private static void SendPickup(ServerClient world, EventCode opCode, byte[] buffer, byte[] recipients, bool reliable, bool alsoSendToTeamates) {
-        byte pickerIndex = buffer[0];
-        int lootIndex = BitConverter.ToInt32(buffer, 1);
-        int itemIdentifier = BitConverter.ToInt32(buffer, 5);
+        const int pickerIndexOffset = 0;
+        const int lootIndexOffset = 1;
+        const int itemIdentifierOffset = 5;
+        
+        byte pickerIndex = buffer[pickerIndexOffset];
+        int lootIndex = BitConverter.ToInt32(buffer, lootIndexOffset);
+        int itemIdentifier = BitConverter.ToInt32(buffer, itemIdentifierOffset);
         if (KeepVanillaPickup(itemIdentifier)) {
             world.SendMessageToClients(opCode, buffer, recipients, reliable, alsoSendToTeamates);
             return;
@@ -60,14 +64,17 @@ public static class RemoteItemPickupFix {
     private static void SendLootPack(ServerClient world, EventCode opCode, byte[] buffer, byte[] recipients, bool reliable, bool alsoSendToTeamates) {
         const int lootPackHeaderSize = 2;
         const int lootPackItemSize = 9;
+        const int receiverIndexOffset = 0;
+        const int countOffset = 1;
+        const int itemIdentifierOffset = 4;
         
-        byte receiverIndex = buffer[0];
-        int count = buffer[1];
+        byte receiverIndex = buffer[receiverIndexOffset];
+        int count = buffer[countOffset];
         
         List<int> weaponOffsets = new List<int>(count);
         for (int i = 0; i < count; i++) {
             int offset = lootPackHeaderSize + i * lootPackItemSize;
-            if (KeepVanillaPickup(BitConverter.ToInt32(buffer, offset + 4))) { weaponOffsets.Add(offset); }
+            if (KeepVanillaPickup(BitConverter.ToInt32(buffer, offset + itemIdentifierOffset))) { weaponOffsets.Add(offset); }
         }
         if (weaponOffsets.Count == count) {
             world.SendMessageToClients(opCode, buffer, recipients, reliable, alsoSendToTeamates);
@@ -83,8 +90,8 @@ public static class RemoteItemPickupFix {
         if (observers.Count <= 0 || weaponOffsets.Count <= 0) { return; }
         
         byte[] observerBuffer = new byte[lootPackHeaderSize + weaponOffsets.Count * lootPackItemSize];
-        observerBuffer[0] = receiverIndex;
-        observerBuffer[1] = (byte)weaponOffsets.Count;
+        observerBuffer[receiverIndexOffset] = receiverIndex;
+        observerBuffer[countOffset] = (byte)weaponOffsets.Count;
         for (int i = 0; i < weaponOffsets.Count; i++) {
             Buffer.BlockCopy(buffer, weaponOffsets[i], observerBuffer, lootPackHeaderSize + i * lootPackItemSize, lootPackItemSize);
         }

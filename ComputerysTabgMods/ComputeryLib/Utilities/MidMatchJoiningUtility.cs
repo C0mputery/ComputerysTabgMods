@@ -144,6 +144,6 @@ public static class MidMatchJoiningUtility {
     private static void StoreThrowable(byte[] msgData, ServerClient world) {
         TABGPlayerServer? player = world.GameRoomReference.FindPlayer(msgData[0]);
         if (player == null) { return; }
-        Throwables.GetOrCreateValue(player).Value = BitConverter.ToInt16(msgData, msgData.Length - 2);
+        Throwables.GetOrCreateValue(player).Value = BitConverter.ToInt16(msgData, msgData.Length - sizeof(short));
     }
 }

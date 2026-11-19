@@ -46,7 +46,8 @@ public static class ChunkEntryLootBreakup {
     }
     
     private static void TrimLoot(List<TABGPlayerServer> players, List<TABGCarServer> cars, List<NetworkGun> loot, TABGPlayerServer player) {
-        const int maxPayloadSize = UnityTransportConnectionFixes.ClientFragmentationPayloadCapacity - 1024;
+        const int payloadSafetyMargin = 1024;
+        const int maxPayloadSize = UnityTransportConnectionFixes.ClientFragmentationPayloadCapacity - payloadSafetyMargin;
         const int lootPerPacket = (maxPayloadSize - PacketHelper.LootOnlyChunkEntryHeaderSize) / PacketHelper.LootEntrySize;
         
         ServerClient world = WorldHelper.GetWorld();
@@ -63,10 +64,12 @@ public static class ChunkEntryLootBreakup {
     
     private static int GetSizeWithoutLoot(List<TABGPlayerServer> players, List<TABGCarServer> cars) {
         const int maxQuaternionSize = 7;
+        const int carBaseSize = sizeof(int) + sizeof(float) + 3 * sizeof(float);
+        const int vanillaBaseAllocation = 4 + 5 + 1;
         
-        int carSize = 20 * cars.Count;
+        int carSize = carBaseSize * cars.Count;
         foreach (TABGCarServer car in cars) { carSize += car.NumberOfSeats + maxQuaternionSize; }
         
-        return ChunkEntryPlayerPaddingTrim.GetPlayerSize(players) + 4 + 5 + carSize + 1;
+        return ChunkEntryPlayerPaddingTrim.GetPlayerSize(players) + vanillaBaseAllocation + carSize;
     }
 }
