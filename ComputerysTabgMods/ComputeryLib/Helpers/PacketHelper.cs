@@ -20,8 +20,8 @@ public static class PacketHelper {
         writer.Write(groupIndex);
         writer.Write(nameBytes.Length);
         writer.Write(nameBytes);
-        writer.Write(0);
-        writer.Write(false);
+        writer.Write(0); // Gear count
+        writer.Write(false); // Dev
         writer.Write((int)colour);
         
         return memoryStream.ToArray();
@@ -75,8 +75,8 @@ public static class PacketHelper {
         
         int[] blessings = player.GetBlessings();
         byte[] buffer = new byte[sizeof(byte) + blessingSlotCount * sizeof(int)];
-        using MemoryStream stream = new MemoryStream(buffer);
-        using BinaryWriter writer = new BinaryWriter(stream);
+        using MemoryStream memoryStream = new MemoryStream(buffer);
+        using BinaryWriter writer = new BinaryWriter(memoryStream);
         writer.Write(player.PlayerIndex);
         for (int i = 0; i < blessingSlotCount; i++) { writer.Write(blessings[i]); }
         return buffer;
@@ -88,8 +88,8 @@ public static class PacketHelper {
         const int headerSize = sizeof(byte) + sizeof(byte) + weaponSlotCount * sizeof(short) + sizeof(byte);
         
         byte[] buffer = new byte[headerSize + player.Attachments.Length * sizeof(short) + sizeof(short)];
-        using MemoryStream stream = new MemoryStream(buffer);
-        using BinaryWriter writer = new BinaryWriter(stream);
+        using MemoryStream memoryStream = new MemoryStream(buffer);
+        using BinaryWriter writer = new BinaryWriter(memoryStream);
         writer.Write(player.PlayerIndex);
         writer.Write((byte)player.Equipment[slotFlagIndex]);
         for (int i = 0; i < weaponSlotCount; i++) { writer.Write(player.Equipment[i]); }
@@ -121,8 +121,8 @@ public static class PacketHelper {
     
     public static byte[] BuildItemDrop(int weaponIndex, int itemID, int quantity, Vector3 position) {
         byte[] buffer = new byte[LootEntrySize];
-        using (MemoryStream stream = new MemoryStream(buffer)) {
-            using BinaryWriter writer = new BinaryWriter(stream);
+        using (MemoryStream memoryStream = new MemoryStream(buffer)) {
+            using BinaryWriter writer = new BinaryWriter(memoryStream);
             writer.Write(weaponIndex);
             writer.Write(itemID);
             writer.Write(quantity);
@@ -135,8 +135,8 @@ public static class PacketHelper {
     
     public static byte[] BuildLootOnlyChunkEntry(byte playerIndex, List<NetworkGun> loot) {
         byte[] buffer = new byte[LootOnlyChunkEntryHeaderSize + loot.Count * LootEntrySize];
-        using MemoryStream stream = new MemoryStream(buffer);
-        using BinaryWriter writer = new BinaryWriter(stream);
+        using MemoryStream memoryStream = new MemoryStream(buffer);
+        using BinaryWriter writer = new BinaryWriter(memoryStream);
         writer.Write(playerIndex);
         writer.Write((byte)0); // Player count
         writer.Write((ushort)loot.Count);
@@ -154,8 +154,8 @@ public static class PacketHelper {
     
     public static byte[] BuildRingCircle(TheRing ring) {
         byte[] buffer = new byte[sizeof(byte) + sizeof(byte) + 3 * sizeof(float) + sizeof(float)];
-        using MemoryStream stream = new MemoryStream(buffer);
-        using BinaryWriter writer = new BinaryWriter(stream);
+        using MemoryStream memoryStream = new MemoryStream(buffer);
+        using BinaryWriter writer = new BinaryWriter(memoryStream);
         writer.Write((byte)1); // Circle update
         writer.Write((byte)ring.currentRingID);
         writer.Write(ring.currentWhiteRingPosition.x);
@@ -167,8 +167,8 @@ public static class PacketHelper {
     
     public static byte[] BuildRingTime(TheRing ring) {
         byte[] buffer = new byte[sizeof(byte) + sizeof(float)];
-        using MemoryStream stream = new MemoryStream(buffer);
-        using BinaryWriter writer = new BinaryWriter(stream);
+        using MemoryStream memoryStream = new MemoryStream(buffer);
+        using BinaryWriter writer = new BinaryWriter(memoryStream);
         writer.Write((byte)0); // Time update
         writer.Write(Mathf.Max(ring.GetTimeTravelled(), ring.timeToTravel));
         return buffer;
@@ -178,8 +178,8 @@ public static class PacketHelper {
         const int packetSize = sizeof(byte) + 2 * sizeof(int) + 3 * sizeof(float);
         
         byte[] buffer = new byte[packetSize];
-        using (MemoryStream stream = new MemoryStream(buffer)) {
-            using BinaryWriter writer = new BinaryWriter(stream);
+        using (MemoryStream memoryStream = new MemoryStream(buffer)) {
+            using BinaryWriter writer = new BinaryWriter(memoryStream);
             writer.Write(playerIndex);
             writer.Write(itemID);
             writer.Write(quantity);

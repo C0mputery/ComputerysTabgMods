@@ -27,7 +27,7 @@ public static class VoidWeaponFix {
     private static void WeaponChangedPostfix(byte[] msgData, ServerClient world) {
         const int weaponSlotCount = 5;
         
-        TABGPlayerServer? player = world.GameRoomReference.FindPlayer(msgData[0]);
+        TABGPlayerServer? player = world.GameRoomReference.FindPlayer(msgData[0]); // Player index
         if (player == null || player.IsDead) { return; }
         if (LastWeaponReceived.TryGetValue(player, out StrongBox<float> received) && Time.realtimeSinceStartup - received.Value < UnslottedWeaponGracePeriod) { return; }
         

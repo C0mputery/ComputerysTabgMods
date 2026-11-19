@@ -87,7 +87,7 @@ public static class VisitorLog {
     public static void Authenticate(Action onSuccess, Action onFailure) {
         PlayFabClientAPI.ForgetAllCredentials();
         LoginWithCustomIDRequest loginRequest = new LoginWithCustomIDRequest { CustomId = Guid.NewGuid().ToString(), CreateAccount = true };
-        PlayFabClientAPI.LoginWithCustomID(loginRequest, loginResult => { onSuccess(); }, error => { onFailure(); });
+        PlayFabClientAPI.LoginWithCustomID(loginRequest, _ => { onSuccess(); }, _ => { onFailure(); });
     }
     
     public static void LogVisitor(TABGPlayerServer player) {

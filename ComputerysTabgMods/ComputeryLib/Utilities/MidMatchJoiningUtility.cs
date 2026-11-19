@@ -142,7 +142,7 @@ public static class MidMatchJoiningUtility {
     [HarmonyPostfix]
     [HarmonyPatch(typeof(WeaponChangedCommand), nameof(WeaponChangedCommand.Run))]
     private static void StoreThrowable(byte[] msgData, ServerClient world) {
-        TABGPlayerServer? player = world.GameRoomReference.FindPlayer(msgData[0]);
+        TABGPlayerServer? player = world.GameRoomReference.FindPlayer(msgData[0]); // Player index
         if (player == null) { return; }
         Throwables.GetOrCreateValue(player).Value = BitConverter.ToInt16(msgData, msgData.Length - sizeof(short));
     }

@@ -39,7 +39,10 @@ public static class FakePlayerHelper {
     }
     
     internal static void Logout(byte playerIndex, byte target) {
-        WorldHelper.GetWorld().SendMessageToClients(EventCode.PlayerLeft, [playerIndex, 1], target, true);
+        WorldHelper.GetWorld().SendMessageToClients(EventCode.PlayerLeft, [
+            playerIndex,
+            1 // Destroy player
+        ], target, true);
         LoggedInFakeIndexes.Remove(playerIndex);
     }
     

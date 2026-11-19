@@ -71,7 +71,7 @@ public static class ServerFailPatches {
     }
     
     private static void RunPlayerUpdateFromSender(byte[] msgData, ServerClient world, byte sender) {
-        if (msgData[0] != sender) {
+        if (msgData[0] != sender) { // Player index
             Plugin.Logger.LogError($"Received PlayerUpdateCommand from sender {sender}, but expected {msgData[0]}. Ignoring.");
             return;
         }
