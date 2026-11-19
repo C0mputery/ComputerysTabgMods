@@ -42,9 +42,9 @@ public class ModerationAction {
 
 public class VisitorInfo {
     public List<DatedString> DisplayNames { get; set; } = [];
-    public List<DatedString> SteamIds { get; set; } = [];
-    public List<DatedString> PlayfabIds { get; set; } = [];
-    public List<DatedString> UnityIds { get; set; } = [];
+    public List<DatedString> SteamIDs { get; set; } = [];
+    public List<DatedString> PlayFabIDs { get; set; } = [];
+    public List<DatedString> UnityIDs { get; set; } = [];
     public List<DatedString> IpAddresses { get; set; } = [];
     public DateTime FirstSeen { get; set; }
     public DateTime LastSeen { get; set; }

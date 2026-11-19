@@ -41,11 +41,11 @@ public static class RemoteItemPickupFix {
     
     private static void SendPickup(ServerClient world, EventCode opCode, byte[] buffer, byte[] recipients, bool reliable, bool alsoSendToTeamates) {
         const int pickerIndexOffset = 0;
-        const int lootIndexOffset = 1;
+        const int weaponIndexOffset = 1;
         const int itemIdentifierOffset = 5;
         
         byte pickerIndex = buffer[pickerIndexOffset];
-        int lootIndex = BitConverter.ToInt32(buffer, lootIndexOffset);
+        int weaponIndex = BitConverter.ToInt32(buffer, weaponIndexOffset);
         int itemIdentifier = BitConverter.ToInt32(buffer, itemIdentifierOffset);
         if (KeepVanillaPickup(itemIdentifier)) {
             world.SendMessageToClients(opCode, buffer, recipients, reliable, alsoSendToTeamates);
@@ -58,7 +58,7 @@ public static class RemoteItemPickupFix {
         }
         
         world.SendMessageToClients(opCode, buffer, pickerIndex, reliable, alsoSendToTeamates);
-        if (observers.Count > 0) { world.SendMessageToClients(EventCode.LootRemovedFromMap, BitConverter.GetBytes(lootIndex), observers.ToArray(), reliable); }
+        if (observers.Count > 0) { world.SendMessageToClients(EventCode.LootRemovedFromMap, BitConverter.GetBytes(weaponIndex), observers.ToArray(), reliable); }
     }
     
     private static void SendLootPack(ServerClient world, EventCode opCode, byte[] buffer, byte[] recipients, bool reliable, bool alsoSendToTeamates) {

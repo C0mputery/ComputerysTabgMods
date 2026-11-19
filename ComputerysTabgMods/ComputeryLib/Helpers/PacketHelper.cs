@@ -119,12 +119,12 @@ public static class PacketHelper {
         return memoryStream.ToArray();
     }
     
-    public static byte[] BuildItemDrop(int weaponIndex, int itemId, int quantity, Vector3 position) {
+    public static byte[] BuildItemDrop(int weaponIndex, int itemID, int quantity, Vector3 position) {
         byte[] buffer = new byte[LootEntrySize];
         using (MemoryStream stream = new MemoryStream(buffer)) {
             using BinaryWriter writer = new BinaryWriter(stream);
             writer.Write(weaponIndex);
-            writer.Write(itemId);
+            writer.Write(itemID);
             writer.Write(quantity);
             writer.Write(position.x);
             writer.Write(position.y);
@@ -174,14 +174,14 @@ public static class PacketHelper {
         return buffer;
     }
     
-    public static byte[] BuildItemDropRequest(byte playerIndex, int itemId, int quantity, Vector3 position) {
+    public static byte[] BuildItemDropRequest(byte playerIndex, int itemID, int quantity, Vector3 position) {
         const int packetSize = sizeof(byte) + 2 * sizeof(int) + 3 * sizeof(float);
         
         byte[] buffer = new byte[packetSize];
         using (MemoryStream stream = new MemoryStream(buffer)) {
             using BinaryWriter writer = new BinaryWriter(stream);
             writer.Write(playerIndex);
-            writer.Write(itemId);
+            writer.Write(itemID);
             writer.Write(quantity);
             writer.Write(position.x);
             writer.Write(position.y);

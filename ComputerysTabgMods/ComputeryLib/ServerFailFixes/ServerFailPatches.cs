@@ -48,7 +48,7 @@ public static class ServerFailPatches {
     /// <returns></returns>
     [HarmonyTranspiler]
     [HarmonyPatch(typeof(ServerClient), nameof(ServerClient.HandleNetorkEvent))]
-    private static IEnumerable<CodeInstruction> FixRun(IEnumerable<CodeInstruction> instructions) {
+    private static IEnumerable<CodeInstruction> ValidatePlayerUpdateSender(IEnumerable<CodeInstruction> instructions) {
         CodeMatcher matcher = new CodeMatcher(instructions);
         
         Type nestedType = typeof(ServerClient).GetNestedType("<>c__DisplayClass84_0", BindingFlags.NonPublic);
@@ -65,12 +65,12 @@ public static class ServerFailPatches {
             new CodeInstruction(OpCodes.Ldloc_0),
             new CodeInstruction(OpCodes.Ldfld, sender)
         );
-        matcher.Set(OpCodes.Call, AccessTools.Method(typeof(ServerFailPatches), nameof(Run), [typeof(byte[]), typeof(ServerClient), typeof(byte)]));
+        matcher.Set(OpCodes.Call, AccessTools.Method(typeof(ServerFailPatches), nameof(RunPlayerUpdateFromSender), [typeof(byte[]), typeof(ServerClient), typeof(byte)]));
         
         return matcher.InstructionEnumeration();
     }
     
-    private static void Run(byte[] msgData, ServerClient world, byte sender) {
+    private static void RunPlayerUpdateFromSender(byte[] msgData, ServerClient world, byte sender) {
         if (msgData[0] != sender) {
             Plugin.Logger.LogError($"Received PlayerUpdateCommand from sender {sender}, but expected {msgData[0]}. Ignoring.");
             return;

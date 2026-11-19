@@ -18,18 +18,18 @@ public static class GhostLootFix {
         ScheduleResend(__instance, weapon.Index, 0, 0f);
     }
     
-    private static void ScheduleResend(GameRoom room, int index, int step, float elapsed) {
+    private static void ScheduleResend(GameRoom room, int weaponIndex, int step, float elapsed) {
         if (step >= ResendDelays.Length) { return; }
         
         float target = ResendDelays[step];
         room.m_server.WaitThenDoAction(Math.Max(0f, target - elapsed), () => {
-            if (room.GetWeapon(index) != null) { return; }
-            SendRemoval(index);
-            ScheduleResend(room, index, step + 1, Math.Max(elapsed, target));
+            if (room.GetWeapon(weaponIndex) != null) { return; }
+            SendRemoval(weaponIndex);
+            ScheduleResend(room, weaponIndex, step + 1, Math.Max(elapsed, target));
         });
     }
     
-    private static void SendRemoval(int index) {
-        WorldHelper.GetWorld().SendMessageToClients(EventCode.LootRemovedFromMap, BitConverter.GetBytes(index), byte.MaxValue, true);
+    private static void SendRemoval(int weaponIndex) {
+        WorldHelper.GetWorld().SendMessageToClients(EventCode.LootRemovedFromMap, BitConverter.GetBytes(weaponIndex), byte.MaxValue, true);
     }
 }

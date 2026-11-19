@@ -8,7 +8,7 @@ namespace ComputeryLib.ServerFailFixes;
 public static class DeathDropUnstackFix {
     [HarmonyPrefix]
     [HarmonyPatch(typeof(DropAllLootCommand), nameof(DropAllLootCommand.Run), typeof(ServerClient), typeof(List<TABGPlayerServer>))]
-    private static void RunPrefix(ServerClient world, List<TABGPlayerServer> players) {
+    private static void DropAllLootPrefix(ServerClient world, List<TABGPlayerServer> players) {
         GameRoom room = world.GameRoomReference;
         foreach (TABGPlayerServer player in players) {
             List<TABGPlayerLootItem> loot = player.Loot;

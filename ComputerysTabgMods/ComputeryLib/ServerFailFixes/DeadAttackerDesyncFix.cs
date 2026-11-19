@@ -9,7 +9,7 @@ namespace ComputeryLib.ServerFailFixes;
 public static class DeadAttackerDesyncFix {
     [HarmonyPrefix]
     [HarmonyPatch(typeof(PlayerDamageCommand), nameof(PlayerDamageCommand.Run))]
-    private static void RunPrefix(byte[] msgData, ServerClient world, byte senderIndex) {
+    private static void PlayerDamagePrefix(byte[] msgData, ServerClient world, byte senderIndex) {
         const int attackerIndexOffset = 0;
         const int victimIndexOffset = 1;
         const int healthOffset = 2;

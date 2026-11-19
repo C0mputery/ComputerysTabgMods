@@ -17,7 +17,7 @@ public static class GameEndUtility {
         
         [HarmonyTranspiler]
         [HarmonyPatch(typeof(BattleRoyaleGameMode), nameof(BattleRoyaleGameMode.CheckGameState), typeof(GameState))]
-        private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) {
+        private static IEnumerable<CodeInstruction> SkipGroupEndCheck(IEnumerable<CodeInstruction> instructions) {
             CodeMatcher matcher = new CodeMatcher(instructions);
             FieldInfo gameRoomField = AccessTools.Field(typeof(TABGBaseGameMode), nameof(TABGBaseGameMode.m_GameRoom));
             MethodInfo endMatchMethod = AccessTools.Method(typeof(GameRoom), nameof(GameRoom.EndMatch), [typeof(TeamStanding)]);
@@ -51,6 +51,6 @@ public static class GameEndUtility {
         
         [HarmonyPrefix]
         [HarmonyPatch(typeof(GameRoom), nameof(GameRoom.CheckForTerminate))]
-        private static bool Prefix() { return false; }
+        private static bool CheckForTerminatePrefix() { return false; }
     }
 }

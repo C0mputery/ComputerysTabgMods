@@ -20,7 +20,7 @@ public static class AccountIDBroadcastFix {
     // Unfortunate force prefix override.
     [HarmonyPrefix]
     [HarmonyPatch(typeof(AssignPlayerAccountIDsCommand), nameof(AssignPlayerAccountIDsCommand.Run), typeof(ServerClient), typeof(List<AccountIDEntry>), typeof(byte))]
-    private static bool RunPrefix(ServerClient server, List<AccountIDEntry> PlayerIDs, byte recievingPlayer) {
+    private static bool AssignPlayerAccountIDsPrefix(ServerClient server, List<AccountIDEntry> PlayerIDs, byte recievingPlayer) {
         if (recievingPlayer != byte.MaxValue) {
             TABGPlayerServer? recipient = server.GameRoomReference.FindPlayerOrSpectator(recievingPlayer);
             if (recipient != null) { Enqueue(recipient, PlayerIDs); }

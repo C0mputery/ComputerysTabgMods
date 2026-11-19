@@ -10,7 +10,7 @@ namespace ComputeryLib.ServerFailFixes;
 
 [HarmonyPatch(typeof(EnetServer))]
 public static class EnetConnectionFixes {
-    private static EnetServer? Server;
+    private static EnetServer? _server;
     private static readonly Dictionary<uint, (Peer Peer, byte PlayerID)> PeerIDToPlayer = [];
     private static readonly HashSet<byte> UsedPlayerIDs = [];
     private static readonly List<uint> GonePeerIDBuffer = [];
@@ -23,7 +23,7 @@ public static class EnetConnectionFixes {
     
     [HarmonyPostfix]
     [HarmonyPatch(nameof(EnetServer.StartServer))]
-    private static void CaptureServer(EnetServer __instance) { Server = __instance; }
+    private static void CaptureServer(EnetServer __instance) { _server = __instance; }
     
     [HarmonyTranspiler]
     [HarmonyPatch(nameof(EnetServer.Update))]
@@ -67,7 +67,7 @@ public static class EnetConnectionFixes {
     private static void ClearPlayerIDs() {
         PeerIDToPlayer.Clear();
         UsedPlayerIDs.Clear();
-        Server = null;
+        _server = null;
     }
     
     [HarmonyPrefix]
@@ -94,7 +94,7 @@ public static class EnetConnectionFixes {
     }
     
     private static byte GetFreePlayerID() {
-        List<TABGPlayerServer> players = Server!.m_ServerHandler.GameRoomReference.Players;
+        List<TABGPlayerServer> players = _server!.m_ServerHandler.GameRoomReference.Players;
         for (int id = 0; id < byte.MaxValue; id++) {
             byte playerID = (byte)id;
             if (UsedPlayerIDs.Contains(playerID)) { continue; }

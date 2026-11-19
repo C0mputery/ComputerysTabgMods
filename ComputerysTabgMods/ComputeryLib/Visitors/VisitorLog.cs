@@ -144,9 +144,9 @@ public static class VisitorLog {
         }
         
         DatedString.UpdateDatedStringSet(visitorInfo.DisplayNames, player.PlayerName, currentTime);
-        DatedString.UpdateDatedStringSet(visitorInfo.SteamIds, steamID, currentTime);
-        DatedString.UpdateDatedStringSet(visitorInfo.PlayfabIds, player.PlayFabID, currentTime);
-        DatedString.UpdateDatedStringSet(visitorInfo.UnityIds, player.UnityID, currentTime);
+        DatedString.UpdateDatedStringSet(visitorInfo.SteamIDs, steamID, currentTime);
+        DatedString.UpdateDatedStringSet(visitorInfo.PlayFabIDs, player.PlayFabID, currentTime);
+        DatedString.UpdateDatedStringSet(visitorInfo.UnityIDs, player.UnityID, currentTime);
         if (SearchHelper.TryGetPlayerIP(player, out string? ipAddress)) {
             DatedString.UpdateDatedStringSet(visitorInfo.IpAddresses, ipAddress, currentTime);
         }

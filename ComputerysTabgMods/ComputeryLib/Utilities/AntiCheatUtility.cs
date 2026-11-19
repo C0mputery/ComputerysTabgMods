@@ -58,20 +58,20 @@ public static class AntiCheatUtility {
             new CodeMatch(OpCodes.Ceq),
             new CodeMatch(instruction => instruction.Calls(AccessTools.Method(typeof(ItemManipulation), nameof(ItemManipulation.SpawnItemDrop))))
         );
-        CodeInstruction loadItemSpawnIndex = matcher.InstructionAt(2).Clone(); // newWeaponIndex
+        CodeInstruction loadWeaponIndex = matcher.InstructionAt(2).Clone(); // newWeaponIndex
         CodeInstruction loadItemIdentifier = matcher.InstructionAt(3).Clone(); // num
         
         matcher.Advance(12);
-        matcher.Insert(loadItemSpawnIndex, loadItemIdentifier, CodeInstruction.Call(typeof(AntiCheatUtility), nameof(TrackThrownItem)));
+        matcher.Insert(loadWeaponIndex, loadItemIdentifier, CodeInstruction.Call(typeof(AntiCheatUtility), nameof(TrackThrownItem)));
         
         return matcher.InstructionEnumeration();
     }
     
     public static readonly Dictionary<int, float> PickupWindows = Plugin.Config.Bind("Anticheat", "ThrownPickupWindows", new Dictionary<int, float> { { 205, 3f } }, "ItemID: Time after throw in seconds to disable pickup").Value;
     private static readonly Dictionary<int, float> PickupDeadlines = [];
-    private static void TrackThrownItem(int itemSpawnIndex, int itemIdentifier) {
+    private static void TrackThrownItem(int weaponIndex, int itemIdentifier) {
         if (!PickupWindows.TryGetValue(itemIdentifier, out float window)) { return; }
-        PickupDeadlines[itemSpawnIndex] = Time.realtimeSinceStartup + window;
+        PickupDeadlines[weaponIndex] = Time.realtimeSinceStartup + window;
     }
     
     [HarmonyPrefix]
