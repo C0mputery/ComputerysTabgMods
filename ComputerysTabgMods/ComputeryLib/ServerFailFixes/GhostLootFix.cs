@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using ComputeryLib.Helpers;
 using HarmonyLib;
 using Landfall.Network;
 using UnityEngine;
@@ -25,12 +26,12 @@ public static class GhostLootFix {
         float target = ResendDelays[step];
         room.m_server.WaitThenDoAction(Math.Max(0f, target - elapsed), () => {
             if (room.GetWeapon(index) != null) { return; }
-            SendRemoval(room.m_server, index);
+            SendRemoval(index);
             ScheduleResend(room, index, step + 1, Math.Max(elapsed, target));
         });
     }
     
-    private static void SendRemoval(ServerClient world, int index) {
-        world.SendMessageToClients(EventCode.LootRemovedFromMap, BitConverter.GetBytes(index), byte.MaxValue, true);
+    private static void SendRemoval(int index) {
+        WorldHelper.GetWorld().SendMessageToClients(EventCode.LootRemovedFromMap, BitConverter.GetBytes(index), byte.MaxValue, true);
     }
 }

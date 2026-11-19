@@ -38,14 +38,14 @@ public static class BroadcastHelper {
         
         if (message.Length > MaxNameLength) { Plugin.Logger.LogWarning($"Broadcast \"{message}\" is longer than {MaxNameLength} characters. Will be cropped."); }
         
-        using (FakeGroup group = FakePlayerHelper.ReserveGroup(world)) {
+        using (FakeGroup group = FakePlayerHelper.ReserveGroup()) {
             if (!group.IsValid) {
                 Plugin.Logger.LogWarning($"Out of free group indexes, cannot broadcast: \"{message}\".");
                 return;
             }
             
-            using (FakePlayer killer = FakePlayerHelper.Login(world, group, "", colour, target))
-            using (FakePlayer victim = FakePlayerHelper.Login(world, group, message, colour, target)) {
+            using (FakePlayer killer = FakePlayerHelper.Login(group, "", colour, target))
+            using (FakePlayer victim = FakePlayerHelper.Login(group, message, colour, target)) {
                 if (!killer.IsValid || !victim.IsValid) {
                     Plugin.Logger.LogWarning($"Out of free player indexes, cannot broadcast: \"{message}\".");
                     return;
@@ -59,14 +59,14 @@ public static class BroadcastHelper {
     public static void KillWithFakePlayer(TABGPlayerServer victim, string killerName, PlayerColour colour) {
         ServerClient world = WorldHelper.GetWorld();
         
-        using (FakeGroup group = FakePlayerHelper.ReserveGroup(world)) {
+        using (FakeGroup group = FakePlayerHelper.ReserveGroup()) {
             if (!group.IsValid) {
                 Plugin.Logger.LogWarning($"Out of free group indexes, killing {victim.PlayerName} without a fake killer \"{killerName}\".");
                 ServerKillCommand.Run(world, victim);
                 return;
             }
             
-            using (FakePlayer killer = FakePlayerHelper.Login(world, group, killerName, colour, byte.MaxValue)) {
+            using (FakePlayer killer = FakePlayerHelper.Login(group, killerName, colour, byte.MaxValue)) {
                 if (!killer.IsValid) {
                     Plugin.Logger.LogWarning($"Out of free player indexes, killing {victim.PlayerName} without a fake killer \"{killerName}\".");
                     ServerKillCommand.Run(world, victim);

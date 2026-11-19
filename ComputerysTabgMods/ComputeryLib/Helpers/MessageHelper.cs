@@ -16,19 +16,19 @@ public static class MessageHelper {
     [HarmonyPostfix]
     [HarmonyPatch(typeof(ThrowChatMessageCommand), nameof(ThrowChatMessageCommand.Run))]
     private static void ThrowChatMessageCommandPostfix(byte[] data, ServerClient world, byte sender) {
-        if (!TryReadChatMessage(data, world, sender, out TABGPlayerServer? player, out string? message)) { return; }
+        if (!TryReadChatMessage(data, sender, out TABGPlayerServer? player, out string? message)) { return; }
         OnChatMessage?.Invoke(player, message, true);
     }
     
     [HarmonyPostfix]
     [HarmonyPatch(typeof(ChatMessageCommand), nameof(ChatMessageCommand.Run))]
     private static void ChatMessageCommandPostfix(byte[] msgData, ServerClient world, byte sender) {
-        if (!TryReadChatMessage(msgData, world, sender, out TABGPlayerServer? player, out string? message)) { return; }
+        if (!TryReadChatMessage(msgData, sender, out TABGPlayerServer? player, out string? message)) { return; }
         OnChatMessage?.Invoke(player, message, false);
     }
     
-    internal static bool TryReadChatMessage(byte[] data, ServerClient world, byte sender, [NotNullWhen(true)] out TABGPlayerServer? player, [NotNullWhen(true)] out string? message) {
-        player = world.GameRoomReference.FindPlayerOrSpectator(sender);
+    internal static bool TryReadChatMessage(byte[] data, byte sender, [NotNullWhen(true)] out TABGPlayerServer? player, [NotNullWhen(true)] out string? message) {
+        player = WorldHelper.GetWorld().GameRoomReference.FindPlayerOrSpectator(sender);
         if (player == null) {
             message = null;
             return false;

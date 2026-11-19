@@ -54,10 +54,11 @@ public static class RingHelper {
     [HarmonyPostfix]
     [HarmonyPatch(typeof(CurrentGameWorldCommand), nameof(CurrentGameWorldCommand.Run))]
     private static void CurrentGameWorldPostfix(ServerClient world, byte playerID) {
-        if (world.GameRoomReference.CurrentGameState == GameState.Started) { world.WaitThenDoAction(JoinCatchupDelaySeconds, () => SendRingToPlayer(world, playerID)); }
+        if (world.GameRoomReference.CurrentGameState == GameState.Started) { world.WaitThenDoAction(JoinCatchupDelaySeconds, () => SendRingToPlayer(playerID)); }
     }
     
-    private static void SendRingToPlayer(ServerClient world, byte playerIndex) {
+    private static void SendRingToPlayer(byte playerIndex) {
+        ServerClient world = WorldHelper.GetWorld();
         TheRing ring = world.SpawnedRing;
         if (!ring.hasStarted || world.GameRoomReference.FindPlayer(playerIndex) == null) { return; }
         

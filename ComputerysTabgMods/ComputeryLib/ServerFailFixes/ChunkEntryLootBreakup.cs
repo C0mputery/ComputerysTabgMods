@@ -31,12 +31,11 @@ public static class ChunkEntryLootBreakup {
         List<Label> labelsToPreserve = [.. matcher.Instruction.labels];
         matcher.Instruction.labels.Clear();
         
-        // TrimLoot(list, list2, list3, world, _player);
+        // TrimLoot(list, list2, list3, _player);
         matcher.Insert(
             new CodeInstruction(OpCodes.Ldloc_1),
             new CodeInstruction(OpCodes.Ldloc_2),
             new CodeInstruction(OpCodes.Ldloc_3),
-            new CodeInstruction(OpCodes.Ldarg_1),
             new CodeInstruction(OpCodes.Ldarg_2),
             new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(ChunkEntryLootBreakup), nameof(TrimLoot)))
         );
@@ -50,7 +49,8 @@ public static class ChunkEntryLootBreakup {
     private const int LootPerPacket = (MaxPayloadSize - PacketHelper.LootOnlyChunkEntryHeaderSize) / PacketHelper.LootEntrySize;
     private const int MaxQuaternionSize = 7;
     
-    private static void TrimLoot(List<TABGPlayerServer> players, List<TABGCarServer> cars, List<NetworkGun> loot, ServerClient world, TABGPlayerServer player) {
+    private static void TrimLoot(List<TABGPlayerServer> players, List<TABGCarServer> cars, List<NetworkGun> loot, TABGPlayerServer player) {
+        ServerClient world = WorldHelper.GetWorld();
         int lootThatFits = Mathf.Max(0, (MaxPayloadSize - GetSizeWithoutLoot(players, cars)) / PacketHelper.LootEntrySize);
         if (loot.Count <= lootThatFits) { return; }
         

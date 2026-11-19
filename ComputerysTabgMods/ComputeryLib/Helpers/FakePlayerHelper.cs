@@ -6,8 +6,8 @@ namespace ComputeryLib.Helpers;
 
 public static class FakePlayerHelper {
     private static readonly HashSet<byte> ReservedFakeGroupIndexes = [];
-    public static FakeGroup ReserveGroup(ServerClient world) {
-        GameRoom room = world.GameRoomReference;
+    public static FakeGroup ReserveGroup() {
+        GameRoom room = WorldHelper.GetWorld().GameRoomReference;
         HashSet<byte> usedGroupIndexes = [..ReservedFakeGroupIndexes];
         foreach (TeamStanding team in room.CurrentGameStats.GetAllTeams()) { usedGroupIndexes.Add(team.TeamIndex); }
         foreach (TABGPlayerServer player in room.PlayersAndSpectators()) { usedGroupIndexes.Add(player.GroupIndex); }
@@ -24,19 +24,20 @@ public static class FakePlayerHelper {
     }
     
     private static readonly HashSet<byte> LoggedInFakeIndexes = [];
-    public static FakePlayer Login(ServerClient world, FakeGroup group, string name, PlayerColour colour, byte target) {
+    public static FakePlayer Login(FakeGroup group, string name, PlayerColour colour, byte target) {
         if (!group.IsValid) { return default; }
         
+        ServerClient world = WorldHelper.GetWorld();
         byte minPlayerIndex = (byte)(world.GameRoomReference.CurrentGameSettings.MaxPlayers + 1);
         if (!TryTakeFree([..LoggedInFakeIndexes], minPlayerIndex, out byte playerIndex)) { return default; }
         
         world.SendMessageToClients(EventCode.Login, PacketHelper.BuildRemoteLogin(playerIndex, group.Index, name, colour), target, true);
         LoggedInFakeIndexes.Add(playerIndex);
-        return new FakePlayer(world, playerIndex, target);
+        return new FakePlayer(playerIndex, target);
     }
     
-    internal static void Logout(ServerClient world, byte playerIndex, byte target) {
-        world.SendMessageToClients(EventCode.PlayerLeft, [playerIndex, 1], target, true);
+    internal static void Logout(byte playerIndex, byte target) {
+        WorldHelper.GetWorld().SendMessageToClients(EventCode.PlayerLeft, [playerIndex, 1], target, true);
         LoggedInFakeIndexes.Remove(playerIndex);
     }
     
@@ -49,14 +50,16 @@ public static class FakePlayerHelper {
         return false;
     }
     
-    public static void SpoofKill(ServerClient world, TABGPlayerServer killer, byte target) {
-        using (FakeGroup group = FakePlayerHelper.ReserveGroup(world)) {
+    public static void SpoofKill(TABGPlayerServer killer, byte target) {
+        ServerClient world = WorldHelper.GetWorld();
+        
+        using (FakeGroup group = FakePlayerHelper.ReserveGroup()) {
             if (!group.IsValid) {
                 Plugin.Logger.LogWarning($"Out of free group indexes, cannot spoof kill for {killer.PlayerName}.");
                 return;
             }
             
-            using (FakePlayer phantom = FakePlayerHelper.Login(world, group, "", PlayerColour.White, target)) {
+            using (FakePlayer phantom = FakePlayerHelper.Login(group, "", PlayerColour.White, target)) {
                 if (!phantom.IsValid) {
                     Plugin.Logger.LogWarning($"Out of free player indexes, cannot spoof kill for {killer.PlayerName}.");
                     return;
@@ -84,20 +87,19 @@ public readonly struct FakeGroup : IDisposable {
 }
 
 public readonly struct FakePlayer : IDisposable {
-    private readonly ServerClient? _world;
     private readonly byte _target;
     
     public byte Index { get; }
-    public bool IsValid => _world != null;
+    public bool IsValid { get; }
     
-    internal FakePlayer(ServerClient world, byte index, byte target) {
-        _world = world;
+    internal FakePlayer(byte index, byte target) {
         _target = target;
         Index = index;
+        IsValid = true;
     }
     
     public void Dispose() {
-        if (_world == null) { return; }
-        FakePlayerHelper.Logout(_world, Index, _target);
+        if (!IsValid) { return; }
+        FakePlayerHelper.Logout(Index, _target);
     }
 }

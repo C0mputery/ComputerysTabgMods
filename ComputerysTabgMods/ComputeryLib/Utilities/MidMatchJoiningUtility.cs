@@ -90,15 +90,16 @@ public static class MidMatchJoiningUtility {
         foreach (TABGPlayerServer other in room.PlayersAndSpectators()) {
             if (other == player) { continue; }
             int kills = Math.Min((int)other.NumberOfKills, 10);
-            for (int i = 0; i < kills; i++) { FakePlayerHelper.SpoofKill(world, other, playerID); }
+            for (int i = 0; i < kills; i++) { FakePlayerHelper.SpoofKill(other, playerID); }
         }
         
         // Jank solution to make it so that people's weapons show up
         // Don't know why the like current game world command doesn't properly send the stuff over
-        world.WaitThenDoAction(2f, () => ResyncWeapons(world, playerID));
+        world.WaitThenDoAction(2f, () => ResyncWeapons(playerID));
     }
     
-    private static void ResyncWeapons(ServerClient world, byte joinerID) {
+    private static void ResyncWeapons(byte joinerID) {
+        ServerClient world = WorldHelper.GetWorld();
         GameRoom room = world.GameRoomReference;
         TABGPlayerServer? joiner = room.FindPlayer(joinerID);
         if (joiner?.PlayerObject == null) { return; }
