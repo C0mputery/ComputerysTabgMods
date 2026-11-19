@@ -13,7 +13,7 @@ public static class GhostLootFix {
     
     [HarmonyPrefix]
     [HarmonyPatch(typeof(GameRoom), nameof(GameRoom.RemoveWeapon))]
-    private static void Prefix(GameRoom __instance, NetworkGun? weapon) {
+    private static void RemoveWeaponPrefix(GameRoom __instance, NetworkGun? weapon) {
         if (weapon == null) { return; }
         ScheduleResend(__instance, weapon.Index, 0, 0f);
     }

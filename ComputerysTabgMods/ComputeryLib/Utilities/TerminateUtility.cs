@@ -15,11 +15,11 @@ public static class TerminateUtility {
     /// <param name="time"> Harmony provided time parameter </param>
     [HarmonyPrefix]
     [HarmonyPatch(typeof(ServerClient), nameof(ServerClient.Terminate), typeof(float), typeof(string))]
-    private static void AwakePrefix(ref float time) { time -= 10f; }
+    private static void TerminatePrefix(ref float time) { time -= 10f; }
     
     [HarmonyTranspiler]
     [HarmonyPatch(typeof(GameRoom), nameof(GameRoom.EndMatch), typeof(TeamStanding))]
-    private static IEnumerable<CodeInstruction> FixLandLog(IEnumerable<CodeInstruction> instructions) {
+    private static IEnumerable<CodeInstruction> UseConfiguredRestartTime(IEnumerable<CodeInstruction> instructions) {
         CodeMatcher matcher = new CodeMatcher(instructions);
         matcher.MatchForward(false, new CodeMatch(OpCodes.Ldc_R4, 15f));
         matcher.Repeat(match => match.SetOperandAndAdvance(RestartTime));

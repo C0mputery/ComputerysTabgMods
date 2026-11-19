@@ -45,7 +45,7 @@ public static class LoggerImprover {
     
     [HarmonyTranspiler]
     [HarmonyPatch(typeof(PlayerLeaveCommand), nameof(PlayerLeaveCommand.Run))]
-    private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) {
+    private static IEnumerable<CodeInstruction> FixPlayerLeavePlayFabDisabledLog(IEnumerable<CodeInstruction> instructions) {
         CodeMatcher matcher = new CodeMatcher(instructions);
         
         matcher.MatchForward(false, new CodeMatch(OpCodes.Ldstr, "Playfab Is Disabled!"));
@@ -60,5 +60,5 @@ public static class LoggerImprover {
     [HarmonyPatch(typeof(RuntimeManager), nameof(RuntimeManager.LoadBank), typeof(string), typeof(bool))]
     [HarmonyPatch(typeof(RuntimeManager), nameof(RuntimeManager.CreateInstance), typeof(string))]
     [HarmonyPatch(typeof(StudioEventEmitter), nameof(StudioEventEmitter.Start))]
-    private static bool Disable() { return false; }
+    private static bool DisableFMOD() { return false; }
 }
