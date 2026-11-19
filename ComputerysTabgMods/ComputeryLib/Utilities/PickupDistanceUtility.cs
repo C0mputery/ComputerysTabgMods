@@ -10,7 +10,7 @@ public static class PickupDistanceUtility {
     [HarmonyPrepare] private static bool OnlyWhenEnabled() { return DisablePickupDistanceCheck; }
     
     [HarmonyPrefix]
-    [HarmonyPatch(typeof(RequestPickupCommand), "CanPickUpGun")]
+    [HarmonyPatch(typeof(RequestPickupCommand), nameof(RequestPickupCommand.CanPickUpGun))]
     private static bool CanPickUpGunPrefix(ref bool __result) {
         __result = true;
         return false;
