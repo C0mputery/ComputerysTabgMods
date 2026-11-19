@@ -56,7 +56,7 @@ public static class ServerFailPatches {
         
         matcher.MatchForward(true,
             new CodeMatch(OpCodes.Ldloc_0),
-            new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(ServerClient).GetNestedType("<>c__DisplayClass84_0", BindingFlags.NonPublic), "serverData")),
+            new CodeMatch(OpCodes.Ldfld, AccessTools.Field(nestedType, "serverData")),
             new CodeMatch(OpCodes.Ldarg_0),
             new CodeMatch(OpCodes.Call, AccessTools.Method(typeof(PlayerUpdateCommand), nameof(PlayerUpdateCommand.Run)))
         );
