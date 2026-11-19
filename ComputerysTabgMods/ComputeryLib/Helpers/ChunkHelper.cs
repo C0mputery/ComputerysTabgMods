@@ -33,9 +33,10 @@ public static class ChunkHelper {
     public static Vector2 ChunkCenter { get; private set; } = new Vector2(ServerChunks.CHUNK_SIZE / 2f, ServerChunks.CHUNK_SIZE / 2f);
     private static float _originX;
     private static float _originZ;
+    
     private static void ApplySettings(Vector2 center, float size) {
         ServerStartHelper.ThrowIfServerRunning("Chunk settings cannot be set while the server is running.");
-        if (size < 16f) { throw new ArgumentOutOfRangeException(nameof(size), size, $"Chunk size must be at least 16. Chunk coordinates are sbytes (-128 to 127), any smaller leads to overflow too easily."); }
+        if (size < 16f) { throw new ArgumentOutOfRangeException(nameof(size), size, "Chunk size must be at least 16. Chunk coordinates are sbytes (-128 to 127), any smaller leads to overflow too easily."); }
         
         ServerChunks.CHUNK_SIZE = size;
         EntityUpdatesCommand.RECEIVE_ALL_DISTANCE = size / 6f;
@@ -92,4 +93,3 @@ public static class ChunkHelper {
     public static int ToChunkX(float worldX) { return Mathf.FloorToInt((worldX - _originX) / ServerChunks.CHUNK_SIZE); }
     public static int ToChunkZ(float worldZ) { return Mathf.FloorToInt((worldZ - _originZ) / ServerChunks.CHUNK_SIZE); }
 }
-

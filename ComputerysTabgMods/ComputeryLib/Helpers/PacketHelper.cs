@@ -138,6 +138,7 @@ public static class PacketHelper {
     }
     
     public const int LootOnlyChunkEntryHeaderSize = 6;
+    
     public static byte[] BuildLootOnlyChunkEntry(byte playerIndex, List<NetworkGun> loot) {
         byte[] buffer = new byte[LootOnlyChunkEntryHeaderSize + loot.Count * LootEntrySize];
         using MemoryStream stream = new MemoryStream(buffer);

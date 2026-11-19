@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Reflection.Emit;
 using HarmonyLib;
@@ -49,7 +50,7 @@ public static class ChunkEntryPlayerPaddingTrim {
         if (padding <= 0) { return buffer; }
         
         byte[] trimmed = new byte[buffer.Length - padding];
-        System.Array.Copy(buffer, trimmed, trimmed.Length);
+        Array.Copy(buffer, trimmed, trimmed.Length);
         return trimmed;
     }
 }

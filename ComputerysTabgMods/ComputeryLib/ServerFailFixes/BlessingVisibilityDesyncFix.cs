@@ -24,7 +24,7 @@ public static class BlessingVisibilityDesyncFix {
     // ChunkEntry never sends blessings
     [HarmonyPostfix]
     [HarmonyPatch(typeof(ChunkEntryCommand), nameof(ChunkEntryCommand.Run))]
-    private static void ChunkEntryPostfix(ServerClient world, TABGPlayerServer _player) { 
+    private static void ChunkEntryPostfix(ServerClient world, TABGPlayerServer _player) {
         ServerChunks chunks = ServerChunks.Instance;
         foreach (ChunkDataServer chunk in _player.AreaOfInterest.GetPositiveDiff()) {
             List<TABGPlayerServer>? players = chunks.GetPlayers(chunk);

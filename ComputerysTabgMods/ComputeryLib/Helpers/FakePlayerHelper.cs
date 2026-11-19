@@ -6,9 +6,10 @@ namespace ComputeryLib.Helpers;
 
 public static class FakePlayerHelper {
     private static readonly HashSet<byte> ReservedFakeGroupIndexes = [];
+    
     public static FakeGroup ReserveGroup() {
         GameRoom room = WorldHelper.GetWorld().GameRoomReference;
-        HashSet<byte> usedGroupIndexes = [..ReservedFakeGroupIndexes];
+        HashSet<byte> usedGroupIndexes = [.. ReservedFakeGroupIndexes];
         foreach (TeamStanding team in room.CurrentGameStats.GetAllTeams()) { usedGroupIndexes.Add(team.TeamIndex); }
         foreach (TABGPlayerServer player in room.PlayersAndSpectators()) { usedGroupIndexes.Add(player.GroupIndex); }
         
@@ -24,12 +25,13 @@ public static class FakePlayerHelper {
     }
     
     private static readonly HashSet<byte> LoggedInFakeIndexes = [];
+    
     public static FakePlayer Login(FakeGroup group, string name, PlayerColour colour, byte target) {
         if (!group.IsValid) { return default; }
         
         ServerClient world = WorldHelper.GetWorld();
         byte minPlayerIndex = (byte)(world.GameRoomReference.CurrentGameSettings.MaxPlayers + 1);
-        if (!TryTakeFree([..LoggedInFakeIndexes], minPlayerIndex, out byte playerIndex)) { return default; }
+        if (!TryTakeFree([.. LoggedInFakeIndexes], minPlayerIndex, out byte playerIndex)) { return default; }
         
         world.SendMessageToClients(EventCode.Login, PacketHelper.BuildRemoteLogin(playerIndex, group.Index, name, colour), target, true);
         LoggedInFakeIndexes.Add(playerIndex);
@@ -44,7 +46,8 @@ public static class FakePlayerHelper {
     private static bool TryTakeFree(HashSet<byte> usedIndexes, byte minIndex, out byte index) {
         for (int i = byte.MaxValue - 1; i >= minIndex; i--) {
             if (!usedIndexes.Add((byte)i)) { continue; }
-            index = (byte)i; return true;
+            index = (byte)i;
+            return true;
         }
         index = 0;
         return false;
@@ -53,14 +56,14 @@ public static class FakePlayerHelper {
     public static void KillWithFakePlayer(TABGPlayerServer victim, string killerName, PlayerColour colour) {
         ServerClient world = WorldHelper.GetWorld();
         
-        using (FakeGroup group = FakePlayerHelper.ReserveGroup()) {
+        using (FakeGroup group = ReserveGroup()) {
             if (!group.IsValid) {
                 Plugin.Logger.LogWarning($"Out of free group indexes, killing {victim.PlayerName} without a fake killer \"{killerName}\".");
                 ServerKillCommand.Run(world, victim);
                 return;
             }
             
-            using (FakePlayer killer = FakePlayerHelper.Login(group, killerName, colour, byte.MaxValue)) {
+            using (FakePlayer killer = Login(group, killerName, colour, byte.MaxValue)) {
                 if (!killer.IsValid) {
                     Plugin.Logger.LogWarning($"Out of free player indexes, killing {victim.PlayerName} without a fake killer \"{killerName}\".");
                     ServerKillCommand.Run(world, victim);
