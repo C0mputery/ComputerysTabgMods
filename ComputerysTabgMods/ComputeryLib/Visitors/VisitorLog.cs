@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using ComputeryLib.Helpers;
@@ -31,6 +32,10 @@ public static class VisitorLog {
         return new VisitorInfo { FirstSeen = now, LastSeen = now };
     }
     
+    public static bool TryGetVisitor(string epicUserName, [NotNullWhen(true)] out VisitorInfo? visitorInfo) { return LoadVisitorLogFromFile().TryGetValue(epicUserName, out visitorInfo); }
+    
+    public static IReadOnlyDictionary<string, VisitorInfo> GetAllVisitors() { return LoadVisitorLogFromFile(); }
+    
     public static uint GetPermissionLevel(string epicUserName) {
         SyncFromFile();
         return _visitors.TryGetValue(epicUserName, out VisitorInfo visitorInfo) ? visitorInfo.PermissionLevel : 0;
@@ -38,7 +43,7 @@ public static class VisitorLog {
     
     public static void SetPermissionLevel(string epicUserName, uint level) {
         SyncFromFile();
-        if (!_visitors.TryGetValue(epicUserName, out VisitorInfo visitorInfo)) { return; }
+        VisitorInfo visitorInfo = GetOrCreateVisitor(epicUserName);
         visitorInfo.PermissionLevel = level;
         _visitors[epicUserName] = visitorInfo;
         SaveVisitorLog();
@@ -64,6 +69,21 @@ public static class VisitorLog {
         SaveVisitorLog();
     }
     
+    public static bool RemoveBan(string epicUserName) {
+        SyncFromFile();
+        if (!_visitors.TryGetValue(epicUserName, out VisitorInfo visitorInfo)) { return false; }
+        
+        DateTime now = DateTime.UtcNow;
+        bool removed = false;
+        foreach (ModerationAction action in visitorInfo.ModerationHistory) {
+            if (action.Type != ModerationActionType.Ban || action.EndedAt != null) { continue; }
+            action.EndedAt = action.Expires.HasValue && action.Expires.Value <= now ? action.Expires : now;
+            removed = true;
+        }
+        if (removed) { SaveVisitorLog(); }
+        return removed;
+    }
+    
     public static bool TryGetActiveBan(string epicUserName, out string? reason, out DateTime? expiresUtc) {
         reason = null;
         expiresUtc = null;
@@ -84,13 +104,13 @@ public static class VisitorLog {
         return true;
     }
     
-    public static void Authenticate(Action onSuccess, Action onFailure) {
+    private static void Authenticate(Action onSuccess, Action onFailure) {
         PlayFabClientAPI.ForgetAllCredentials();
         LoginWithCustomIDRequest loginRequest = new LoginWithCustomIDRequest { CustomId = Guid.NewGuid().ToString(), CreateAccount = true };
         PlayFabClientAPI.LoginWithCustomID(loginRequest, _ => { onSuccess(); }, _ => { onFailure(); });
     }
     
-    public static void LogVisitor(TABGPlayerServer player) {
+    internal static void LogVisitor(TABGPlayerServer player) {
         DateTime currentTime = DateTime.UtcNow;
         
         if (!PlayFabClientAPI.IsClientLoggedIn()) {

@@ -6,7 +6,7 @@ using Landfall.Network;
 namespace ComputeryLib.ServerFailFixes;
 
 [HarmonyPatch]
-public static class DeadAttackerDesyncFix {
+internal static class DeadAttackerDesyncFix {
     [HarmonyPrefix]
     [HarmonyPatch(typeof(PlayerDamageCommand), nameof(PlayerDamageCommand.Run))]
     private static void PlayerDamagePrefix(byte[] msgData, ServerClient world, byte senderIndex) {

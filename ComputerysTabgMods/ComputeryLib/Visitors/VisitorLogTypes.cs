@@ -10,7 +10,7 @@ public struct DatedString {
     public DateTime FirstSeen { get; set; }
     public DateTime LastSeen { get; set; }
     
-    public static void UpdateDatedStringSet(List<DatedString> set, string value, DateTime currentTime) {
+    internal static void UpdateDatedStringSet(List<DatedString> set, string value, DateTime currentTime) {
         if (set.Count > 0) {
             int lastIndex = set.Count - 1;
             DatedString lastEntry = set[lastIndex];

@@ -23,7 +23,7 @@ public static class ChatCommandManager {
     private static readonly ConfigFile ChatCommandsConfig = new ConfigFile(Path.Combine(Paths.ConfigPath, "ChatCommands.cfg"), true);
     
     public static readonly Dictionary<string, ChatCommandContext> Commands = [];
-    public static bool HandleChatMessage(string message, TABGPlayerServer sender) {
+    internal static bool HandleChatMessage(string message, TABGPlayerServer sender) {
         if (message.Length == 0 || message[0] != '/') { return false; }
         
         string messageNoSlash = message[1..];
@@ -59,7 +59,7 @@ public static class ChatCommandManager {
         return true;
     }
     
-    public static string[] ParseArguments(string argumentsString) {
+    private static string[] ParseArguments(string argumentsString) {
         List<string> arguments = [];
         StringBuilder current = new StringBuilder();
         bool inQuotes = false;
@@ -85,7 +85,7 @@ public static class ChatCommandManager {
         return arguments.ToArray();
     }
     
-    public static void RegisterCommands() {
+    internal static void RegisterCommands() {
         Commands.Clear();
         
         foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies()) {

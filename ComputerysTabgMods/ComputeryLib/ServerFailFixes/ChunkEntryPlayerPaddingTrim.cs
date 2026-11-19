@@ -7,7 +7,7 @@ using Landfall.Network;
 namespace ComputeryLib.ServerFailFixes;
 
 [HarmonyPatch]
-public static class ChunkEntryPlayerPaddingTrim {
+internal static class ChunkEntryPlayerPaddingTrim {
     [HarmonyTranspiler]
     [HarmonyPatch(typeof(ChunkEntryCommand), nameof(ChunkEntryCommand.Run))]
     private static IEnumerable<CodeInstruction> TrimPadding(IEnumerable<CodeInstruction> instructions) {
@@ -41,7 +41,7 @@ public static class ChunkEntryPlayerPaddingTrim {
         return players.Count * (vanillaBasePlayerSize + sizeof(int) * gearSize + sizeof(short) * TABGPlayerServer.EquipmentDataLength + attachmentSize);
     }
     
-    public static int GetPlayerSize(List<TABGPlayerServer> players) {
+    internal static int GetPlayerSize(List<TABGPlayerServer> players) {
         const int basePlayerSize = sizeof(byte) + sizeof(byte) + sizeof(int) + sizeof(float) + sizeof(bool) + sizeof(bool) + sizeof(int) + sizeof(byte) + sizeof(byte);
         
         int size = 0;

@@ -16,9 +16,9 @@ namespace ComputeryLib;
 [BepInIncompatibility("com.starterpack.tabg.contagious")]
 [BepInPlugin(PluginInfo.PLUGIN_GUID, PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION)]
 public class Plugin : BaseUnityPlugin {
-    public new static ManualLogSource Logger = null!;
-    public new static ConfigFile Config = null!;
-    public static readonly Harmony Harmony = new Harmony(PluginInfo.PLUGIN_GUID);
+    internal new static ManualLogSource Logger = null!;
+    internal new static ConfigFile Config = null!;
+    internal static readonly Harmony Harmony = new Harmony(PluginInfo.PLUGIN_GUID);
     
     private void Awake() {
         Logger = base.Logger;

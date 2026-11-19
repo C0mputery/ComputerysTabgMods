@@ -7,7 +7,7 @@ using Landfall.Network;
 namespace ComputeryLib.ServerFailFixes;
 
 [HarmonyPatch]
-public static class PlayerEnteredChunkReceiverFix {
+internal static class PlayerEnteredChunkReceiverFix {
     [HarmonyTranspiler]
     [HarmonyPatch(typeof(PlayerEnteredChunkCommand), nameof(PlayerEnteredChunkCommand.Run))]
     private static IEnumerable<CodeInstruction> UseNewWatchers(IEnumerable<CodeInstruction> instructions) {

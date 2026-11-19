@@ -5,7 +5,7 @@ using Landfall.Network;
 namespace ComputeryLib.ServerFailFixes;
 
 [HarmonyPatch]
-public static class DeathDropUnstackFix {
+internal static class DeathDropUnstackFix {
     [HarmonyPrefix]
     [HarmonyPatch(typeof(DropAllLootCommand), nameof(DropAllLootCommand.Run), typeof(ServerClient), typeof(List<TABGPlayerServer>))]
     private static void DropAllLootPrefix(ServerClient world, List<TABGPlayerServer> players) {

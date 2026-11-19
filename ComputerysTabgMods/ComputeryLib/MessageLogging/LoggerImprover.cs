@@ -10,8 +10,8 @@ using Landfall.TABG;
 namespace ComputeryLib.MessageLogging;
 
 [HarmonyPatch]
-public static class LoggerImprover {
-    public static void ApplyHeartbeatPatch() {
+internal static class LoggerImprover {
+    internal static void ApplyHeartbeatPatch() {
         Type nestedType = typeof(CommunityBackendAPI).GetNestedType("<>c__DisplayClass7_0", BindingFlags.NonPublic);
         MethodInfo? targetMethod = nestedType.GetMethod("<GameServerHeartbeat>b__0", BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic);
         Plugin.Harmony.Patch(targetMethod, transpiler: new HarmonyMethod(typeof(LoggerImprover), nameof(SuppressCommunityBackendHeartbeatLogs)));

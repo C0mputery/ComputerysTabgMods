@@ -9,7 +9,7 @@ using Landfall.Network;
 namespace ComputeryLib.ServerFailFixes;
 
 [HarmonyPatch(typeof(EnetServer))]
-public static class EnetConnectionFixes {
+internal static class EnetConnectionFixes {
     private static EnetServer? _server;
     private static readonly Dictionary<uint, (Peer Peer, byte PlayerID)> PeerIDToPlayer = [];
     private static readonly HashSet<byte> UsedPlayerIDs = [];

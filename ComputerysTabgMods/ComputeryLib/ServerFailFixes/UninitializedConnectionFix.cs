@@ -7,7 +7,7 @@ using Unity.Networking.Transport;
 namespace ComputeryLib.ServerFailFixes;
 
 [HarmonyPatch]
-public static class UninitializedConnectionFix {
+internal static class UninitializedConnectionFix {
     private static readonly HashSet<NetworkConnection> RoomInitedConnections = [];
     
     [HarmonyPrepare] private static bool OnlyWhenRelay() { return GameSettingsUtility.Relay; }

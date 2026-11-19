@@ -9,7 +9,7 @@ using Unity.Networking.Transport;
 namespace ComputeryLib.ServerFailFixes;
 
 [HarmonyPatch(typeof(UnityTransportServer))]
-public static class UnityTransportConnectionFixes {
+internal static class UnityTransportConnectionFixes {
     private static readonly List<byte> DisconnectedPlayerIDBuffer = [];
     
     [HarmonyPrepare] private static bool OnlyWhenRelay() { return GameSettingsUtility.Relay; }
@@ -68,7 +68,7 @@ public static class UnityTransportConnectionFixes {
     }
     
     // Landfall is fucking stupid, client and server use different fragmentation payload capacity numbers. This makes it so they use the same one
-    public const int ClientFragmentationPayloadCapacity = 20000;
+    internal const int ClientFragmentationPayloadCapacity = 20000;
     
     [HarmonyTranspiler]
     [HarmonyPatch(nameof(UnityTransportServer.ActuallyHost))]

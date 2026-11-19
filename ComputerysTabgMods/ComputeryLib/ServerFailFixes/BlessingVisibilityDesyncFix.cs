@@ -6,7 +6,7 @@ using Landfall.Network;
 namespace ComputeryLib.ServerFailFixes;
 
 [HarmonyPatch]
-public static class BlessingVisibilityDesyncFix {
+internal static class BlessingVisibilityDesyncFix {
     // Client spawns them with every blessing in slot 0
     [HarmonyPostfix]
     [HarmonyPatch(typeof(PlayerEnteredChunkCommand), nameof(PlayerEnteredChunkCommand.Run))]

@@ -9,7 +9,7 @@ using UnityEngine;
 namespace ComputeryLib.ServerFailFixes;
 
 [HarmonyPatch]
-public static class ChunkEntryLootBreakup {
+internal static class ChunkEntryLootBreakup {
     [HarmonyPrepare] private static bool OnlyWhenRelay() { return GameSettingsUtility.Relay; }
     
     [HarmonyTranspiler]

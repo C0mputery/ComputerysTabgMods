@@ -5,7 +5,7 @@ using ComputeryLib.Helpers;
 
 namespace ComputeryLib.MessageLogging;
 
-public static class MessageLogger {
+internal static class MessageLogger {
     private static readonly string MessageLogDirectory = Path.Combine(PersistentDataHelper.PersistentDataPath, "MessageLogs");
     private static readonly ManualLogSource Logger = new ManualLogSource("Player Messages");
     
@@ -20,7 +20,7 @@ public static class MessageLogger {
         Logger.LogInfo($"[{displayName}] {logEntry}");
     }
     
-    public static void InitializeLogger() {
+    internal static void InitializeLogger() {
         MessageHelper.OnChatMessage += (player, message, wasThrown) => { LogMessage($"{player.PlayerName} ({player.PlayerIndex})", player.EpicUserName, message, wasThrown); };
     }
 }

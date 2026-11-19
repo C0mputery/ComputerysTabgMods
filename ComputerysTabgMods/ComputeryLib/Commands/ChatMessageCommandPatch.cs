@@ -5,7 +5,7 @@ using Landfall.Network;
 namespace ComputeryLib.Commands;
 
 [HarmonyPatch]
-public static class ChatMessageCommandPatch {
+internal static class ChatMessageCommandPatch {
     [HarmonyPrefix]
     [HarmonyPatch(typeof(ChatMessageCommand), nameof(ChatMessageCommand.Run))]
     private static bool ChatMessageCommandRunPrefix(byte[] msgData, ServerClient world, byte sender) { return Parse(msgData, sender); }
