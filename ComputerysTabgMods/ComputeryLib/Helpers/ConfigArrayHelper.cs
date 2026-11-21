@@ -15,6 +15,13 @@ internal static class ConfigArrayHelper {
             });
         }
         
+        if (!TomlTypeConverter.CanConvert(typeof(int[]))) {
+            TomlTypeConverter.AddConverter(typeof(int[]), new TypeConverter {
+                ConvertToString = (obj, _) => string.Join(", ", ((int[])obj).Select(i => i.ToString(CultureInfo.InvariantCulture))),
+                ConvertToObject = (str, _) => str.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(s => int.Parse(s.Trim(), CultureInfo.InvariantCulture)).ToArray()
+            });
+        }
+
         if (!TomlTypeConverter.CanConvert(typeof(Dictionary<int, float>))) {
             TomlTypeConverter.AddConverter(typeof(Dictionary<int, float>), new TypeConverter {
                 ConvertToString = (obj, _) => string.Join(", ", ((Dictionary<int, float>)obj).Select(entry => $"{entry.Key.ToString(CultureInfo.InvariantCulture)}: {entry.Value.ToString(CultureInfo.InvariantCulture)}")),
